@@ -1,22 +1,33 @@
 #include	"system/renderer.h"
 #include	"fpscontrol.h"
 
+#include    "scenemanager.h"
+#include    "system/renderer.h"
+#include    "fpscontrol.h"
+
 void gameinit() 
 {
 	// レンダラの初期化
 	Renderer::Init();
 
+	// シーンマネージャーの初期化
+	SceneManager::Init();
+
 }
 
 void gameupdate(uint64_t deltatime)
 {
-
+	// シーンマネージャーのアップデート
+	SceneManager::Update(deltatime);
 }
 
 void gamedraw(uint64_t deltatime) 
 {
 	// レンダリング前処理
 	Renderer::Begin();
+
+	//シーンマネージャーの処理
+	SceneManager::Draw(deltatime);
 
 	// レンダリング後処理
 	Renderer::End();
@@ -25,6 +36,9 @@ void gamedraw(uint64_t deltatime)
 
 void gamedispose() 
 {
+	//シーンマネージャーの終了処理
+	SceneManager::Dispose();
+
 	// レンダラの終了処理
 	Renderer::Uninit();
 

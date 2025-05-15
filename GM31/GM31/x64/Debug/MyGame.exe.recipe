@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\MyGame.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\GeometryShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\unlitTexturePS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\unlitTextureVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\vertexLightingOneSkinVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\vertexLightingPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\vertexLightingVS.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

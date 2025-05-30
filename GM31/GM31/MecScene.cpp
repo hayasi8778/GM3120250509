@@ -1,0 +1,116 @@
+#include "MecScene.h"
+#include    <memory>
+#include <iostream>
+
+void MecScene::init() 
+{
+	// カメラ(3D)の初期化
+	m_camera.Init();
+
+	// ローカル軸表示用線分の初期化
+	m_segments[0] = std::make_unique<Segment>(Vector3(0, 0, 0), Vector3(CUBE_SIZE * 10, 0, 0));
+	m_segments[1] = std::make_unique<Segment>(Vector3(0, 0, 0), Vector3(0, CUBE_SIZE * 10, 0));
+	m_segments[2] = std::make_unique<Segment>(Vector3(0, 0, 0), Vector3(0, 0, CUBE_SIZE * 10));
+
+	// ボックスの初期化
+	m_shapecube = std::make_unique<Box>(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE);
+
+}
+
+void MecScene::update(uint64_t deltatime)
+{
+	//
+	PlayerMove();
+
+	
+
+}
+
+void MecScene::draw(uint64_t deltatime) 
+{
+	m_camera.Draw();
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
+
+	m_shapecube->Draw(transmtx, {1.0f,1.0f,1.0f,1.0f});
+}
+
+void::MecScene::dispose() 
+{
+
+}
+
+void MecScene::PlayerMove()
+{
+	bool step = false;
+	if (GetAsyncKeyState(VK_SHIFT) & 0x0001)//ステップだけ個別で判定しておく
+	{
+		step = true;
+	}
+
+	//0x8000は今押されているか0x0001なら押した瞬間だけ有効
+	//左右移動
+	if (GetAsyncKeyState(0x44) & 0x8000)//0x44 = Dキー
+	{
+		//std::cout << "Dキー押されたぞ:\n";
+		if (step)
+		{
+			AddSpeed(3, { 1.0f,0.0f,0.0f });
+		}
+		else AddSpeed(0.2, { 1.0f,0.0f,0.0f });
+	}
+	if (GetAsyncKeyState(0x41) & 0x8000)//0x41 = Aキー
+	{
+		//std::cout << "Aキー押されたぞ:\n";
+		if (step)
+		{
+			AddSpeed(3, { -1.0f,0.0f,0.0f });
+		}
+		else AddSpeed(0.2, { -1.0f,0.0f,0.0f });
+	}
+
+	//前後移動
+	if (GetAsyncKeyState(0x57) & 0x8000)//0x57 = Wキー
+	{
+		//std::cout << "Wキー押されたぞ:\n";
+		if (step){ AddSpeed(3, { 0.0f,0.0f,1.0f });}
+		else AddSpeed(0.2, { 0.0f,0.0f,1.0f });
+	}
+	if (GetAsyncKeyState(0x53) & 0x8000)//0x53 = Sキー
+	{
+		//std::cout << "Sキー押されたぞ:\n";
+		if (step) { AddSpeed(3, { 0.0f,0.0f,-1.0f }); }
+		else AddSpeed(0.2, { 0.0f,0.0f,-1.0f });
+	}
+
+
+	//速度減衰と位置の更新
+	// 速度を減衰させる
+	Box_Speed.x *= dampingFactor;
+	Box_Speed.y *= dampingFactor;
+	Box_Speed.z *= dampingFactor;
+
+	// 速度が十分に小さくなったら停止
+	if (fabs(Box_Speed.x) < 0.01f) Box_Speed.x = 0.0f;
+	if (fabs(Box_Speed.y) < 0.01f) Box_Speed.y = 0.0f;
+	if (fabs(Box_Speed.z) < 0.01f) Box_Speed.z = 0.0f;
+
+	// 位置を更新
+	Box_Position.x += Box_Speed.x;
+	Box_Position.y += Box_Speed.y;
+	Box_Position.z += Box_Speed.z;
+}
+
+void MecScene::AddSpeed(float initSpeed, Vector3 Speed)
+{
+	// 新しい速度を計算
+	float newSpeedX = Speed.x * initSpeed;
+	float newSpeedY = Speed.y * initSpeed;
+	float newSpeedZ = Speed.z * initSpeed;
+
+	// 速度更新時に絶対値で判定し、方向を維持する
+	if (fabs(Box_Speed.x) < fabs(newSpeedX)) Box_Speed.x = newSpeedX;
+	if (fabs(Box_Speed.y) < fabs(newSpeedY)) Box_Speed.y = newSpeedY;
+	if (fabs(Box_Speed.z) < fabs(newSpeedZ)) Box_Speed.z = newSpeedZ;
+
+}

@@ -1,9 +1,8 @@
 #include	"system/renderer.h"
+#include    "system/DebugUI.h"
 #include	"fpscontrol.h"
 
 #include    "scenemanager.h"
-#include    "system/renderer.h"
-#include    "fpscontrol.h"
 
 void gameinit() 
 {
@@ -12,6 +11,9 @@ void gameinit()
 
 	// シーンマネージャーの初期化
 	SceneManager::Init();
+
+	// デバッグUIの初期化
+	DebugUI::Init(Renderer::GetDevice(), Renderer::GetDeviceContext());
 
 }
 
@@ -28,6 +30,9 @@ void gamedraw(uint64_t deltatime)
 
 	//シーンマネージャーの処理
 	SceneManager::Draw(deltatime);
+
+	// デバッグUIの描画
+	DebugUI::Render();
 
 	// レンダリング後処理
 	Renderer::End();

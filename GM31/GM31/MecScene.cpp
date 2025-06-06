@@ -14,6 +14,16 @@ void MecScene::init()
 
 	// ボックスの初期化
 	m_shapecube = std::make_unique<Box>(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE);
+	m_shapecube2 = std::make_unique<Box>(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE);
+
+	// ボックスサイズの初期化
+	m_boxSizes.fill(Vector3(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));	// すべての要素をBOXWIDTH,BOXHEIGHT,BOXDEPTH;
+
+	//デバック用GUI一式
+	// BOXのSRTの設定用
+	DebugUI::RedistDebugFunction([this]() {
+		Debug_Box();
+		});
 
 }
 
@@ -32,7 +42,10 @@ void MecScene::draw(uint64_t deltatime)
 
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
 
+	Matrix4x4 transmtxtes = m_RotationMtx;
+
 	m_shapecube->Draw(transmtx, {1.0f,1.0f,1.0f,1.0f});
+	m_shapecube2->Draw(transmtxtes, { 1.0f,1.0f,1.0f,1.0f });
 }
 
 void::MecScene::dispose() 
@@ -99,6 +112,10 @@ void MecScene::PlayerMove()
 	Box_Position.x += Box_Speed.x;
 	Box_Position.y += Box_Speed.y;
 	Box_Position.z += Box_Speed.z;
+
+	m_boxSRTs[0].pos.x += Box_Speed.x;
+	m_boxSRTs[0].pos.y += Box_Speed.y;
+	m_boxSRTs[0].pos.z += Box_Speed.z;
 }
 
 void MecScene::AddSpeed(float initSpeed, Vector3 Speed)
@@ -113,4 +130,22 @@ void MecScene::AddSpeed(float initSpeed, Vector3 Speed)
 	if (fabs(Box_Speed.y) < fabs(newSpeedY)) Box_Speed.y = newSpeedY;
 	if (fabs(Box_Speed.z) < fabs(newSpeedZ)) Box_Speed.z = newSpeedZ;
 
+}
+
+void MecScene::Debug_Box()
+{
+	ImGui::Begin("debug Box SRT");
+
+	for (uint8_t idx = 0; idx < m_boxSRTs.size(); idx++) {
+		std::string str;
+		str = "Box" + std::to_string(idx);
+
+		ImGui::Text(str.c_str());
+		ImGui::SliderFloat3((str + std::string(" pos")).c_str(), &m_boxSRTs[idx].pos.x, -100, 100);
+		ImGui::SliderFloat3((str + std::string(" rot")).c_str(), &m_boxSRTs[idx].rot.x, -100, 100);
+		ImGui::SliderFloat3((str + std::string(" size")).c_str(), &m_boxSizes[idx].x, 1, 100);
+	}
+
+	// カメラの位置を極座標からデカルト座標に変換
+	ImGui::End();
 }

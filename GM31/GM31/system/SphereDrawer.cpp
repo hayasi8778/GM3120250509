@@ -1,5 +1,5 @@
-#include   "CommonTypes.h"
 #include	<iostream>
+#include   "CommonTypes.h"
 
 #include	"CMeshRenderer.h"
 #include	"CMaterial.h"
@@ -13,7 +13,7 @@ static CShader g_shader;
 
 void SphereDrawerInit() 
 {
-	g_mesh.Init(1, Color(1, 1, 1, 1), 10, 10);
+	g_mesh.Init(1, Color(1, 1, 1, 1), 50, 50);
 	g_renderer.Init(g_mesh);
 
 	MATERIAL mtrl;
@@ -29,7 +29,7 @@ void SphereDrawerInit()
 
 	// シェーダーの初期化
 	g_shader.Create(
-		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
+		"shader/unlitTextureVS.hlsl",			// 頂点シェーダー
 		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
 }
@@ -52,9 +52,9 @@ void SphereDrawerDraw(float radius,Color col,float ex, float ey, float ez)
 	g_renderer.Draw();
 }
 
-void SphereDrawerDraw(SRT rts ,Color col)
+void SphereDrawerDraw(SRT srt ,Color col)
 {
-	Matrix4x4 mtx = rts.GetMatrix();
+	Matrix4x4 mtx = srt.GetMatrix();
 
 	Renderer::SetWorldMatrix(&mtx);
 	g_material.SetDiffuse(col);

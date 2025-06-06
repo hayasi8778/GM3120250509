@@ -1,5 +1,6 @@
 C:\Git\GM31Git\GM31\GM31\Application.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\Application.obj
 C:\Git\GM31Git\GM31\GM31\camera.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\camera.obj
+C:\Git\GM31Git\GM31\GM31\CollisionOBBScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\CollisionOBBScene.obj
 C:\Git\GM31Git\GM31\GM31\game.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\game.obj
 C:\Git\GM31Git\GM31\GM31\ImageDisplayScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\ImageDisplayScene.obj
 C:\Git\GM31Git\GM31\GM31\main.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\main.obj
@@ -8,12 +9,14 @@ C:\Git\GM31Git\GM31\GM31\qtlooatat.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\qtlooa
 C:\Git\GM31Git\GM31\GM31\QuaternionScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\QuaternionScene.obj
 C:\Git\GM31Git\GM31\GM31\RubikCubeScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\RubikCubeScene.obj
 C:\Git\GM31Git\GM31\GM31\scenemanager.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\scenemanager.obj
+C:\Git\GM31Git\GM31\GM31\Shape3DScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\Shape3DScene.obj
 C:\Git\GM31Git\GM31\GM31\system\BoxDrawer.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\BoxDrawer.obj
 C:\Git\GM31Git\GM31\GM31\system\C3DShape.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\C3DShape.obj
 C:\Git\GM31Git\GM31\GM31\system\CapsuleDrawer.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\CapsuleDrawer.obj
 C:\Git\GM31Git\GM31\GM31\system\CConeMesh.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\CConeMesh.obj
 C:\Git\GM31Git\GM31\GM31\system\CCylinderMesh.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\CCylinderMesh.obj
 C:\Git\GM31Git\GM31\GM31\system\CLineMesh.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\CLineMesh.obj
+C:\Git\GM31Git\GM31\GM31\system\collision.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\collision.obj
 C:\Git\GM31Git\GM31\GM31\system\ConeDrawer.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\ConeDrawer.obj
 C:\Git\GM31Git\GM31\GM31\system\CShader.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\CShader.obj
 C:\Git\GM31Git\GM31\GM31\system\CSprite.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\CSprite.obj

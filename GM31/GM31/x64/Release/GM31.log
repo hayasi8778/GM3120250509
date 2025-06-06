@@ -1,0 +1,11 @@
+﻿  MecScene.cpp
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(73,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(82,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(90,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(96,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+  コード生成しています。
+  1 of 3134 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    35 functions had inline decision re-evaluated but remain unchanged
+  コード生成が終了しました。
+  GM31.vcxproj -> C:\Git\GM31Git\GM31\x64\Release\MyGame.exe

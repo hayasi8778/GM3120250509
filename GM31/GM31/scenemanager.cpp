@@ -2,6 +2,8 @@
 #include	"scenemanager.h"
 #include    "ImageDisplayScene.h"
 #include    "RubikCubeScene.h"
+#include    "Shape3DScene.h"
+#include    "CollisionOBBScene.h"
 
 //‚±‚Á‚©‚çö‹ÆŠO‚Å©ì‚µ‚½“z
 #include "MecScene.h"
@@ -30,15 +32,17 @@ void SceneManager::Init()
 {
 	/*
 	//ö‹Æ‘—¿
-	m_scenes["RubikCubeScene"] = std::make_unique<RubikCubeScene>();
-	m_scenes["RubikCubeScene"]->init();
-	m_currentSceneName = "RubikCubeScene";
+	m_scenes["CollisionOBBScene"] = std::make_unique<CollisionOBBScene>();
+	m_scenes["CollisionOBBScene"]->init();
+	m_currentSceneName = "CollisionOBBScene";
 	*/
 
+
 	//©ì•¨
-	m_scenes["RubikCubeScene"] = std::make_unique<RubikCubeScene>();
-	m_scenes["RubikCubeScene"]->init();
-	m_currentSceneName = "RubikCubeScene";
+	m_scenes["MecScene"] = std::make_unique<MecScene>();
+	m_scenes["MecScene"]->init();
+	m_currentSceneName = "MecScene";
+	
 }
 
 void SceneManager::Draw(uint64_t deltatime)

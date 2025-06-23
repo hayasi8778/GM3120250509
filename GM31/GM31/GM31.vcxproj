@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{4d5d71a1-3bdc-495e-b53b-8b0fd300ea4b}</ProjectGuid>
     <RootNamespace>GM31</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
     <ProjectName>MyGame</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -148,6 +148,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AirplaneFlyScene.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CollisionOBBScene.h" />
@@ -156,22 +157,26 @@
     <ClInclude Include="ImageDisplayScene.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MecScene.h" />
+    <ClInclude Include="ObjParseScene.h" />
     <ClInclude Include="quat.h" />
     <ClInclude Include="QuaternionScene.h" />
     <ClInclude Include="RubikCubeScene.h" />
     <ClInclude Include="scenemanager.h" />
     <ClInclude Include="Shape3DScene.h" />
+    <ClInclude Include="system\AssimpPerse.h" />
     <ClInclude Include="system\BoxDrawer.h" />
     <ClInclude Include="system\C3DShape.h" />
     <ClInclude Include="system\CapsuleDrawer.h" />
     <ClInclude Include="system\CBoxMesh.h" />
     <ClInclude Include="system\CConeMesh.h" />
     <ClInclude Include="system\CCylinderMesh.h" />
+    <ClInclude Include="system\CDirectInput.h" />
     <ClInclude Include="system\CIndexBuffer.h" />
     <ClInclude Include="system\CLineMesh.h" />
     <ClInclude Include="system\CMaterial.h" />
     <ClInclude Include="system\CMesh.h" />
     <ClInclude Include="system\CMeshRenderer.h" />
+    <ClInclude Include="system\CObj3DMesh.h" />
     <ClInclude Include="system\collision.h" />
     <ClInclude Include="system\commontypes.h" />
     <ClInclude Include="system\ConeDrawer.h" />
@@ -179,7 +184,10 @@
     <ClInclude Include="system\CShader.h" />
     <ClInclude Include="system\CSphereMesh.h" />
     <ClInclude Include="system\CSprite.h" />
+    <ClInclude Include="system\CStaticMesh.h" />
+    <ClInclude Include="system\CStaticMeshRenderer.h" />
     <ClInclude Include="system\CTexture.h" />
+    <ClInclude Include="system\CTreeNode.h" />
     <ClInclude Include="system\CVertexBuffer.h" />
     <ClInclude Include="system\CylinderDrawer.h" />
     <ClInclude Include="system\DebugUI.h" />
@@ -195,12 +203,14 @@
     <ClInclude Include="system\IScene.h" />
     <ClInclude Include="system\LineDrawer.h" />
     <ClInclude Include="system\noncopyable.h" />
+    <ClInclude Include="system\parseobj.h" />
     <ClInclude Include="system\renderer.h" />
     <ClInclude Include="system\SphereDrawer.h" />
     <ClInclude Include="system\stb_image.h" />
     <ClInclude Include="system\transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AirplaneFlyScene.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CollisionOBBScene.cpp" />
@@ -208,21 +218,26 @@
     <ClCompile Include="ImageDisplayScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MecScene.cpp" />
+    <ClCompile Include="ObjParseScene.cpp" />
     <ClCompile Include="qtlooatat.cpp" />
     <ClCompile Include="QuaternionScene.cpp" />
     <ClCompile Include="RubikCubeScene.cpp" />
     <ClCompile Include="scenemanager.cpp" />
     <ClCompile Include="Shape3DScene.cpp" />
+    <ClCompile Include="system\AssimpPerse.cpp" />
     <ClCompile Include="system\BoxDrawer.cpp" />
     <ClCompile Include="system\C3DShape.cpp" />
     <ClCompile Include="system\CapsuleDrawer.cpp" />
     <ClCompile Include="system\CConeMesh.cpp" />
     <ClCompile Include="system\CCylinderMesh.cpp" />
     <ClCompile Include="system\CLineMesh.cpp" />
+    <ClCompile Include="system\CObj3DMesh.cpp" />
     <ClCompile Include="system\collision.cpp" />
     <ClCompile Include="system\ConeDrawer.cpp" />
     <ClCompile Include="system\CShader.cpp" />
     <ClCompile Include="system\CSprite.cpp" />
+    <ClCompile Include="system\CStaticMesh.cpp" />
+    <ClCompile Include="system\CStaticMeshRenderer.cpp" />
     <ClCompile Include="system\CTexture.cpp" />
     <ClCompile Include="system\CylinderDrawer.cpp" />
     <ClCompile Include="system\DebugUI.cpp" />
@@ -235,6 +250,7 @@
     <ClCompile Include="system\imgui\imgui_tables.cpp" />
     <ClCompile Include="system\imgui\imgui_widgets.cpp" />
     <ClCompile Include="system\LineDrawer.cpp" />
+    <ClCompile Include="system\parseobj.cpp" />
     <ClCompile Include="system\renderer.cpp" />
     <ClCompile Include="system\SphereDrawer.cpp" />
     <ClCompile Include="system\stb.cpp" />

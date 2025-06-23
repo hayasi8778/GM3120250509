@@ -4,6 +4,8 @@
 #include    "RubikCubeScene.h"
 #include    "Shape3DScene.h"
 #include    "CollisionOBBScene.h"
+#include    "ObjParseScene.h"
+#include    "AirplaneFlyScene.h"
 
 //‚±‚Á‚©‚çö‹ÆŠO‚Å©ì‚µ‚½“z
 #include "MecScene.h"
@@ -32,12 +34,17 @@ void SceneManager::Init()
 {
 	/*
 	//ö‹Æ‘—¿
+	m_scenes["AirplaneFlyScene"] = std::make_unique<AirplaneFlyScene>();
+	m_scenes["AirplaneFlyScene"]->init();
+	m_currentSceneName = "AirplaneFlyScene";
+	*/
+	/*//‰Û‘è
 	m_scenes["CollisionOBBScene"] = std::make_unique<CollisionOBBScene>();
 	m_scenes["CollisionOBBScene"]->init();
 	m_currentSceneName = "CollisionOBBScene";
 	*/
 
-
+	
 	//©ì•¨
 	m_scenes["MecScene"] = std::make_unique<MecScene>();
 	m_scenes["MecScene"]->init();

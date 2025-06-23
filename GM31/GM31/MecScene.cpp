@@ -32,17 +32,17 @@ void MecScene::update(uint64_t deltatime)
 	//
 	PlayerMove();
 
-	
-
 }
 
 void MecScene::draw(uint64_t deltatime) 
 {
 	m_camera.Draw();
 
-	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
+	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
 
-	Matrix4x4 transmtxtes = m_RotationMtx;
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_boxSRTs[0].pos);
+
+	Matrix4x4 transmtxtes = m_RotationMtx * Matrix4x4::CreateTranslation(m_boxSRTs[1].pos);
 
 	m_shapecube->Draw(transmtx, {1.0f,1.0f,1.0f,1.0f});
 	m_shapecube2->Draw(transmtxtes, { 1.0f,1.0f,1.0f,1.0f });

@@ -18,7 +18,7 @@ static CShader g_shader;
 
 void CapsuleDrawerInit() 
 {
-	g_meshsphere.Init(1, Color(1, 1, 1, 1), 10, 10);
+	g_meshsphere.Init(1, Color(1, 1, 1, 1), 100, 100);
 	g_renderersphere.Init(g_meshsphere);
 
 	g_meshcylinder.Init(50,		// •ªŠ„”

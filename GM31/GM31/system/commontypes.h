@@ -17,5 +17,4 @@ using Quaternion = DirectX::SimpleMath::Quaternion;
 
 using Microsoft::WRL::ComPtr;
 
-//"C++20限定の物なのでプロジェクトをC++20にする"
 constexpr float PI = std::numbers::pi_v<float>;

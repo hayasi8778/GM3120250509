@@ -1,8 +1,5 @@
-#define NOMINMAX
 #include    "commontypes.h"
 #include	"collision.h"
-
-
 
 namespace GM31 {
 	namespace GE {
@@ -16,63 +13,10 @@ namespace GM31 {
 				const Vector3& vecSeparate,		// 分離軸
 				const Vector3& vecDistance)		// 中心座標を結んだベクトル
 			{
-				// ここを完成させる	(課題No3　start)
+				// 課題NO 03 [OBB当たり判定]で完成させてください
 
-				//当たり判定取って当たったならtrueで返す
-				float fDistance{};
 
-				//分離軸に射影した中心間を結ぶベクトル
-				fDistance = vecDistance.Dot(vecSeparate);
-				fDistance = fabsf(fDistance);
 
-				//分離軸上にボックスAを射影した影の長さ
-				float fShadowA = 0;
-				//分離軸上にボックスBを射影した影の長さ
-				float fShadowB = 0;
-
-				//ボックスAの影を算出
-				float fShadowAx{};
-				float fShadowAy{};
-				float fShadowAz{};
-
-				//X軸を分離軸に射影
-				fShadowAx = vecSeparate.Dot(ObbA.axisX);
-				fShadowAx = fabsf(fShadowAx * ObbA.lengthx / 2.0f);
-
-				//Y軸を分離軸に射影	
-				fShadowAy = vecSeparate.Dot(ObbA.axisY);
-				fShadowAy = fabsf(fShadowAy * ObbA.lengthy / 2.0f);
-
-				//Z軸を分離軸に射影	
-				fShadowAz = vecSeparate.Dot(ObbA.axisZ);
-				fShadowAz = fabsf(fShadowAz * ObbA.lengthz / 2.0f);
-
-				//分離軸に射影した影の長さを求める
-				fShadowA = fShadowAx + fShadowAy + fShadowAz;
-
-				//ボックスBの影を算出
-				float fShadowBx{};
-				float fShadowBy{};
-				float fShadowBz{};
-
-				//X軸を分離軸に射影
-				fShadowBx = vecSeparate.Dot(ObbB.axisX);
-				fShadowBx = fabsf(fShadowBx * ObbB.lengthx / 2.0f);
-
-				//Y軸を分離軸に射影	
-				fShadowBy = vecSeparate.Dot(ObbB.axisY);
-				fShadowBy = fabsf(fShadowBy * ObbB.lengthy / 2.0f);
-
-				//Z軸を分離軸に射影	
-				fShadowBz = vecSeparate.Dot(ObbB.axisZ);
-				fShadowBz = fabsf(fShadowBz * ObbB.lengthz / 2.0f);
-
-				//分離軸に射影した影の長さを求める
-				fShadowB = fShadowBx + fShadowBy + fShadowBz;
-
-				if (fDistance > fShadowA + fShadowB) return false;
-
-				//
 				return true;
 			}
 
@@ -298,78 +242,7 @@ namespace GM31 {
 				const BoundingBoxOBB& obbA,
 				const BoundingBoxOBB& obbB) {
 
-				//デバック用にfalse直接返すコード作っとく
-				//return false;
-
-				// ここを完成させる	(課題No3　start)
-				
-				//分離軸
-				Vector3 vecSeparate;
-
-				//２つのオブジェクトを結んだベクトルを計算
-				Vector3 vecDistance;
-				vecDistance = obbB.worldcenter - obbA.worldcenter;
-
-				bool sts;//戻り値
-
-				//OBB_A軸リスト
-				const Vector3* OBB_A_Axis[3] = {
-					&obbA.axisX,
-					&obbA.axisY,
-					&obbA.axisZ,
-				};
-
-				//OBB_B軸リスト
-				const Vector3* OBB_B_Axis[3] = {
-					&obbB.axisX,
-					&obbB.axisY,
-					&obbB.axisZ,
-				};
-
-				//OBB_Aの３軸を分離軸にしてチェック(1~3)
-				for (int i = 0; i < 3; i++) 
-				{
-					Vector3 vecSeparate = *OBB_A_Axis[i];
-
-					sts = CompareLengthOBB(obbA, obbB, vecSeparate, vecDistance);
-					if (!sts) 
-					{
-						return false;
-					}
-				}
-
-				//OBB_Bの３軸を分離軸にしてチェック(1~3)
-				for (int i = 0; i < 3; i++)
-				{
-					Vector3 vecSeparate = *OBB_B_Axis[i];
-
-					sts = CompareLengthOBB(obbA, obbB, vecSeparate, vecDistance);
-					if (!sts)
-					{
-						return false;
-					}
-				}
-
-				//外積を分離軸として計算
-				for (int p1 = 0; p1 < 3; p1++) 
-				{
-					for (int p2 = 0; p2 < 3; p2++)
-					{
-						Vector3 obbAaxis = *OBB_A_Axis[p1];
-						Vector3 obbBaxis = *OBB_A_Axis[p2];
-
-						Vector3 crossseparate; //外積ベクトル
-						crossseparate = obbAaxis.Cross(obbBaxis);
-
-						sts = CompareLengthOBB(obbA, obbB, crossseparate, vecDistance);
-
-						if (!sts) 
-						{
-							return false;
-						}
-					}
-					
-				}
+				// 課題NO 03 [OBB当たり判定]で完成させてください
 
 				return true;
 			}
@@ -642,6 +515,63 @@ namespace GM31 {
 				p1 = seg1.startpoint + d1 * s;
 				p2 = seg2.startpoint + d2 * t;
 				return (p1 - p2).Length();
+
+			}
+
+			// 座標変換した後のＢｓｐｈｅｒｅを全頂点から求める
+			BoundingSphere calcBSphere(
+				const std::vector<Vector3>& vertices,
+				SRT transform)
+			{
+				std::vector<Vector3> transformedVertices(vertices.size());
+
+				Matrix4x4 mtx = transform.GetMatrix();
+
+				// 座標変換
+				for (const auto& v : vertices) {
+					transformedVertices.push_back(Vector3::Transform(v, mtx));
+				}
+
+				// AABBの最小値と最大値を求める
+				BoundingBoxAABB aabb{};
+
+				Vector3 minVec = transformedVertices.front();
+				Vector3 maxVec = transformedVertices.front();
+
+				for (const auto& v : transformedVertices) {
+					minVec.x = std::min(minVec.x, v.x);
+					minVec.y = std::min(minVec.y, v.y);
+					minVec.z = std::min(minVec.z, v.z);
+
+					maxVec.x = std::max(maxVec.x, v.x);
+					maxVec.y = std::max(maxVec.y, v.y);
+					maxVec.z = std::max(maxVec.z, v.z);
+				}
+
+				aabb.min.x = minVec.x;
+				aabb.min.y = minVec.y;
+				aabb.min.z = minVec.z;
+				aabb.max.x = maxVec.x;
+				aabb.max.y = maxVec.y;
+				aabb.max.z = maxVec.z;
+
+				Vector3 center = (aabb.min + aabb.max) / 2.0f;
+
+				// 半径を求める
+				float maxlng = FLT_MIN;
+				for (const auto& v : transformedVertices) {
+					float lng= (v - center).Length();
+					if (lng > maxlng)
+					{
+						maxlng = lng;
+					}
+				}
+
+				BoundingSphere bs;
+				bs.center = center;
+				bs.radius = maxlng;
+
+				return bs;
 
 			}
 

@@ -26,7 +26,7 @@ public:
         int64_t sleep_us = static_cast<int64_t>(m_MicrosecondsPerFrame) - static_cast<int64_t>(m_delta_time);
         if (sleep_us > 0) {
 #if defined(DEBUG) || defined(_DEBUG)
-            std::cout << "Sleep time: " << sleep_us / 1000.0f << " ms" << std::endl;
+            //std::cout << "Sleep time: " << sleep_us / 1000.0f << " ms" << std::endl;
 #endif
             std::this_thread::sleep_for(std::chrono::microseconds(sleep_us));
         }

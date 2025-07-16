@@ -18,6 +18,12 @@ public:
 		m_subsets.clear();
 	}
 
+	// 追加 getter
+	const std::vector<std::string>& GetMaterialNames()     const { return m_materialNames; }
+	const std::vector<std::string>& GetDiffuseTextureNames() const { return m_diffusetexturenames; }
+	const std::vector<SUBSET>& GetSubsets()              const { return m_subsets; }
+	const std::vector<MATERIAL>& GetMaterials()            const { return m_materials; }
+
 	const std::vector<MATERIAL>& GetMaterials() {
 		return m_materials;
 	}
@@ -35,4 +41,7 @@ private:
 	std::vector<std::string> m_diffusetexturenames;		// ディフューズテクスチャ名
 
 	std::vector<SUBSET> m_subsets;						// サブセット情報	
+
+	std::vector<std::string> m_materialNames;// 追加 newmtlとテクスチャで名前合わせるために追加
+
 };

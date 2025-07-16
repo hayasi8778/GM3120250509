@@ -1,6 +1,7 @@
 #include	"system/renderer.h"
 #include    "system/DebugUI.h"
 #include	"fpscontrol.h"
+#include	"system/CDirectInput.h"
 
 #include    "scenemanager.h"
 
@@ -8,6 +9,12 @@ void gameinit()
 {
 	// レンダラの初期化
 	Renderer::Init();
+
+	// DirectInputの初期化
+	CDirectInput::GetInstance().Init(Application::GetHInstance(),
+		Application::GetWindow(),
+		Application::GetWidth(),
+		Application::GetHeight());
 
 	// シーンマネージャーの初期化
 	SceneManager::Init();
@@ -19,6 +26,9 @@ void gameinit()
 
 void gameupdate(uint64_t deltatime)
 {
+	CDirectInput::GetInstance().GetKeyBuffer();		// キーボードの状態を取得
+	CDirectInput::GetInstance().GetMouseState();	// マウスの状態を取得
+
 	// シーンマネージャーのアップデート
 	SceneManager::Update(deltatime);
 }

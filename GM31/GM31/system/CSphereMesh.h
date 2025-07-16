@@ -1,110 +1,113 @@
 #pragma once
-#include	"CommonTypes.h"
-#include	"CMesh.h"
+#include "CommonTypes.h"
+#include "CMesh.h"
 
-
+/**
+ * @brief 球体メッシュを生成・管理するクラス
+ *
+ * CMesh を継承し、指定された分割数と半径に基づいて球体の頂点・インデックスを生成します。
+ */
 class CSphereMesh : public CMesh {
-	// 法線ベクトルを計算
-// 頂点座標をノーマライズ
-	void Normalize(Vector3 vec, Vector3& Normal) {
-		vec.Normalize();
-		Normal = vec;
-	}
-
 public:
-	void Init(float radius,
-		Color color,
-		int division_horizontal, 
-		int division_vertical) 
-	{
-		// 分割数を保存
-		m_divX = division_horizontal;
-		m_divY = division_vertical;
+    /**
+     * @brief 球メッシュの初期化を行う
+     *
+     * @param radius 球の半径
+     * @param color 頂点カラー
+     * @param division_horizontal 経度方向（横）の分割数
+     * @param division_vertical 緯度方向（縦）の分割数
+     */
+    void Init(float radius,
+        Color color,
+        int division_horizontal,
+        int division_vertical)
+    {
+        m_divX = division_horizontal;
+        m_divY = division_vertical;
+        m_radius = radius;
+        m_color = color;
 
-		// 半径を保存
-		m_radius = radius;
+        CreateIndex();
+        CreateVertex();
+    }
 
-		// カラー値を保存
-		m_color = color;
+    /**
+     * @brief 球体の頂点データを生成する
+     *
+     * 仰角と方位角に基づき球体の頂点位置と法線ベクトルを計算して格納します。
+     */
+    void CreateVertex() {
+        m_vertices.clear();
 
-		// 球のインデックスデータを作成
-		CreateIndex();
+        float azimuth = 0.0f;   ///< 方位角
+        float elevation = 0.0f; ///< 仰角
 
-		// 球の頂点データを作成
-		CreateVertex();
-	}
+        Vector3 Normal;
 
-	void CreateVertex() {
-		// 頂点データクリア
-		m_vertices.clear();
+        for (unsigned int y = 0; y <= m_divY; y++) {
+            elevation = (PI * (float)y) / (float)m_divY;
+            float r = m_radius * sinf(elevation);
 
-		float azimuth = 0.0f;			// 方位角
-		float elevation = 0.0f;			// 仰角
+            for (unsigned int x = 0; x <= m_divX; x++) {
+                azimuth = (2 * PI * (float)x) / (float)m_divX;
 
-		Vector3	Normal;
+                VERTEX_3D v;
+                v.Position.x = r * cosf(azimuth);
+                v.Position.y = m_radius * cosf(elevation);
+                v.Position.z = r * sinf(azimuth);
 
-		// 方位角と仰角から球メッシュの頂点データを作成
-		for (unsigned int y = 0; y <= m_divY; y++) {
-			elevation = (PI * (float)y) / (float)m_divY;    // 仰角をセット
-			float r = m_radius * sinf(elevation);						// 仰角に応じた半径を計算
+                Normalize(v.Position, Normal); ///< 法線ベクトルを正規化
+                v.Normal = Normal;
+                v.Diffuse = m_color;
 
-			for (unsigned int x = 0; x <= m_divX; x++) {
-				azimuth = (2 * PI * (float)x) / (float)m_divX;	// 方位角をセット
+                m_vertices.emplace_back(v);
+            }
+        }
+    }
 
-				VERTEX_3D v;
-				v.Position.x = r * cosf(azimuth);
-				v.Position.y = m_radius * cosf(elevation);
-				v.Position.z = r * sinf(azimuth);
+    /**
+     * @brief 球体のインデックスデータを生成する
+     *
+     * 頂点インデックスを三角形ポリゴンのリストとして生成します。
+     */
+    void CreateIndex() {
+        struct FACE {
+            unsigned int idx[3];
+        };
 
-				Normalize(v.Position, Normal);		// 法線を計算
-				v.Normal = Normal;					// 法線をセット
+        m_indices.clear();
 
-				v.Diffuse = m_color;				// 頂点カラー
+        for (unsigned int y = 0; y < m_divY; y++) {
+            for (unsigned int x = 0; x < m_divX; x++) {
+                int count = (m_divX + 1) * y + x;
 
-				m_vertices.emplace_back(v);
-			}
-		}
-	}
+                // 上三角形
+                m_indices.emplace_back(count);
+                m_indices.emplace_back(count + 1);
+                m_indices.emplace_back(count + 1 + (m_divX + 1));
 
-	void CreateIndex() {
-		struct FACE {
-			unsigned int idx[3];
-		};
+                // 下三角形
+                m_indices.emplace_back(count);
+                m_indices.emplace_back(count + (m_divX + 1) + 1);
+                m_indices.emplace_back(count + (m_divX + 1));
+            }
+        }
+    }
 
-		// インデックスデータクリア
-		m_indices.clear();
-
-		// インデックス生成
-		for (unsigned int y = 0; y < m_divY; y++) {
-			for (unsigned int x = 0; x < m_divX; x++) {
-				int count = (m_divX + 1) * y + x;			// 左上座標のインデックス
-
-				FACE f;
-				// 上半分
-				f.idx[0] = count;
-				f.idx[1] = count + 1;
-				f.idx[2] = count + 1 + (m_divX + 1);
-
-				m_indices.emplace_back(f.idx[0]);
-				m_indices.emplace_back(f.idx[1]);
-				m_indices.emplace_back(f.idx[2]);
-
-				// 下半分
-				f.idx[0] = count;
-				f.idx[1] = count + (m_divX + 1) + 1;
-				f.idx[2] = count + (m_divX + 1);
-
-				m_indices.emplace_back(f.idx[0]);
-				m_indices.emplace_back(f.idx[1]);
-				m_indices.emplace_back(f.idx[2]);
-			}
-		}
-	}
 private:
-	unsigned int m_divX = 1;
-	unsigned int m_divY = 1;
-	float m_radius = 100.0f;
-	Color m_color;
+    /**
+     * @brief 法線ベクトルを正規化する
+     *
+     * @param vec 入力ベクトル
+     * @param Normal 出力される正規化ベクトル（参照渡し）
+     */
+    void Normalize(Vector3 vec, Vector3& Normal) {
+        vec.Normalize();
+        Normal = vec;
+    }
+
+    unsigned int m_divX = 1;   ///< 横方向の分割数（経度）
+    unsigned int m_divY = 1;   ///< 縦方向の分割数（緯度）
+    float m_radius = 100.0f;   ///< 球の半径
+    Color m_color;             ///< 頂点カラー
 };
-
-

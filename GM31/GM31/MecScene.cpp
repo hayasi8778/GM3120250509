@@ -1,6 +1,7 @@
 #include "MecScene.h"
 #include    <memory>
-#include <iostream>
+#include	<iostream>
+#include	"system/collision.h"
 
 void MecScene::init() 
 {
@@ -40,12 +41,46 @@ void MecScene::draw(uint64_t deltatime)
 
 	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
 
+	// OBB
+	std::array<GM31::GE::Collision::BoundingBoxOBB, BOXNUM> obbs;
+
+	// OBB情報をセット
+	for (std::size_t i = 0; i < obbs.size(); ++i) {
+		obbs[i] = GM31::GE::Collision::SetOBB(
+			m_boxSRTs[i].rot,				// 姿勢（回転角度）
+			m_boxSRTs[i].pos,				// 中心座標（ワールド）
+			m_boxSizes[i].x,				// 幅
+			m_boxSizes[i].y,				// 高さ
+			m_boxSizes[i].z);				// 奥行
+	}
+
+	// BOXの色
+	std::array<Color, BOXNUM> colors;
+
+	for (std::size_t i = 0; i < m_boxSRTs.size(); ++i) {
+		for (std::size_t j = i + 1; j < m_boxSRTs.size(); ++j) {
+			bool sts = GM31::GE::Collision::CollisionOBB(obbs[i], obbs[j]);
+			if (sts)
+			{
+				colors[i] = Color(1, 0, 0, 0.3f);
+				colors[j] = Color(1, 0, 0, 0.3f);
+			}
+			else {
+				colors[i] = Color(1, 1, 1, 0.3f);
+				colors[j] = Color(1, 1, 1, 0.3f);
+			}
+		}
+	}
+
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_boxSRTs[0].pos);
 
 	Matrix4x4 transmtxtes = m_RotationMtx * Matrix4x4::CreateTranslation(m_boxSRTs[1].pos);
 
-	m_shapecube->Draw(transmtx, {1.0f,1.0f,1.0f,1.0f});
-	m_shapecube2->Draw(transmtxtes, { 1.0f,1.0f,1.0f,1.0f });
+	/*m_shapecube->Draw(transmtx, {1.0f,1.0f,1.0f,1.0f});
+	m_shapecube2->Draw(transmtxtes, { 1.0f,1.0f,1.0f,1.0f });*/
+
+	m_shapecube->Draw(transmtx, colors[0]);
+	m_shapecube2->Draw(transmtxtes, colors[1]);
 }
 
 void::MecScene::dispose() 
@@ -96,6 +131,28 @@ void MecScene::PlayerMove()
 		else AddSpeed(0.2, { 0.0f,0.0f,-1.0f });
 	}
 
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)//0x53 = Sキー
+	{
+		//std::cout << "Sキー押されたぞ:\n";
+		AddSpeed(4, { 0.0f,1.0f,0.0f });
+	}
+
+	//重力
+	
+	if (Box_Speed.y < 0.3f && Box_Position.y > 0)
+	{
+		if (Box_Speed.y > -0.3f) 
+		{
+			AddSpeed(gravity, { 0.0f,0.6f,0.0f });
+		}
+		
+	};
+	
+	if (Box_Position.y < 0) 
+	{
+		Box_Position.y = 0;
+		SetSpeed({ 0.0f,0.0f,0.0f });
+	}
 
 	//速度減衰と位置の更新
 	// 速度を減衰させる
@@ -130,6 +187,11 @@ void MecScene::AddSpeed(float initSpeed, Vector3 Speed)
 	if (fabs(Box_Speed.y) < fabs(newSpeedY)) Box_Speed.y = newSpeedY;
 	if (fabs(Box_Speed.z) < fabs(newSpeedZ)) Box_Speed.z = newSpeedZ;
 
+}
+
+void MecScene::SetSpeed(Vector3 Speed)
+{
+	Box_Speed = Speed;
 }
 
 void MecScene::Debug_Box()

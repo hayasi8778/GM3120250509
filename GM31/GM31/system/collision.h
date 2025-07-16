@@ -39,17 +39,15 @@ namespace GM31 {namespace GE {namespace {}
 
 		// 境界ボックスOBB
 		struct BoundingBoxOBB : public BoundingBoxAABB {
-			//OBBに必要なもの[箱の大きさ][箱の座標][箱の傾き]
-			//箱の座標?
-			Vector3 center; //中心座標
-			Vector3 worldcenter; //中心座標(ワールド座標){傾き取るためにワールド基準で取る必要がある?}
+			Vector3 center;
+			Vector3 worldcenter;
 
-			// 中心軸（X軸、Y軸、Z軸）{軸ってことは角度？}
+			// 中心軸（X軸、Y軸、Z軸）
 			Vector3 axisX;
 			Vector3 axisY;
 			Vector3 axisZ;
 
-			// BOXサイズ(箱の大きさを取るために必須)
+			// BOXサイズ
 			float	lengthx;
 			float	lengthy;
 			float	lengthz;
@@ -196,6 +194,12 @@ namespace GM31 {namespace GE {namespace {}
 			SRT transform,		// カプセルの姿勢情報
 			float radius,		// カプセルの半径
 			float height);		// カプセルの高さ
+
+		// バウンディングスフィアを作成する add date 2025/06/28 by suzuki)
+		BoundingSphere calcBSphere(
+			const std::vector<Vector3>& vertices,
+			SRT transform);
+
 
 	} // namespace Collision
 }}// namespace GM31::GE::Collision

@@ -6,6 +6,9 @@
 #include	"system/renderer.h"
 #include    "system/parseobj.h"
 
+//ログ出す用
+#include <iostream>
+
 // 無名名前空間(このファイル内でのみ使用するので)
 namespace {
 	// ここにOBJファイルのパスを指定
@@ -202,7 +205,77 @@ void ObjParseScene::draw(uint64_t deltatime)
 
 		m_meshrenderer->BeforeDraw();
 
-		// マテリアル数分ループ
+		//// マテリアル数分ループ
+		//std::cout << "描画開始" << "\n";
+
+		//// ループ前にマテリアル一覧をダンプ
+		//for (size_t i = 0; i < m_textures.size(); i++)
+		//	std::cout << i << " -> [Texture ] "
+		//	<< m_textures[i]->GetFileName() << "\n";
+
+		//// 各サブセットの中身をダンプ
+		//for (size_t s = 0; s < m_subsets.size(); s++)
+		//{
+		//	auto& st = m_subsets[s];
+		//	std::cout
+		//		<< "subset[" << s << "] "
+		//		<< "MtrlName=" << st.MtrlName
+		//		<< ", MaterialIdx=" << st.MaterialIdx
+		//		<< "\n";
+		//}
+
+		//中身を見る
+		for (size_t subsetIdx = 0; subsetIdx < m_subsets.size(); ++subsetIdx)
+		{
+			const auto& subset = m_subsets[subsetIdx];
+			uint32_t matIdx = subset.MaterialIdx;
+			// テクスチャ名をデバッグで再確認したいなら
+			//std::cout << "Bind Texture: "
+				//<< texNames[matIdx] << "\n";
+
+			m_materials[matIdx]->SetGPU();
+			m_textures[matIdx]->SetGPU();
+			m_meshrenderer->DrawSubset(
+				subset.IndexNum,
+				subset.IndexBase,
+				0
+			);
+		}
+
+
+
+		// ────────────────────────────
+		// 描画部分
+		// マテリアル数分ループ → DrawSubset(i,…)
+// ── サブセット単位に MaterialIdx を参照して描画 ──
+		for (size_t si = 0; si < m_subsets.size(); ++si)
+		{
+			const auto& ss = m_subsets[si];
+			uint32_t matIdx = ss.MaterialIdx;
+			assert(matIdx < m_materials.size() && matIdx < m_textures.size());
+
+			// デバッグログ（不要ならコメントアウトOK）
+			//std::cout
+				//<< "Draw subset[" << si << "] "
+				//<< "MaterialIdx=" << matIdx
+				//<< ", TEX=" << m_textures[matIdx]->GetFileName()
+				//<< "\n";
+
+			// ① マテリアル設定
+			m_materials[matIdx]->SetGPU();
+			// ② テクスチャ設定
+			m_textures[matIdx]->SetGPU();
+			// ③ このサブセットだけ描画
+			m_meshrenderer->DrawSubset(
+				ss.IndexNum,
+				ss.IndexBase,
+				0);
+		}
+
+
+
+
+		/*
 		for (int i = 0; i < m_materials.size(); i++)
 		{
 			// マテリアルをセット
@@ -215,13 +288,14 @@ void ObjParseScene::draw(uint64_t deltatime)
 				m_subsets[i].IndexBase,							// 最初のインデックスバッファの位置	
 				0);												// 頂点バッファの最初から使用
 		}
+		*/
+		
 
 	}
 }
 
 void ObjParseScene::LoadObjMesh(int idx) 
 {
-
 	m_mesh = std::make_unique<CObj3DMesh>();
 
 	m_subsets.clear();				// OBJサブセット情報
@@ -237,6 +311,39 @@ void ObjParseScene::LoadObjMesh(int idx)
 	m_materialdata = m_mesh->GetMaterials();	// マテリアル情報取得
 
 	m_diffusetexturenames = m_mesh->GetDiffuseTextureNames();	// ディフューズテクスチャ名取得
+
+	//追加部分
+		// ① まずは名前一覧をログで出して、本当に読み込めているか確認
+	// ① ログ出力：本当に名前が取れているか確認
+	{
+		const auto& texNames = m_diffusetexturenames;
+		std::cout << "--- DiffuseTextureNames ---\n";
+		for (size_t i = 0; i < texNames.size(); ++i)
+			std::cout << "texNames[" << i << "] = '" << texNames[i] << "'\n";
+		std::cout << "----------------------------\n";
+	}
+
+	// ② テクスチャ生成ループ
+	m_textures.clear();
+	for (auto& name : m_diffusetexturenames)
+	{
+		auto tex = std::make_unique<CTexture>();
+		if (!name.empty())
+		{
+			std::string path = "assets/model/obj/";
+			if (!tex->Load(path + name))
+				std::cerr << "Failed to load texture: " << name << "\n";
+			//tex->SetFileName(name);
+		}
+		else
+		{
+			std::cout << "m_diffusetexturenames空やぞ" << "\n";
+		}
+		m_textures.push_back(std::move(tex));
+	}
+
+	// ── ここまでが差し替え部分 ──
+
 
 	// マテリアル生成
 	for (auto& mtrl : m_materialdata)
@@ -259,6 +366,7 @@ void ObjParseScene::LoadObjMesh(int idx)
 			m_textures[m_textures.size() - 1]->Load(path + texname);
 		}
 	}
+	
 }
 
 void ObjParseScene::init()

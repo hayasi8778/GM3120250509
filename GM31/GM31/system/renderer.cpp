@@ -171,6 +171,9 @@ void Renderer::Init()
     samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+//    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+//    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+//    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
     samplerDesc.MaxAnisotropy = 4;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
@@ -198,13 +201,31 @@ void Renderer::Init()
 
     bufferDesc.ByteWidth = sizeof(MATERIAL);
     m_Device->CreateBuffer(&bufferDesc, nullptr, m_MaterialBuffer.GetAddressOf());
-    m_DeviceContext->VSSetConstantBuffers(3, 1, m_MaterialBuffer.GetAddressOf());
-    m_DeviceContext->PSSetConstantBuffers(3, 1, m_MaterialBuffer.GetAddressOf());
 
     bufferDesc.ByteWidth = sizeof(LIGHT);
     m_Device->CreateBuffer(&bufferDesc, nullptr, m_LightBuffer.GetAddressOf());
+
+    // --- ライト初期化 ---
+    LIGHT light{};
+    light.Enable = true;
+    light.Direction = Vector4(0.5f, -1.0f, 0.8f, 0.0f);
+    light.Direction.Normalize();
+    light.Ambient = Color(0.2f, 0.2f, 0.2f, 1.0f);
+    light.Diffuse = Color(1.5f, 1.5f, 1.5f, 1.0f);
+    SetLight(light);
+
+    // --- マテリアル初期化 ---
+    MATERIAL material{};
+    material.Diffuse = Color(1.0f, 1.0f, 1.0f, 1.0f);
+    material.Ambient = Color(1.0f, 1.0f, 1.0f, 1.0f);
+    SetMaterial(material);
+
+    m_DeviceContext->VSSetConstantBuffers(3, 1, m_MaterialBuffer.GetAddressOf());
+    m_DeviceContext->PSSetConstantBuffers(3, 1, m_MaterialBuffer.GetAddressOf());
+    
     m_DeviceContext->VSSetConstantBuffers(4, 1, m_LightBuffer.GetAddressOf());
     m_DeviceContext->PSSetConstantBuffers(4, 1, m_LightBuffer.GetAddressOf());
+
 }
 
 /**
@@ -357,6 +378,8 @@ void Renderer::SetMaterial(MATERIAL Material)
 void Renderer::SetLight(LIGHT Light)
 {
     m_DeviceContext->UpdateSubresource(m_LightBuffer.Get(), 0, nullptr, &Light, 0, 0);
+    m_DeviceContext->VSSetConstantBuffers(4, 1, m_LightBuffer.GetAddressOf());
+    m_DeviceContext->PSSetConstantBuffers(4, 1, m_LightBuffer.GetAddressOf());
 }
 
 /**

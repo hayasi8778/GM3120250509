@@ -6,8 +6,11 @@
 #include    "CollisionOBBScene.h"
 #include    "ObjParseScene.h"
 #include    "AirplaneFlyScene.h"
+#include    "WallCollisionScene.h"
+#include	"EnemyLookatScene.h"
+#include	"CarDriveScene.h"
 
-//こっから授業外で自作した奴
+//こっから授業外で自作したヘッダー
 #include "MecScene.h"
 
 std::unordered_map<std::string, std::unique_ptr<IScene>> SceneManager::m_scenes;
@@ -34,14 +37,16 @@ void SceneManager::Init()
 {
 	/*
 	//授業資料
-	m_scenes["AirplaneFlyScene"] = std::make_unique<AirplaneFlyScene>();
-	m_scenes["AirplaneFlyScene"]->init();
-	m_currentSceneName = "AirplaneFlyScene";
+	m_scenes["EnemyLookatScene"] = std::make_unique<EnemyLookatScene>();
+	m_scenes["EnemyLookatScene"]->init();
+	m_currentSceneName = "EnemyLookatScene";
 	*/
-	/*//課題
-	m_scenes["CollisionOBBScene"] = std::make_unique<CollisionOBBScene>();
-	m_scenes["CollisionOBBScene"]->init();
-	m_currentSceneName = "CollisionOBBScene";
+
+	/*
+	//授業資料
+	m_scenes["CarDriveScene"] = std::make_unique<CarDriveScene>();
+	m_scenes["CarDriveScene"]->init();
+	m_currentSceneName = "CarDriveScene";
 	*/
 
 	

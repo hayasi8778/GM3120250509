@@ -18,10 +18,13 @@ public:
 
 	void PlayerMove();
 	void AddSpeed(float, Vector3);
+	void SetSpeed(Vector3);
 
 	//デバック用のGUI
 	void Debug_Box();
 private:
+	//重力
+	float gravity = -9.8f;
 	// 箱の大きさ
 	static constexpr float CUBE_SIZE = 10.0f;
 

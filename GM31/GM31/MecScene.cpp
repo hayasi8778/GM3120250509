@@ -2,11 +2,17 @@
 #include    <memory>
 #include	<iostream>
 #include	"system/collision.h"
+#include "system/CDirectInput.h"
 
 void MecScene::init() 
 {
 	// カメラ(3D)の初期化
 	m_camera.Init();
+	m_cameraF.Init();
+
+	// フィールドの初期化
+	m_field = std::make_unique<Field>();
+	m_field->Init();
 
 	// ローカル軸表示用線分の初期化
 	m_segments[0] = std::make_unique<Segment>(Vector3(0, 0, 0), Vector3(CUBE_SIZE * 10, 0, 0));
@@ -26,6 +32,22 @@ void MecScene::init()
 		Debug_Box();
 		});
 
+	// デバッグフリーカメラ
+	DebugUI::RedistDebugFunction([this]() {
+		debugFreeCamera();
+		});
+
+	m_player.Init();
+	//m_rock.Init();
+
+	m_objects.push_back(std::make_unique<M_Rock>());
+
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+		m_objects[i]->Init();
+		//m_objects[i]->SetAdhesioing(false);
+	}
+
 }
 
 void MecScene::update(uint64_t deltatime)
@@ -33,11 +55,19 @@ void MecScene::update(uint64_t deltatime)
 	//
 	PlayerMove();
 
+	PlayerAdhesion();
+
+	//m_camera.SetLookat(m_boxSRTs[0].pos);
+	m_camera.SetLookat(m_player.GetPosition());
 }
 
 void MecScene::draw(uint64_t deltatime) 
 {
-	m_camera.Draw();
+	//m_camera.Draw();
+
+	m_cameraF.Draw();
+
+	m_field->Draw();
 
 	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
 
@@ -79,8 +109,16 @@ void MecScene::draw(uint64_t deltatime)
 	/*m_shapecube->Draw(transmtx, {1.0f,1.0f,1.0f,1.0f});
 	m_shapecube2->Draw(transmtxtes, { 1.0f,1.0f,1.0f,1.0f });*/
 
-	m_shapecube->Draw(transmtx, colors[0]);
-	m_shapecube2->Draw(transmtxtes, colors[1]);
+	/*m_shapecube->Draw(transmtx, colors[0]);
+	m_shapecube2->Draw(transmtxtes, colors[1]);*/
+
+	m_player.Draw();
+	//m_rock.Draw();
+
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+		m_objects[i]->Draw();
+	}
 }
 
 void::MecScene::dispose() 
@@ -91,14 +129,17 @@ void::MecScene::dispose()
 void MecScene::PlayerMove()
 {
 	bool step = false;
-	if (GetAsyncKeyState(VK_SHIFT) & 0x0001)//ステップだけ個別で判定しておく
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_LSHIFT))//ステップだけ個別で判定しておく
 	{
 		step = true;
 	}
 
-	//0x8000は今押されているか0x0001なら押した瞬間だけ有効
+
+	
+
+	
 	//左右移動
-	if (GetAsyncKeyState(0x44) & 0x8000)//0x44 = Dキー
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_D))//Dキー
 	{
 		//std::cout << "Dキー押されたぞ:\n";
 		if (step)
@@ -107,7 +148,7 @@ void MecScene::PlayerMove()
 		}
 		else AddSpeed(0.2, { 1.0f,0.0f,0.0f });
 	}
-	if (GetAsyncKeyState(0x41) & 0x8000)//0x41 = Aキー
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_A))
 	{
 		//std::cout << "Aキー押されたぞ:\n";
 		if (step)
@@ -118,20 +159,20 @@ void MecScene::PlayerMove()
 	}
 
 	//前後移動
-	if (GetAsyncKeyState(0x57) & 0x8000)//0x57 = Wキー
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_W))//Wキー
 	{
 		//std::cout << "Wキー押されたぞ:\n";
 		if (step){ AddSpeed(3, { 0.0f,0.0f,1.0f });}
 		else AddSpeed(0.2, { 0.0f,0.0f,1.0f });
 	}
-	if (GetAsyncKeyState(0x53) & 0x8000)//0x53 = Sキー
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_S))//Sキー
 	{
 		//std::cout << "Sキー押されたぞ:\n";
 		if (step) { AddSpeed(3, { 0.0f,0.0f,-1.0f }); }
 		else AddSpeed(0.2, { 0.0f,0.0f,-1.0f });
 	}
 
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000)//0x53 = Sキー
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_SPACE))//SPACEキー
 	{
 		//std::cout << "Sキー押されたぞ:\n";
 		AddSpeed(4, { 0.0f,1.0f,0.0f });
@@ -139,7 +180,7 @@ void MecScene::PlayerMove()
 
 	//重力
 	
-	if (Box_Speed.y < 0.3f && Box_Position.y > 0)
+	if (Box_Speed.y < 0.3f && m_player.GetPosition().y > 0)
 	{
 		if (Box_Speed.y > -0.3f) 
 		{
@@ -148,10 +189,10 @@ void MecScene::PlayerMove()
 		
 	};
 	
-	if (Box_Position.y < 0) 
+	if (m_player.GetPosition().y < 0)
 	{
-		Box_Position.y = 0;
-		SetSpeed({ 0.0f,0.0f,0.0f });
+		//速度の逆数をかけて消す
+		AddSpeed(1, { 0.0f,-Box_Speed.y,0.0f });
 	}
 
 	//速度減衰と位置の更新
@@ -173,6 +214,70 @@ void MecScene::PlayerMove()
 	m_boxSRTs[0].pos.x += Box_Speed.x;
 	m_boxSRTs[0].pos.y += Box_Speed.y;
 	m_boxSRTs[0].pos.z += Box_Speed.z;
+
+	//地面にめり込むならY軸の加速度を0にして実行
+	if (!m_field->IsFrontSide(m_player.GetPosition() + Box_Speed))//移動後のプレイヤー位置と地面で表裏を判定 
+	{
+		Box_Speed.y = 0;
+	}
+
+	//プレイヤー座標更新
+	m_player.SetPosition(m_player.GetPosition() + Box_Speed);
+
+	//取り付けられているオブジェクトも同時に動かす
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+		if (m_objects[i]->GetAdhesioing())
+		{
+			m_objects[i]->SetPosition(m_objects[i]->GetPosition() + Box_Speed);
+		}
+
+	}
+	
+}
+
+void MecScene::PlayerAdhesion()
+{
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_L))//取り付けテスト処理
+	{
+		// 1) プレイヤーの位置を取得
+		Vector3 playerPos = m_player.GetPosition();
+
+		// 2) もっとも近いオブジェクト探索
+		Object* closest = nullptr;
+		float minDistSq = std::numeric_limits<float>::max();
+
+		for (auto& uptr : m_objects) {
+			Object* obj = uptr.get();
+
+			// プレイヤー自身は除外
+			if (obj == &m_player) continue;
+
+			Vector3 pos = obj->GetPosition();
+			float dx = pos.x - playerPos.x;
+			float dy = pos.y - playerPos.y;
+			float dz = pos.z - playerPos.z;
+
+			float distSq = dx * dx + dy * dy + dz * dz;
+			if (distSq < minDistSq) {
+				minDistSq = distSq;
+				closest = obj;
+			}
+
+		}
+
+		// 3) 見つかった最も近いオブジェクトにだけ処理を通す
+		if (closest) {
+			closest->SetAdhesioing(true);
+		}
+
+
+		//m_objects[0]->SetAdhesioing(true);
+	}
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_K))//取り付けテスト処理
+	{
+		m_objects[0]->SetAdhesioing(false);
+	}
 }
 
 void MecScene::AddSpeed(float initSpeed, Vector3 Speed)
@@ -209,5 +314,36 @@ void MecScene::Debug_Box()
 	}
 
 	// カメラの位置を極座標からデカルト座標に変換
+	ImGui::End();
+}
+
+// デバッグフリーカメラ
+void MecScene::debugFreeCamera()
+{
+	ImGui::Begin("debug Free camera");
+
+	static float radius = 100.0f;
+	static Vector3 pos = Vector3(0, 0, radius);
+	static Vector3 lookat = Vector3(0, 0, 0);
+	static float elevation = -90.0f * PI / 180.0f;
+	static float azimuth = PI / 2.0f;
+
+	static Vector3 spherecenter = Vector3(0, 0, 0);
+
+	ImGui::SliderFloat("Radius", &radius, 1, 800);
+	ImGui::SliderFloat("Elevation", &elevation, -PI, PI);
+	ImGui::SliderFloat("Azimuth", &azimuth, -PI, PI);
+
+	ImGui::SliderFloat3("lookat ", &lookat.x, -100, 100);
+
+	//// カメラの位置を極座標からデカルト座標に変換
+	m_cameraF.SetRadius(radius);
+	m_cameraF.SetElevation(elevation);
+	m_cameraF.SetAzimuth(azimuth);
+	m_cameraF.SetLookat(lookat);
+
+	// カメラの位置を極座標から求める
+	m_cameraF.CalcCameraPosition();
+
 	ImGui::End();
 }

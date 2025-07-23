@@ -62,6 +62,8 @@ namespace myAssimp
 		aiMatrix4x4 AnimationMatrix{};				// 自分の事だけを考えた行列
 		aiMatrix4x4 OffsetMatrix{};					// ボーンオフセット行列
 		int			idx;							// 配列の何番目か			
+		int			parentIdx = -1;					// ← 追加: 親ボーンの idx（ルートは -1）
+		int			localparentidx;					// ←追加：このメッシュ配列内での親インデックス
 		std::vector<WEIGHT> weights;				// このボーンが影響を与える頂点インデックス・ウェイト値
 	};
 
@@ -79,7 +81,28 @@ namespace myAssimp
 
 	std::unordered_map<std::string, BONE> GetBoneDictionary();
 
+	std::vector<std::vector<BONE>> GetBonesPerMeshes();
+
+	std::vector<BONE> GetBonePerMesh(const aiMesh* mesh);
+
 	CTreeNode<std::string> GetBoneNameTree();
+
+	// aiNode ツリーを名前で検索するヘルパー
+	static aiNode* FindNodeByName(aiNode* root, const std::string& name);
+
+	// g_BoneDictionary に parentIdx を設定する
+	void AssignBoneParentIndices(const aiScene* pScene);
+
+	// 再帰的にグローバル行列を計算するヘルパー
+	void UpdateBoneRecursive(std::vector<BONE>& bones, int idx);
+
+	void UpdateLocalRecursive(std::vector<BONE>& bones, int i);
+
+	void UpdateGlobalMatrices(std::vector<BONE>& bones);
+
+	//上のやつのローカル版
+	void UpdateGlobalMatricesLocal(std::vector<BONE>& bones);
+
 }
 }	
 } // namespace GM31::GE::AssimpPerse

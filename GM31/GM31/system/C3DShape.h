@@ -83,6 +83,11 @@ public:
     std::string getName() const override {
         return "Sphere";
     }
+
+    float GetRadius() 
+    {
+        return m_radius;
+    }
 };
 
 /**

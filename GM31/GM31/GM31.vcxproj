@@ -163,6 +163,7 @@
     <ClInclude Include="ImageDisplayScene.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MecScene.h" />
+    <ClInclude Include="M_Rock.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjParseScene.h" />
     <ClInclude Include="Player.h" />
@@ -239,6 +240,7 @@
     <ClCompile Include="ImageDisplayScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MecScene.cpp" />
+    <ClCompile Include="M_Rock.cpp" />
     <ClCompile Include="ObjParseScene.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Player_Mec.cpp" />

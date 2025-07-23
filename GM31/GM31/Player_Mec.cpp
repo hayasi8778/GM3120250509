@@ -2,10 +2,24 @@
 
 void M_Player::Init()
 {
+	//プレイヤーなので接触フラグは最初からon
+	Adhesioing = true;
+
 	// モデルの初期化
+	//m_mesh.Load(
+	//	"assets/model/car000.x",				// モデル名
+	//	"assets/model/");						// テクスチャのパス
+
+	////ロボットモデル
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecArm_LeflCop.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+	//テスト用のモデル
 	m_mesh.Load(
-		"assets/model/car000.x",				// モデル名
-		"assets/model/");						// テクスチャのパス
+		"assets/model/Tesmodel/man.fbx",				// モデル名
+		"assets/model/Tesmodel/");						// テクスチャのパス
+
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
@@ -18,6 +32,11 @@ void M_Player::Init()
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
 	//	DebugUI::RedistDebugFunction(DebugPlayerMoveParameter);
+
+	//スケール調整
+	//SetScale({ 0.1f,0.1f,0.1f });
+
+
 
 }
 
@@ -48,6 +67,9 @@ void M_Player::Update()
 	//g_position = m_Position;
 	//g_rotation = m_Rotation;
 	//g_scale = m_Scale;
+	
+
+	m_mesh.DrawWithBones(srt , {1.0f,1.0f,1.0f});
 }
 
 void M_Player::Dispose()

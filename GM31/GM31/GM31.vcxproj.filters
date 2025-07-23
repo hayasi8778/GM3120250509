@@ -276,6 +276,9 @@
     <ClInclude Include="Player_Mec.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
+    <ClInclude Include="M_Rock.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system\imgui\imgui.cpp">
@@ -450,6 +453,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Player_Mec.cpp">
+      <Filter>ソース ファイル\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="M_Rock.cpp">
       <Filter>ソース ファイル\Objects</Filter>
     </ClCompile>
   </ItemGroup>

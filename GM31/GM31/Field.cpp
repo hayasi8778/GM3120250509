@@ -54,6 +54,30 @@ void Field::Init()
 	// テクスチャロード
 	bool sts = m_Texture.Load("assets\\texture\\field000.jpg");
 	assert(sts == true);
+
+	//法線の取得
+	// 1) 平面上の３点を取得
+	Vector3 p0 = vertices[0].Position;
+	Vector3 p1 = vertices[1].Position;
+	Vector3 p2 = vertices[2].Position;
+
+	// 2) 法線を計算（右手系）
+	Vector3 v1 = p1 - p0;
+	Vector3 v2 = p2 - p0;
+	//まずは法線を計算して vector3 を得る
+	Vector3 normal = v1.Cross(v2);
+
+	//その vector3 を正規化（Normalize() は in-place で void）
+	normal.Normalize();
+
+	//メンバに格納
+	m_Normal = normal;
+
+
+
+	// 3) 平面上の基準点として p0 を保持
+	m_PointOnPlane = p0;
+
 }
 
 

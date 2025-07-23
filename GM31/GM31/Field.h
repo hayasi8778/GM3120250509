@@ -21,8 +21,24 @@ class Field {
 	CShader						m_Shader;					// シェーダー
 	CMaterial					m_Material;					// マテリアル
 	CTexture					m_Texture;					// テクスチャ
+
+	//地面抜けないために変数を追加する
+	Vector3 m_PointOnPlane;  // 任意の頂点位置
+	Vector3 m_Normal;        // 平面の法線
 public:
 	void Init();
 	void Draw();
 	void Dispose();
+
+	//表裏判定用の関数
+	// 平面からの符号付き距離を返す
+	float SignedDistance(const Vector3& pos) const {
+		return m_Normal.Dot(pos - m_PointOnPlane);
+	}
+
+	// 距離の符号で表裏を判定
+	bool IsFrontSide(const Vector3& pos) const {
+		return SignedDistance(pos) >= 0.0f;
+	}
+
 };

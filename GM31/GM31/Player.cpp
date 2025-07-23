@@ -35,9 +35,13 @@ static void DebugPlayerMoveParameter() {
 void Player::Init()
 {
 	// モデルの初期化
+	//m_mesh.Load(
+	//	"assets/model/car000.x",				// モデル名
+	//	"assets/model/");						// テクスチャのパス
+
 	m_mesh.Load(
-		"assets/model/car000.x",				// モデル名
-		"assets/model/");						// テクスチャのパス
+		"assets/model/Mec/MecArm_LeflCop.fbx",				// モデル名
+		"assets/model/Mec/");						// テクスチャのパス
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
@@ -50,6 +54,8 @@ void Player::Init()
 //		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
 //	DebugUI::RedistDebugFunction(DebugPlayerMoveParameter);
+
+	m_Scale = { 10.0f,10.0f,10.0f };
 
 }
 

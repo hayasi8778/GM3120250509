@@ -46,16 +46,158 @@ namespace myAssimp{
 		return std::move(g_AssimpNodeNameTree);
 	}
 
+	aiNode* FindNodeByName(aiNode* root, const std::string& name)
+	{
+		if (root->mName.C_Str() == name) return root;
+		for (unsigned int i = 0; i < root->mNumChildren; ++i)
+		{
+			if (auto* found = FindNodeByName(root->mChildren[i], name))
+				return found;
+		}
+		return nullptr;
+	}
+
+	void AssignBoneParentIndices(const aiScene* pScene)
+	{
+		// まずは辞書の中で idx がセット済みであることが前提
+		for (auto& kv : g_BoneDictionary)
+		{
+			const std::string& boneName = kv.first;
+			BONE& bone = kv.second;
+
+			// aiNode ツリーから該当ノードを探す
+			aiNode* node = FindNodeByName(pScene->mRootNode, boneName);
+			if (node && node->mParent)
+			{
+				std::string parentName = node->mParent->mName.C_Str();
+				// 親が辞書にあれば idx を取得、なければ -1 のまま
+				if (g_BoneDictionary.count(parentName))
+					bone.parentIdx = g_BoneDictionary[parentName].idx;
+			}
+			else
+			{
+				bone.parentIdx = -1; // ルートボーン
+			}
+		}
+	}
+
+	void UpdateBoneRecursive(std::vector<BONE>& bones, int idx)
+	{
+		BONE& bone = bones[idx];
+		if (bone.parentIdx >= 0) {
+			bone.Matrix =
+				bones[bone.parentIdx].Matrix * bone.AnimationMatrix;
+		}
+		else {
+			bone.Matrix = bone.AnimationMatrix;
+		}
+
+		// 子ボーンを探索（必要なら childrenIdx リストを使う）
+		for (int i = 0; i < (int)bones.size(); ++i) {
+			if (bones[i].parentIdx == idx) {
+				UpdateBoneRecursive(bones, i);
+			}
+		}
+	}
+
+	void UpdateLocalRecursive(std::vector<BONE>& bones, int i)
+	{
+		BONE& bone = bones[i];
+		if (bone.localparentidx >= 0) {
+			bone.Matrix = bones[bone.localparentidx].Matrix
+				* bone.AnimationMatrix;
+		}
+		else {
+			bone.Matrix = bone.AnimationMatrix;
+		}
+
+		// 子を探して再帰
+		for (int c = 0; c < (int)bones.size(); ++c) {
+			if (bones[c].localparentidx == i) {
+				UpdateLocalRecursive(bones, c);
+			}
+		}
+
+	}
+
+	void UpdateGlobalMatrices(std::vector<BONE>& bones)
+	{
+		// ルートボーン（parentIdx < 0）から順に再帰呼び出し
+		for (int i = 0; i < (int)bones.size(); ++i) {
+			if (bones[i].parentIdx < 0) {
+				UpdateBoneRecursive(bones, i);
+			}
+		}
+	}
+
+	void UpdateGlobalMatricesLocal(std::vector<BONE>& bones)
+	{
+		// ルート（localParentIdx<0）を起点に再帰
+		for (int i = 0; i < (int)bones.size(); ++i) {
+			if (bones[i].localparentidx < 0) {
+				UpdateLocalRecursive(bones, i);
+			}
+		}
+
+	}
+
 	// ボーン辞書を返す	
 	std::unordered_map<std::string, BONE> GetBoneDictionary()
 	{
 		return g_BoneDictionary;
 	}
 
+	std::vector<std::vector<BONE>> GetBonesPerMeshes()
+	{
+		return g_BonesPerMeshes;
+	}
+
+	std::vector<BONE> GetBonePerMesh(const aiMesh* mesh)
+	{
+		std::vector<BONE> bones;
+
+		// 1) 辞書から必要情報をコピーして bones に詰める
+		for (unsigned int bidx = 0; bidx < mesh->mNumBones; ++bidx) {
+			BONE bone{};
+			bone.bonename = mesh->mBones[bidx]->mName.C_Str();
+			bone.meshname = mesh->mName.C_Str();
+			bone.OffsetMatrix = mesh->mBones[bidx]->mOffsetMatrix;
+
+			// 辞書から idx, parentIdx, AnimationMatrix を継承
+			const auto& dict = g_BoneDictionary[bone.bonename];
+			bone.idx = dict.idx;
+			bone.parentIdx = dict.parentIdx;
+			bone.AnimationMatrix = dict.AnimationMatrix;
+
+			// ウェイト情報（省略）
+
+			bones.emplace_back(bone);
+		}
+
+		// 2) 親インデックス(global) → ローカルインデックスにマッピング
+		for (int i = 0; i < (int)bones.size(); ++i) {
+			bones[i].localparentidx = -1;  // デフォルト：メッシュ内に親がいない
+			int gpi = bones[i].parentIdx;
+			for (int j = 0; j < (int)bones.size(); ++j) {
+				if (bones[j].idx == gpi) {
+					bones[i].localparentidx = j;
+					break;
+				}
+			}
+		}
+
+		return bones;
+
+	}
+
 	// 空のボーン辞書（キーはボーン名）を作成する（ノードを再帰で辿り空の辞書を作成する）
 	void CreateEmptyBoneDictionary(aiNode* node)
 	{
 		BONE bone{};
+		bone.bonename = std::string(node->mName.C_Str());
+
+		// AnimationMatrix にノードのローカル行列をセット
+		bone.AnimationMatrix = node->mTransformation;
 
 		// ボーン名で参照できるように空のボーン情報をセットする
 		g_BoneDictionary[node->mName.C_Str()] = bone;
@@ -94,7 +236,14 @@ namespace myAssimp{
 				<< std::endl;
 
 			// ボーンオフセット行列取得
-			bone.OffsetMatrix = mesh->mBones[bidx]->mOffsetMatrix;						
+			bone.OffsetMatrix = mesh->mBones[bidx]->mOffsetMatrix;
+
+			std::cout << "OffsetMatrix of " << bone.bonename
+				<< ": " << bone.OffsetMatrix.a4 << ", "
+				<< bone.OffsetMatrix.b4 << ", "
+				<< bone.OffsetMatrix.c4 << std::endl;
+
+			bone.AnimationMatrix = g_BoneDictionary[bone.bonename].AnimationMatrix;
 
 			// ウェイト情報抽出
 			bone.weights.clear();
@@ -475,6 +624,15 @@ namespace myAssimp{
 
 		// ボーン情報取得	
 		GetBone(pScene);
+
+		// 追加：親子情報を埋める
+		AssignBoneParentIndices(pScene);
+
+		// ←ここで g_BonesPerMeshes に格納された各メッシュのボーン配列を更新
+		for (auto& bones : g_BonesPerMeshes) {
+			UpdateGlobalMatrices(bones);
+		}
+
 	}
 
 	std::vector<SUBSET> GetSubsets() 

@@ -29,6 +29,7 @@ protected:
 	// 描画の為の情報（見た目に関わる部分）
 	CShader			m_shader;	// シェーダ
 public:
+	virtual ~Object() = default;
 	virtual void Init() = 0;
 	virtual void Update() = 0;
 	virtual void Draw() = 0;

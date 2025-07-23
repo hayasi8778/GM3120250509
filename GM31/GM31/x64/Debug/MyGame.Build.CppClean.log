@@ -13,7 +13,7 @@ c:\git\gm31git\gm31\gm31\x64\debug\imagedisplayscene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\game.obj
 c:\git\gm31git\gm31\gm31\x64\debug\field.obj
 c:\git\gm31git\gm31\gm31\x64\debug\enemylookatscene.obj
-c:\git\gm31git\gm31\gm31\x64\debug\enemy.obj
+c:\git\gm31git\gm31\gm31\x64\debug\enemies.obj
 c:\git\gm31git\gm31\gm31\x64\debug\collisionobbscene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\cardrivescene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\camera.obj
@@ -56,7 +56,9 @@ c:\git\gm31git\gm31\gm31\x64\debug\imgui_demo.obj
 c:\git\gm31git\gm31\gm31\x64\debug\imgui.obj
 c:\git\gm31git\gm31\gm31\x64\debug\dx11helper.obj
 c:\git\gm31git\gm31\gm31\x64\debug\debugui.obj
-c:\git\gm31git\gm31\gm31\x64\debug\enemies.obj
+c:\git\gm31git\gm31\gm31\x64\debug\enemy.obj
+c:\git\gm31git\gm31\gm31\x64\debug\player_mec.obj
+c:\git\gm31git\gm31\gm31\x64\debug\m_rock.obj
 c:\git\gm31git\gm31\x64\debug\geometryshader.cso
 c:\git\gm31git\gm31\x64\debug\unlittextureps.cso
 c:\git\gm31git\gm31\x64\debug\unlittexturevs.cso

@@ -37,10 +37,13 @@ private:
 	constexpr static uint32_t BOXNUM = 2;			// BOXの個数
 
 	//箱に座標情報があるか分からなかったからポジションを作る
-	Vector3 Box_Position = {0.0f,0.0f,0.0f};
+	Vector3 Object_Position = {0.0f,0.0f,0.0f};
 
 	//箱の速度
-	Vector3 Box_Speed = { 0.0f,0.0f,0.0f };
+	Vector3 Object_Speed = { 0.0f,0.0f,0.0f };
+
+	//オブジェクトの角度
+	Vector3 m_Destrot = { 0.0f,0.0f,0.0f };
 
 	//減衰率(ステップの後に自動で減速させるため)
 	float dampingFactor = 0.95f;

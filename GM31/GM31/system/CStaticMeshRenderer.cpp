@@ -253,9 +253,6 @@ void CStaticMeshRenderer::DrawBoneRecursive(
     //座標情報を入れる
     Vector3 worldPos = scaledPos + srt.pos;
 
-    //接続部のログを出す
-    //LogBoneWorldPosition("Conect", srt);
-
     // スフィア自体は単位球＋半径で OK
     // sphere.Draw() 内で SetWorldMatrix()→上書きされないよう、
     // srts は位置・回転ゼロ、拡縮だけ r。
@@ -273,68 +270,68 @@ void CStaticMeshRenderer::DrawBoneRecursive(
 
 }
 
-void CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName, const SRT& srt)
+Vector3 CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName, const SRT& srt)
 {
-    if (!m_pScene) return;
-    // Identity を親行列に渡してルートから探索
-    FindAndLogBoneRecursive(
+    if (!m_pScene)
+        return Vector3::Zero;  // シーン未設定時は(0,0,0)返却
+
+    Vector3 resultPos{};
+    bool found = FindAndLogBoneRecursive(
         m_pScene->mRootNode,
-        aiMatrix4x4(),    // 親 Ai 行列 = Identity
+        aiMatrix4x4(),
         targetName,
-        srt);
+        srt,
+        resultPos);
+
+    // 見つからなかった場合はゼロベクトルかエラー処理へ
+    if (!found)
+    {
+        // assert(false && "Bone not found: " + targetName);
+        return Vector3::Zero;
+    }
+
+    return resultPos;
+
 }
 
-bool CStaticMeshRenderer::FindAndLogBoneRecursive(const aiNode* node, const aiMatrix4x4& parentAiM,
-    const std::string& targetName, const SRT& srt) 
+bool CStaticMeshRenderer::FindAndLogBoneRecursive(const aiNode* node,
+    const aiMatrix4x4& parentAiM,
+    const std::string& targetName,
+    const SRT& srt,
+    Vector3& outPos)
 {
-    // ● Assimp のローカル行列 → グローバル行列
+    // グローバル行列を計算
     aiMatrix4x4 globalAiM = parentAiM * node->mTransformation;
 
-    // ● ボーンのオブジェクト空間位置を取り出し
-    Vector3 rawPos{ globalAiM.a4,
-                    globalAiM.b4,
-                    globalAiM.c4 };
+    // ローカル→ワールド位置
+    Vector3 local{ globalAiM.a4, globalAiM.b4, globalAiM.c4 };
+    Quaternion q = Quaternion::CreateFromYawPitchRoll(
+        srt.rot.y, srt.rot.x, srt.rot.z);
+    Vector3 rotated = Vector3::Transform(local, q);
+    Vector3 scaled = rotated * srt.scale;
+    Vector3 world = scaled + srt.pos;
 
-    // ● オブジェクトの回転をクォータニオン化
-    auto q = Quaternion::CreateFromYawPitchRoll(
-        srt.rot.y,    // Yaw
-        srt.rot.x,    // Pitch
-        srt.rot.z     // Roll
-    );
-
-    // ● 回転 → スケール → 平行移動 の順でワールド座標を算出
-    Vector3 rotated = Vector3::Transform(rawPos, q);
-    Vector3 scaledPos = {
-        rotated.x * srt.scale.x,
-        rotated.y * srt.scale.y,
-        rotated.z * srt.scale.z
-    };
-    Vector3 worldPos = scaledPos + srt.pos;
-
-    // ● ノード名が一致したらログ出力して true を返す
+    // ターゲット名と一致したら outPos にセットして true
     if (node->mName.C_Str() == targetName)
     {
-        std::cout
-            << "Bone[" << node->mName.C_Str() << "] "
-            << "WorldPos = "
-            << worldPos.x << ", "
-            << worldPos.y << ", "
-            << worldPos.z << "\n";
+        outPos = world;
         return true;
     }
 
-    // ● 子ノードを探索。見つかれば true を戻して打ち切り
+    // 子ノードを再帰探索
     for (UINT i = 0; i < node->mNumChildren; ++i)
     {
         if (FindAndLogBoneRecursive(
             node->mChildren[i],
             globalAiM,
             targetName,
-            srt))
+            srt,
+            outPos))
         {
             return true;
         }
     }
 
     return false;
+
 }

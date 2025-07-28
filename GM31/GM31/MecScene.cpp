@@ -4,6 +4,10 @@
 #include	"system/collision.h"
 #include "system/CDirectInput.h"
 
+float VALUE_MOVE_PLAYER = 0.1f;						// キー入力時の移動量
+float VALUE_ROTATE_PLAYER = PI * 0.02f;				// キー入力時の回転量
+float RATE_ROTATE_PLAYER = 0.40f;					// １フレーム当たりの回転割合
+float RATE_MOVE_PLAYER = 0.20f;						// １フレーム当たりの減衰割合
 void MecScene::init() 
 {
 	// カメラ(3D)の初期化
@@ -69,7 +73,7 @@ void MecScene::draw(uint64_t deltatime)
 
 	m_cameraF.Draw();
 
-	//m_field->Draw();
+	m_field->Draw();
 
 	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
 
@@ -135,92 +139,237 @@ void MecScene::PlayerMove()
 	{
 		step = true;
 	}
-	
-	//左右移動
-	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_D))//Dキー
-	{
-		//std::cout << "Dキー押されたぞ:\n";
-		if (step)
-		{
-			AddSpeed(3, { 1.0f,0.0f,0.0f });
+
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_A)) {
+		if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_W))
+		{// 左前移動
+
+			float radian;
+			radian = PI * 0.75f;
+
+			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+
+			// 目標角度をセット
+			m_Destrot.y = radian;
+
 		}
-		else AddSpeed(0.2, { 1.0f,0.0f,0.0f });
-	}
-	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_A))
-	{
-		//std::cout << "Aキー押されたぞ:\n";
-		if (step)
-		{
-			AddSpeed(3, { -1.0f,0.0f,0.0f });
+		else if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_S))
+		{// 左後移動
+
+			float radian;
+			radian = PI * 0.25f;
+
+			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+
+			// 目標角度をセット
+			m_Destrot.y = radian;
 		}
-		else AddSpeed(0.2, { -1.0f,0.0f,0.0f });
-	}
+		else
+		{// 左移動
 
-	//前後移動
-	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_W))//Wキー
-	{
-		//std::cout << "Wキー押されたぞ:\n";
-		if (step){ AddSpeed(3, { 0.0f,0.0f,1.0f });}
-		else AddSpeed(0.2, { 0.0f,0.0f,1.0f });
-	}
-	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_S))//Sキー
-	{
-		//std::cout << "Sキー押されたぞ:\n";
-		if (step) { AddSpeed(3, { 0.0f,0.0f,-1.0f }); }
-		else AddSpeed(0.2, { 0.0f,0.0f,-1.0f });
-	}
+			float radian;
+			radian = PI * 0.50f;
 
-	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_SPACE))//SPACEキー
-	{
-		//std::cout << "Sキー押されたぞ:\n";
-		AddSpeed(4, { 0.0f,1.0f,0.0f });
-	}
+			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
 
-	//重力
-	
-	if (Box_Speed.y < 0.3f && m_player.GetPosition().y > 0)
-	{
-		if (Box_Speed.y > -0.3f) 
-		{
-			AddSpeed(gravity, { 0.0f,0.6f,0.0f });
+			// 目標角度をセット
+			m_Destrot.y = radian;
 		}
-		
-	};
-	
-	if (m_player.GetPosition().y < 0)
-	{
-		//速度の逆数をかけて消す
-		AddSpeed(1, { 0.0f,-Box_Speed.y,0.0f });
 	}
 
-	//速度減衰と位置の更新
-	// 速度を減衰させる
-	Box_Speed.x *= dampingFactor;
-	Box_Speed.y *= dampingFactor;
-	Box_Speed.z *= dampingFactor;
-
-	// 速度が十分に小さくなったら停止
-	if (fabs(Box_Speed.x) < 0.01f) Box_Speed.x = 0.0f;
-	if (fabs(Box_Speed.y) < 0.01f) Box_Speed.y = 0.0f;
-	if (fabs(Box_Speed.z) < 0.01f) Box_Speed.z = 0.0f;
-
-	//地面にめり込むならY軸の加速度を0にして実行
-	if (!m_field->IsFrontSide(m_player.GetPosition() + Box_Speed))//移動後のプレイヤー位置と地面で表裏を判定 
+	else if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_D))
 	{
-		Box_Speed.y = 0;
+		if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_W)) {
+			// 右前移動
+
+			float radian;
+			radian = -PI * 0.75f;
+
+			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+
+			// 目標角度をセット
+			m_Destrot.y = radian;
+
+		}
+		else if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_S))
+		{// 右後移動
+			float radian;
+			radian = -PI * 0.25f;
+
+			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+
+			// 目標角度をセット
+			m_Destrot.y = radian;
+		}
+		else
+		{// 右移動
+
+			float radian;
+			radian = -PI * 0.50f;
+
+			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+
+			// 目標角度をセット
+			m_Destrot.y = radian;
+		}
+	}
+	else if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_W))
+	{// 前移動
+		float radian;
+		radian = PI;
+
+		Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+		Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+
+		// 目標角度をセット
+		m_Destrot.y = PI;
+	}
+	else if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_S))
+	{// 後移動
+		float radian;
+		radian = 0.0f;
+
+		Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
+		Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+
+		// 目標角度をセット
+		m_Destrot.y = 0.0f;
 	}
 
-	//プレイヤー座標更新
-	m_player.SetPosition(m_player.GetPosition() + Box_Speed);
+	Vector3 PL_rotation = m_player.GetRotation();
+
+	// 目標角度と現在角度との差分を求める
+	float diffrot = m_Destrot.y - PL_rotation.y;
+	if (diffrot > PI)
+	{
+		diffrot -= PI * 2.0f;
+	}
+	if (diffrot < -PI)
+	{
+		diffrot += PI * 2.0f;
+	}
+
+	// 比率計算
+	PL_rotation.y += diffrot * RATE_ROTATE_PLAYER;
+	if (PL_rotation.y > PI)
+	{
+		PL_rotation.y -= PI * 2.0f;
+	}
+	if (PL_rotation.y < -PI)
+	{
+		PL_rotation.y += PI * 2.0f;
+	}
+
+	m_player.SetRotation(PL_rotation);
+
+	/// 位置移動
+	m_player.SetPosition(m_player.GetPosition() + Object_Speed);
 
 	//取り付けられているオブジェクトも同時に動かす
 	for (int i = 0; i < m_objects.size(); i++)
 	{
 		if (m_objects[i]->GetAdhesioing())
 		{
-			m_objects[i]->SetPosition(m_objects[i]->GetPosition() + Box_Speed);
+			//この接続地点の取り方多分重いから代用案考える
+			m_objects[i]->SetPosition(m_player.ConectPos() + Object_Speed);
+			m_objects[i]->SetRotation(PL_rotation);
 		}
 	}
+
+	// 移動量に慣性をかける(減速率)
+	Object_Speed += -Object_Speed * RATE_MOVE_PLAYER;
+	
+	////左右移動
+	//if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_D))//Dキー
+	//{
+	//	//std::cout << "Dキー押されたぞ:\n";
+	//	if (step)
+	//	{
+	//		AddSpeed(3, { 1.0f,0.0f,0.0f });
+	//	}
+	//	else AddSpeed(0.2, { 1.0f,0.0f,0.0f });
+	//}
+	//if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_A))
+	//{
+	//	//std::cout << "Aキー押されたぞ:\n";
+	//	if (step)
+	//	{
+	//		AddSpeed(3, { -1.0f,0.0f,0.0f });
+	//	}
+	//	else AddSpeed(0.2, { -1.0f,0.0f,0.0f });
+	//}
+
+	////前後移動
+	//if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_W))//Wキー
+	//{
+	//	//std::cout << "Wキー押されたぞ:\n";
+	//	if (step){ AddSpeed(3, { 0.0f,0.0f,1.0f });}
+	//	else AddSpeed(0.2, { 0.0f,0.0f,1.0f });
+	//}
+	//if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_S))//Sキー
+	//{
+	//	//std::cout << "Sキー押されたぞ:\n";
+	//	if (step) { AddSpeed(3, { 0.0f,0.0f,-1.0f }); }
+	//	else AddSpeed(0.2, { 0.0f,0.0f,-1.0f });
+	//}
+
+	//if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_SPACE))//SPACEキー
+	//{
+	//	//std::cout << "Sキー押されたぞ:\n";
+	//	AddSpeed(4, { 0.0f,1.0f,0.0f });
+	//}
+
+	////重力
+	//
+	//if (Box_Speed.y < 0.3f && m_player.GetPosition().y > 0)
+	//{
+	//	if (Box_Speed.y > -0.3f) 
+	//	{
+	//		AddSpeed(gravity, { 0.0f,0.6f,0.0f });
+	//	}
+	//	
+	//};
+	//
+	//if (m_player.GetPosition().y < 0)
+	//{
+	//	//速度の逆数をかけて消す
+	//	AddSpeed(1, { 0.0f,-Box_Speed.y,0.0f });
+	//}
+
+	////速度減衰と位置の更新
+	//// 速度を減衰させる
+	//Box_Speed.x *= dampingFactor;
+	//Box_Speed.y *= dampingFactor;
+	//Box_Speed.z *= dampingFactor;
+
+	//// 速度が十分に小さくなったら停止
+	//if (fabs(Box_Speed.x) < 0.01f) Box_Speed.x = 0.0f;
+	//if (fabs(Box_Speed.y) < 0.01f) Box_Speed.y = 0.0f;
+	//if (fabs(Box_Speed.z) < 0.01f) Box_Speed.z = 0.0f;
+
+	////地面にめり込むならY軸の加速度を0にして実行
+	//if (!m_field->IsFrontSide(m_player.GetPosition() + Box_Speed))//移動後のプレイヤー位置と地面で表裏を判定 
+	//{
+	//	Box_Speed.y = 0;
+	//}
+
+	////プレイヤー座標更新
+	//m_player.SetPosition(m_player.GetPosition() + Box_Speed);
+
+	////取り付けられているオブジェクトも同時に動かす
+	//for (int i = 0; i < m_objects.size(); i++)
+	//{
+	//	if (m_objects[i]->GetAdhesioing())
+	//	{
+	//		m_objects[i]->SetPosition(m_objects[i]->GetPosition() + Box_Speed);
+	//	}
+	//}
 	
 }
 
@@ -257,6 +406,7 @@ void MecScene::PlayerAdhesion()
 		// 3) 見つかった最も近いオブジェクトにだけ処理を通す
 		if (closest) {
 			closest->SetAdhesioing(true);
+			closest->SetPosition(m_player.ConectPos());
 		}
 
 
@@ -276,15 +426,15 @@ void MecScene::AddSpeed(float initSpeed, Vector3 Speed)
 	float newSpeedZ = Speed.z * initSpeed;
 
 	// 速度更新時に絶対値で判定し、方向を維持する
-	if (fabs(Box_Speed.x) < fabs(newSpeedX)) Box_Speed.x = newSpeedX;
-	if (fabs(Box_Speed.y) < fabs(newSpeedY)) Box_Speed.y = newSpeedY;
-	if (fabs(Box_Speed.z) < fabs(newSpeedZ)) Box_Speed.z = newSpeedZ;
+	if (fabs(Object_Position.x) < fabs(newSpeedX)) Object_Position.x = newSpeedX;
+	if (fabs(Object_Position.y) < fabs(newSpeedY)) Object_Position.y = newSpeedY;
+	if (fabs(Object_Position.z) < fabs(newSpeedZ)) Object_Position.z = newSpeedZ;
 
 }
 
 void MecScene::SetSpeed(Vector3 Speed)
 {
-	Box_Speed = Speed;
+	Object_Position = Speed;
 }
 
 void MecScene::Debug_Box()

@@ -13,14 +13,14 @@ void M_Player::Init()
 	//	"assets/model/Mec/MecBone.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
 
-	//ロボットモデル
-	m_mesh.Load(
-		"assets/model/Mec/NeoMecBone.fbx",				// モデル名
-		"assets/model/Mec/");						// テクスチャのパス
-
+	////ロボットモデル
 	//m_mesh.Load(
-	//	"assets/model/Mec/NeoMecBone3.fbx",				// モデル名
+	//	"assets/model/Mec/NeoMecBone.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
+
+	m_mesh.Load(
+		"assets/model/Mec/NeoMecBone2.fbx",				// モデル名
+		"assets/model/Mec/");						// テクスチャのパス
 
 	//テスト用のモデル
 	//m_mesh.Load(
@@ -45,10 +45,6 @@ void M_Player::Init()
 	//スケール調整
 	SetScale({ 1.0f,1.0f,1.0f });
 
-
-	//m_Rotation.x += 1;
-	//m_Rotation.y += 1;
-
 	//デバック用GUI一式
 	// BOXのSRTの設定用
 	DebugUI::RedistDebugFunction([this]() {
@@ -66,6 +62,10 @@ void M_Player::Update()
 
 	void M_Player::Draw()
 {
+		//姿勢の補完をここでする
+		m_Rotation.x += 1.55;
+		m_Rotation.y += 1.55;
+
 	// SRT情報作成
 	SRT srt;
 	srt.scale = m_Scale;			// 拡縮
@@ -90,6 +90,9 @@ void M_Player::Update()
 	//g_scale = m_Scale;
 	
 	m_bullet.Draw();
+
+	m_Rotation.x -= 1.55;
+	m_Rotation.y -= 1.55;
 }
 
 void M_Player::Dispose()
@@ -108,4 +111,24 @@ void M_Player::Debug_Player()
 
 	// カメラの位置を極座標からデカルト座標に変換
 	ImGui::End();
+}
+
+Vector3 M_Player::ConectPos() 
+{
+	//姿勢補完分
+	m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;
+
+	SRT srt;
+	srt.scale = m_Scale;			// 拡縮
+	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.pos = m_Position;			// 位置
+
+	Vector3 returnpos = m_meshrenderer.LogBoneWorldPosition("Conect", srt);
+
+	m_Rotation.x -= 1.55;
+	m_Rotation.y -= 1.55;
+
+	return returnpos;
+	
 }

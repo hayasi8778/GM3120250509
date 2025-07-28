@@ -43,8 +43,8 @@ class CStaticMeshRenderer : public CMeshRenderer
 	DirectX::SimpleMath::Vector3 m_Modelrot = { 0.0f,0.0f,0.0f };//モデルへの補正角
 
 	// ② 再帰ヘルパー：見つかったら true を返して探索を打ち切る
-	bool FindAndLogBoneRecursive(const aiNode* node,const aiMatrix4x4& parentAiM,
-		const std::string& targetName,const SRT& srt);
+	bool FindAndLogBoneRecursive(const aiNode* node,const aiMatrix4x4& parentAiM,const std::string& targetName,
+		const SRT& srt,Vector3& outPos);
 
 public:	
 	void Init(CStaticMesh& mesh);
@@ -56,6 +56,6 @@ public:
 	DirectX::SimpleMath::Vector3 GetModelRot() { return m_Modelrot; };
 
 	// ① 公開メソッド：ターゲットボーン名を指定してログを出力
-	void LogBoneWorldPosition(const std::string& targetName,const SRT& srt);
+	Vector3 LogBoneWorldPosition(const std::string& targetName,const SRT& srt);
 
 };

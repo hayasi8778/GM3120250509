@@ -15,5 +15,6 @@ public:
 	void Draw() override;
 	void Dispose() override;
 	void Debug_Player();//デバック用GUI一式
+	Vector3 ConectPos();
 		
 };

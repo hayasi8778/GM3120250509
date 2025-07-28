@@ -57,6 +57,8 @@ void MecScene::update(uint64_t deltatime)
 
 	PlayerAdhesion();
 
+	m_player.Update();
+
 	//m_camera.SetLookat(m_boxSRTs[0].pos);
 	m_camera.SetLookat(m_player.GetPosition());
 }
@@ -67,7 +69,7 @@ void MecScene::draw(uint64_t deltatime)
 
 	m_cameraF.Draw();
 
-	m_field->Draw();
+	//m_field->Draw();
 
 	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
 
@@ -133,10 +135,6 @@ void MecScene::PlayerMove()
 	{
 		step = true;
 	}
-
-
-	
-
 	
 	//左右移動
 	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_D))//Dキー
@@ -206,15 +204,6 @@ void MecScene::PlayerMove()
 	if (fabs(Box_Speed.y) < 0.01f) Box_Speed.y = 0.0f;
 	if (fabs(Box_Speed.z) < 0.01f) Box_Speed.z = 0.0f;
 
-	// 位置を更新
-	Box_Position.x += Box_Speed.x;
-	Box_Position.y += Box_Speed.y;
-	Box_Position.z += Box_Speed.z;
-
-	m_boxSRTs[0].pos.x += Box_Speed.x;
-	m_boxSRTs[0].pos.y += Box_Speed.y;
-	m_boxSRTs[0].pos.z += Box_Speed.z;
-
 	//地面にめり込むならY軸の加速度を0にして実行
 	if (!m_field->IsFrontSide(m_player.GetPosition() + Box_Speed))//移動後のプレイヤー位置と地面で表裏を判定 
 	{
@@ -231,7 +220,6 @@ void MecScene::PlayerMove()
 		{
 			m_objects[i]->SetPosition(m_objects[i]->GetPosition() + Box_Speed);
 		}
-
 	}
 	
 }

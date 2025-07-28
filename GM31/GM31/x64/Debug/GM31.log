@@ -1,3 +1,22 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: 中間ディレクトリ (x64\Debug\) に別のプロジェクト (GM31.vcxproj) と共有されているファイルが含まれています。これにより、クリーンしてリビルド動作が適切に行われない可能性があります。
+  AirplaneFlyScene.cpp
+  Bullet.cpp
+  CarDriveScene.cpp
+  Enemies.cpp
+  Enemy.cpp
+  EnemyLookatScene.cpp
+  M_Rock.cpp
+  MecScene.cpp
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(147,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(156,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(164,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(170,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+  ObjParseScene.cpp
+  Player.cpp
   Player_Mec.cpp
+  Skydome.cpp
+  WallCollisionScene.cpp
+  scenemanager.cpp
+  CStaticMeshRenderer.cpp
+  コードを生成中...
   GM31.vcxproj -> C:\Git\GM31Git\GM31\x64\Debug\MyGame.exe

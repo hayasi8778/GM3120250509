@@ -22,6 +22,8 @@ void M_Rock::Init()
 
 	//	DebugUI::RedistDebugFunction(DebugPlayerMoveParameter);
 
+	//m_Position.x = 1000;
+
 }
 
 void M_Rock::Update()

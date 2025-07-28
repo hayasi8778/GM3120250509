@@ -150,8 +150,10 @@
   <ItemGroup>
     <ClInclude Include="AirplaneFlyScene.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Buller.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CarDriveScene.h" />
+    <ClInclude Include="CDumpMatrix.h" />
     <ClInclude Include="CollisionOBBScene.h" />
     <ClInclude Include="Enemies.h" />
     <ClInclude Include="Enemy.h" />
@@ -229,6 +231,7 @@
   <ItemGroup>
     <ClCompile Include="AirplaneFlyScene.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CarDriveScene.cpp" />
     <ClCompile Include="CollisionOBBScene.cpp" />

@@ -46,6 +46,9 @@
     <Filter Include="ソース ファイル\Objects">
       <UniqueIdentifier>{19679e89-c3ee-49ce-a8fa-4d1ca6e1c334}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Object\Enemy">
+      <UniqueIdentifier>{81dc89dc-990b-4d0e-a4f8-e477adf5984d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system\imgui\imconfig.h">
@@ -264,7 +267,7 @@
     <ClInclude Include="Enemies.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
+    <ClInclude Include="Enemy_Default.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Enemy_Rotation_Random.h">
@@ -283,6 +286,15 @@
       <Filter>ヘッダー ファイル\System</Filter>
     </ClInclude>
     <ClInclude Include="Buller.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Gun.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_Missile.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="E_Missile.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
   </ItemGroup>
@@ -465,6 +477,15 @@
       <Filter>ソース ファイル\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Bullet.cpp">
+      <Filter>ソース ファイル\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Gun.cpp">
+      <Filter>ソース ファイル\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Missile.cpp">
+      <Filter>ソース ファイル\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_Missile.cpp">
       <Filter>ソース ファイル\Objects</Filter>
     </ClCompile>
   </ItemGroup>

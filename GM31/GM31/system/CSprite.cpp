@@ -142,7 +142,7 @@ void CSprite::Draw(Vector3 scale,Vector3 rotation,Vector3 pos)
 
 	worldmtx = srt.GetMatrix();
 
-	Renderer::SetWorldViewProjection2D();	// 2D用のビュー行列をセット
+	//Renderer::SetWorldViewProjection2D();	// 2D用のビュー行列をセット
 
 	Renderer::SetWorldMatrix(&worldmtx);	// GPUにセット
 

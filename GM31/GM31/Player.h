@@ -26,10 +26,13 @@ class Player  : public Object{
 	//CShader			m_shader;	// シェーダ
 public:
 	void Init() override;
-	void Update() override;
+	void Update(uint64_t deltatime) override;
 	void Update2();				// NOInterporation
 	void Draw() override;
 	void Dispose() override;
+	void Adhesioing() override;
+	void Action(Vector3 vec) override;
+	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 
 	/*void SetPosition(Vector3 pos) { m_Position = pos; }
 	void SetRotation(Vector3 rot) { m_Rotation = rot; }

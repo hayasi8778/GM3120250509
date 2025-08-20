@@ -6,7 +6,7 @@
 #include "system/CStaticMeshRenderer.h"
 #include "system/CShader.h"
 #include "Enemies.h"
-#include "Enemy.h"
+#include "Enemy_Default.h"
 
 // “G‘½”
 std::vector<std::unique_ptr<Enemy>> g_Enemies;

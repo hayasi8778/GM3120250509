@@ -156,12 +156,17 @@
     <ClInclude Include="CDumpMatrix.h" />
     <ClInclude Include="CollisionOBBScene.h" />
     <ClInclude Include="Enemies.h" />
-    <ClInclude Include="Enemy.h" />
-    <ClInclude Include="EnemyLookatScene.h" />
+    <ClInclude Include="Enemy_Default.h" />
+    <ClInclude Include="EnemyLookatScene.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Enemy_Missile.h" />
     <ClInclude Include="Enemy_Rotation_Random.h" />
+    <ClInclude Include="E_Missile.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="fpscontrol.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="Gun.h" />
     <ClInclude Include="ImageDisplayScene.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MecScene.h" />
@@ -225,7 +230,9 @@
     <ClInclude Include="system\SphereDrawer.h" />
     <ClInclude Include="system\stb_image.h" />
     <ClInclude Include="system\transform.h" />
-    <ClInclude Include="WallCollisionScene.h" />
+    <ClInclude Include="WallCollisionScene.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="walls.h" />
   </ItemGroup>
   <ItemGroup>
@@ -237,9 +244,14 @@
     <ClCompile Include="CollisionOBBScene.cpp" />
     <ClCompile Include="Enemies.cpp" />
     <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="EnemyLookatScene.cpp" />
+    <ClCompile Include="EnemyLookatScene.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Enemy_Missile.cpp" />
+    <ClCompile Include="E_Missile.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="Gun.cpp" />
     <ClCompile Include="ImageDisplayScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MecScene.cpp" />
@@ -287,7 +299,9 @@
     <ClCompile Include="system\renderer.cpp" />
     <ClCompile Include="system\SphereDrawer.cpp" />
     <ClCompile Include="system\stb.cpp" />
-    <ClCompile Include="WallCollisionScene.cpp" />
+    <ClCompile Include="WallCollisionScene.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="walls.cpp" />
   </ItemGroup>
   <ItemGroup>

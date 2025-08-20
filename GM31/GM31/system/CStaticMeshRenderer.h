@@ -58,4 +58,12 @@ public:
 	// ① 公開メソッド：ターゲットボーン名を指定してログを出力
 	Vector3 LogBoneWorldPosition(const std::string& targetName,const SRT& srt);
 
+	//ボーン番号を指定する座標出力
+	Vector3 LogBoneWorldPosition(int cr, const SRT& srt);
+
+	//AABB作るためのやつ
+	void ComputeModelAABB(
+		aiVector3D& outMin,
+		aiVector3D& outMax);
+
 };

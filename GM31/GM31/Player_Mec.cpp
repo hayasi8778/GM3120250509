@@ -3,24 +3,26 @@
 
 void M_Player::Init()
 {
-	//プレイヤーなので接触フラグは最初からon
-	Adhesioing = true;
+	//属性
+	Attribute = PLAYER;
 
-	m_bullet.Init();
+	//プレイヤーなので接触フラグは最初からon
+	adhesioing = true;
+	
 
 	//ロボットモデル
-	//m_mesh.Load(
-	//	"assets/model/Mec/MecBone.fbx",				// モデル名
-	//	"assets/model/Mec/");						// テクスチャのパス
+	m_mesh.Load(
+		"assets/model/Mec/MecBone.fbx",				// モデル名
+		"assets/model/Mec/");						// テクスチャのパス
 
 	////ロボットモデル
 	//m_mesh.Load(
 	//	"assets/model/Mec/NeoMecBone.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
 
-	m_mesh.Load(
-		"assets/model/Mec/NeoMecBone2.fbx",				// モデル名
-		"assets/model/Mec/");						// テクスチャのパス
+	//m_mesh.Load(
+	//	"assets/model/Mec/NeoMecBone4.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
 
 	//テスト用のモデル
 	//m_mesh.Load(
@@ -45,19 +47,58 @@ void M_Player::Init()
 	//スケール調整
 	SetScale({ 1.0f,1.0f,1.0f });
 
+	//位置補正
+	m_Position.y += 9;
+
+	for (int i = 0; i < 20; i++) 
+	{
+		m_bullet[i].Init();
+	}
+
+
 	//デバック用GUI一式
 	// BOXのSRTの設定用
 	DebugUI::RedistDebugFunction([this]() {
 		Debug_Player();
 		});
 
+	//弾の当たり判定
+	aiVector3D minpos;
+	aiVector3D maxpos;
+
+	ModelAABB(minpos, maxpos);
+
+	Width = maxpos.x - minpos.x;
+	Height = maxpos.y - minpos.y;
+	Depth = maxpos.z - minpos.z;
+
+	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
+
 }
 
-void M_Player::Update()
+void M_Player::Update(uint64_t deltatime)
 {
-	//m_Rotation.x += 0.01;
+	if (Burst) //フルバーストするならの処理
+	{
+		time += static_cast<float>(deltatime) / 1000;
+		if (time > 100) 
+		{
+			FullBurst();
+			if (bulletcur > 19) {
+				Burst = false;
+				bulletcur = 0;
+			}
+			time = 0;
+		}
 
-	m_bullet.Update();
+		
+
+	}
+
+	for (int i = 0; i < 20; i++)
+	{
+		m_bullet[i].Update(deltatime);
+	}
 }
 
 	void M_Player::Draw()
@@ -80,24 +121,81 @@ void M_Player::Update()
 
 	m_shader.SetGPU();
 	
-	m_meshrenderer.Draw();
+	if(DrawModel)m_meshrenderer.Draw();
 
-	m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
+	if (DrawBone)m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
 
 	//// デバッグ用のグローバル変数に値をセット
 	//g_position = m_Position;
 	//g_rotation = m_Rotation;
 	//g_scale = m_Scale;
-	
-	m_bullet.Draw();
+
+	for (int i = 0; i < 20; i++)
+	{
+		m_bullet[i].Draw();
+	}
+
+	// 弾の回転角度から回転行列を作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 
 	m_Rotation.x -= 1.55;
 	m_Rotation.y -= 1.55;
+
+	
 }
 
 void M_Player::Dispose()
 {
 
+}
+
+void M_Player::Adhesioing()
+{
+
+}
+
+void M_Player::Action(Vector3 vec)
+{
+	Burst = true;
+
+	FullBurst();
+}
+
+GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
+{
+	GM31::GE::Collision::BoundingBoxOBB obb;
+
+	obb = GM31::GE::Collision::SetOBB(
+		m_Rotation,				// 姿勢（回転角度）
+		m_Position,				// 中心座標（ワールド）
+		Width,					// 幅
+		Height,					// 高さ
+		Depth);					// 奥行
+
+	return obb;
+}
+
+Vector3 M_Player::GetForward()
+{
+	SRT srt;
+	srt.scale = m_Scale;			// 拡縮
+	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.pos = m_Position;			// 位置
+
+	//新しい弾を作る
+	Matrix4x4 world = srt.GetMatrix();
+	Vector3 Forward = world.Forward();
+	return Forward;
 }
 
 void M_Player::Debug_Player()
@@ -132,3 +230,40 @@ Vector3 M_Player::ConectPos()
 	return returnpos;
 	
 }
+
+void M_Player::FullBurst()
+{
+	if (!Target) return;
+	
+	SRT srt = GetSRT();
+
+	srt.rot.x += 1.5;
+	Matrix4x4 world = srt.GetMatrix();
+	Vector3 forward = world.Forward();
+	forward.Normalize();
+	forward *= 3.0f;
+
+	m_bullet[bulletcur].SetForward(forward);
+
+
+	////前向き行列取ってから姿勢補完する
+	////姿勢補完分
+	//srt.rot.x += 1.55;
+	//srt.rot.y += 1.55;
+	//Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
+
+
+	m_bullet[bulletcur].SetScale(Vector3(1, 1, 1));
+	m_bullet[bulletcur].SetRotation(srt.rot);
+	m_bullet[bulletcur].SetPosition(srt.pos);
+	m_bullet[bulletcur].Setinduction(1000, forward);
+	m_bullet[bulletcur].SetTarget(Target);
+
+	bulletcur++;
+}
+
+//バグが起きた時のために一応残しておく
+//void M_Player::ModelAABB(aiVector3D& outMin, aiVector3D& outMax)
+//{
+//	m_meshrenderer.ComputeModelAABB(outMin, outMax);
+//}

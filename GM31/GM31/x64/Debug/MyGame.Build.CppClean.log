@@ -1,6 +1,5 @@
 c:\git\gm31git\gm31\gm31\x64\debug\vc143.pdb
 c:\git\gm31git\gm31\gm31\x64\debug\vc143.idb
-c:\git\gm31git\gm31\gm31\x64\debug\rubikcubescene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\quaternionscene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\qtlooatat.obj
 c:\git\gm31git\gm31\gm31\x64\debug\player_mec.obj
@@ -18,9 +17,9 @@ c:\git\gm31git\gm31\gm31\x64\debug\enemies.obj
 c:\git\gm31git\gm31\gm31\x64\debug\collisionobbscene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\cardrivescene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\camera.obj
+c:\git\gm31git\gm31\gm31\x64\debug\bullet.obj
 c:\git\gm31git\gm31\gm31\x64\debug\application.obj
 c:\git\gm31git\gm31\gm31\x64\debug\airplaneflyscene.obj
-c:\git\gm31git\gm31\gm31\x64\debug\cstaticmeshrenderer.obj
 c:\git\gm31git\gm31\gm31\x64\debug\cstaticmesh.obj
 c:\git\gm31git\gm31\gm31\x64\debug\csprite.obj
 c:\git\gm31git\gm31\gm31\x64\debug\cshader.obj
@@ -40,6 +39,7 @@ c:\git\gm31git\gm31\gm31\x64\debug\skydome.obj
 c:\git\gm31git\gm31\gm31\x64\debug\shape3dscene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\scenemanager.obj
 c:\git\gm31git\gm31\gm31\x64\debug\scenechanger.obj
+c:\git\gm31git\gm31\gm31\x64\debug\rubikcubescene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\walls.obj
 c:\git\gm31git\gm31\gm31\x64\debug\wallcollisionscene.obj
 c:\git\gm31git\gm31\gm31\x64\debug\stb.obj
@@ -59,7 +59,8 @@ c:\git\gm31git\gm31\gm31\x64\debug\dx11helper.obj
 c:\git\gm31git\gm31\gm31\x64\debug\debugui.obj
 c:\git\gm31git\gm31\gm31\x64\debug\cylinderdrawer.obj
 c:\git\gm31git\gm31\gm31\x64\debug\ctexture.obj
-c:\git\gm31git\gm31\gm31\x64\debug\bullet.obj
+c:\git\gm31git\gm31\gm31\x64\debug\cstaticmeshrenderer.obj
+c:\git\gm31git\gm31\gm31\x64\debug\gun.obj
 c:\git\gm31git\gm31\x64\debug\geometryshader.cso
 c:\git\gm31git\gm31\x64\debug\unlittextureps.cso
 c:\git\gm31git\gm31\x64\debug\unlittexturevs.cso

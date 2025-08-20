@@ -2,7 +2,7 @@
 #include "system/CStaticMesh.h"
 #include "system/CStaticMeshRenderer.h"
 #include "system/CDirectInput.h"
-#include "Enemy.h"
+#include "Enemy_Default.h"
 #include "Player.h"
 #include "EnemyLookatScene.h"
 #include "Enemy_Rotation_Random.h"

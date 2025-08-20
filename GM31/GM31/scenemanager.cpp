@@ -42,12 +42,12 @@ void SceneManager::Init()
 	m_currentSceneName = "EnemyLookatScene";
 	*/
 
-	/*
-	//ö‹Æ‘—¿
-	m_scenes["CarDriveScene"] = std::make_unique<CarDriveScene>();
-	m_scenes["CarDriveScene"]->init();
-	m_currentSceneName = "CarDriveScene";
-	*/
+	
+	////ö‹Æ‘—¿
+	//m_scenes["ImageDisplayScene"] = std::make_unique<ImageDisplayScene>();
+	//m_scenes["ImageDisplayScene"]->init();
+	//m_currentSceneName = "ImageDisplayScene";
+	
 
 	
 	//©ì•¨

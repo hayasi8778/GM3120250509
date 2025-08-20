@@ -59,7 +59,7 @@ void Player::Init()
 
 }
 
-void Player::Update()
+void Player::Update(uint64_t deltatime)
 {
 	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_A)) {
 		if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_W))
@@ -380,4 +380,19 @@ void Player::Draw()
 void Player::Dispose()
 {
 
+}
+
+void Player::Adhesioing()
+{
+
+}
+
+void Player::Action(Vector3 vec)
+{
+
+}
+
+GM31::GE::Collision::BoundingBoxOBB Player::GetOBB()
+{
+	return GM31::GE::Collision::BoundingBoxOBB();
 }

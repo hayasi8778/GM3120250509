@@ -118,7 +118,7 @@ void WallCollisionScene::update(uint64_t deltatime)
 		m_player->Update2();	// プレイヤの更新
 		break;
 	case Interpolation:
-		m_player->Update();	// プレイヤの更新
+		m_player->Update(deltatime);	// プレイヤの更新
 		break;
 	}
 

@@ -6,15 +6,27 @@
 #include "system/DebugUI.h"
 #include "Camera.h"
 #include "Field.h"
+#include "system/CSprite.h"
 
 #include "Player_Mec.h"
 #include "M_Rock.h"
+#include "Gun.h"
+#include "Enemy_Missile.h"
+
+enum UseCamera //オブジェクトの役割
+{
+	UseCameraFree, 
+	UseCameraNormal,
+	UseCameraRockOn,
+	CAMERA_MAX
+};
 
 //ロボットの挙動テスト用のシーン
 class MecScene : public IScene 
 {
 	
 public:
+	MecScene() = default;
 	void update(uint64_t deltatime) override;
 	void draw(uint64_t deltatime) override;
 	void init() override;
@@ -22,12 +34,19 @@ public:
 
 	void PlayerMove();
 	void PlayerAdhesion(); //オブジェクトの接合
+	void PlayerShot();
 	void AddSpeed(float, Vector3);
 	void SetSpeed(Vector3);
+
+	//ロックオンカーソルの描画
+	void RockonDraw();
+	void CameraFlip();//使用カメラ切り替え
 
 	//デバック用のGUI
 	void Debug_Box();
 	void debugFreeCamera();
+
+	void PlayerMovetes();
 private:
 	//重力
 	float gravity = -9.8f;
@@ -35,6 +54,10 @@ private:
 	static constexpr float CUBE_SIZE = 10.0f;
 
 	constexpr static uint32_t BOXNUM = 2;			// BOXの個数
+
+	aiVector3D minpos;
+
+	aiVector3D maxpos;
 
 	//箱に座標情報があるか分からなかったからポジションを作る
 	Vector3 Object_Position = {0.0f,0.0f,0.0f};
@@ -52,7 +75,9 @@ private:
 	// 回転行列
 	Matrix4x4 m_RotationMtx{};
 
+	int UseCamera = UseCameraFree;//どのカメラ使うか
 	Camera m_camera;									// 固定カメラ
+	Vector3 camRot = Vector3{ 0,0,0 };					//カメラの向き
 	FreeCamera m_cameraF;								//デバック用の自由カメラ
 	//デバック用の箱
 	std::unique_ptr<Box> m_shapecube;					// 立方体
@@ -62,11 +87,23 @@ private:
 	std::array<SRT, BOXNUM> m_boxSRTs{};					// BOXのSRT
 	std::array<Vector3, BOXNUM> m_boxSizes{};				// BOXのサイズ
 
+
+	std::unique_ptr<Box> m_shapecube_col;					// 立方体
+	std::array<SRT, BOXNUM> m_boxSRTs_col{};					// BOXのSRT
+	std::array<Vector3, BOXNUM> m_boxSizes_col{};				// BOXのサイズ
+
 	std::unique_ptr<Field> m_field;						// フィールド
 
 	M_Player m_player;//プレイヤーモデル(仮)
-	M_Rock m_rock;
 
 	std::vector<std::unique_ptr<Object>> m_objects{};                    //接続可能なオブジェクト群
+	std::vector<std::unique_ptr<Object>> m_enemys{};                    //敵
+
+	//接合中のオブジェクト(未接続のときにnullポインタで返すようにする)
+	Object* AdhesioingObject = nullptr;
+
+	//ロックオンカーソル
+	std::unique_ptr<CSprite> m_image;
+
 
 };

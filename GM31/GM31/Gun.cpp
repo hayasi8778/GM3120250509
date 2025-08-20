@@ -1,0 +1,161 @@
+#include "Gun.h"
+
+M_Gun::M_Gun()
+{
+}
+
+M_Gun::~M_Gun()
+{
+}
+
+void M_Gun::Init()
+{
+	//属性
+	Attribute = JOINABLE;
+
+	m_mesh.Load(
+		"assets/model/Mec/Gun.fbx",				// モデル名
+		"assets/model/Mec/");						// テクスチャのパス
+
+
+	//レンダラ初期化
+	m_meshrenderer.Init(m_mesh);
+
+	// シェーダーの初期化
+	m_shader.Create(
+		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
+	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
+
+	m_Position.x += 20;
+	m_Position.z += 10;
+
+	aiVector3D minpos;
+	aiVector3D maxpos;
+
+	ModelAABB(minpos, maxpos);
+
+	Width = maxpos.x - minpos.x;
+	Height = maxpos.y - minpos.y;
+	Depth = maxpos.z - minpos.z;
+
+	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
+};
+
+void M_Gun::Update(uint64_t deltatime)
+{
+	// 移動(弾丸)
+	for (auto& pb : m_bullet) {
+
+		pb->Update(deltatime);
+		pb->Life--;
+		if (pb->Life <= 0) {
+			pb->erase = true;
+		}
+	}
+
+	// 削除フラグがTRUEになっているものを消す
+	std::erase_if(m_bullet, [](const std::unique_ptr<Bullet>& b) {
+		
+		return b->erase;
+		});
+
+	if (!adhesioing) //重力
+	{
+		m_Position.y -= 0.4;
+	}
+	if (m_Position.y < 0) //地面にめり込まないようにする
+	{
+		m_Position.y = 0;
+	}
+};
+
+void M_Gun::Draw()
+{
+	//姿勢の補完をここでする
+	m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;
+
+	// SRT情報作成
+	SRT srt;
+	srt.pos = m_Position;			// 位置
+	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.scale = m_Scale;			// 拡縮
+
+	Matrix4x4 worldmtx;
+
+	worldmtx = srt.GetMatrix();
+
+	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
+
+	m_shader.SetGPU();
+
+	m_meshrenderer.Draw();
+
+	// 移動
+	for (auto& pb : m_bullet) {
+
+		pb->Draw();
+	}
+
+	//姿勢の補完をここでする
+	m_Rotation.x -= 1.55;
+	m_Rotation.y -= 1.55;
+};
+
+void M_Gun::Dispose()
+{
+
+};
+
+void M_Gun::Adhesioing()
+{
+
+};
+
+void M_Gun::Action(Vector3 vec)
+{
+	// SRT情報作成
+	SRT srt;
+	srt.scale = m_Scale;			// 拡縮
+	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.pos = m_Position;			// 位置
+
+	//新しい弾を作る
+	std::unique_ptr<Bullet> pb = std::make_unique<Bullet>();
+
+	Matrix4x4 world = srt.GetMatrix();
+	Vector3 forward = world.Forward();
+	forward.Normalize();
+	forward *= 3.0f;
+
+	pb->SetForward(forward);
+
+
+	//前向き行列取ってから姿勢補完する
+	//姿勢補完分
+	srt.rot.x += 1.55;
+	srt.rot.y += 1.55;
+	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
+
+	pb->SetScale(Vector3(1, 1, 1));
+	pb->SetRotation(m_Rotation);
+	pb->SetPosition(bulletpos);
+
+	m_bullet.push_back(std::move(pb));
+};
+
+GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
+{
+	GM31::GE::Collision::BoundingBoxOBB obb;
+
+	obb = GM31::GE::Collision::SetOBB(
+		m_Rotation,				// 姿勢（回転角度）
+		m_Position,				// 中心座標（ワールド）
+		Width,					// 幅
+		Height,					// 高さ
+		Depth);					// 奥行
+
+	return obb;
+}

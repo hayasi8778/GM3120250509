@@ -17,6 +17,18 @@ static DirectX::SimpleMath::Matrix ToSM(const aiMatrix4x4& m)
     );
 }
 
+// ① GetGlobalAiMatrix(): aiNode 階層を辿って完全な world 行列を再現
+aiMatrix4x4 GetGlobalAiMatrix(const aiNode* node)
+{
+    aiMatrix4x4 m = node->mTransformation;
+    while (node->mParent)
+    {
+        node = node->mParent;
+        m = node->mTransformation * m;
+    }
+    return m;
+}
+
 void DumpMetaData(const aiScene* scene)
 {
     if (!scene->mMetaData) {
@@ -174,31 +186,6 @@ void CStaticMeshRenderer::Draw(const SRT& objectSrt)
 void CStaticMeshRenderer::DrawWithBones(SRT srt, const Color& boneColor)
 {
 
-    //Matrix4x4 world = srt.GetMatrix();
-
-    ////printf("ボーン座標ログ\n");
-
-    //// サブメッシュ数分だけ回して、「SRT × Assimpノード行列」を計算し、
-    //for (size_t meshIdx = 0; meshIdx < m_Worlds.size(); ++meshIdx)
-    //{
-    //    // Assimp で計算済みのサブメッシュワールド
-    //    const auto& modelWorld = m_Worlds[meshIdx];
-
-    //    // プレイヤーの移動／回転／拡縮を先に掛ける
-    //    Matrix4x4 objWorld = world * modelWorld;
-
-    //    // ここで一度だけルートから骨を描画
-    //    DrawBoneRecursive(
-    //        m_pScene->mRootNode,    // ノード階層のルート
-    //        aiMatrix4x4{},          // 親行列＝Identity
-    //        boneColor,              // 好きな色
-    //        objWorld,               // 先ほど組んだ最終ワールド
-    //        srt                     // 球のスケールに使うだけ
-    //    );
-    //}
-
-    //printf("ボーン座標ログ終わり\n");
-
     if (!m_pScene) return;
     auto ctx = Renderer::GetDeviceContext();
 
@@ -219,7 +206,7 @@ void CStaticMeshRenderer::DrawBoneRecursive(
     SRT  srt)
 {
     // ① ボーンのローカル行列を取得
-    aiMatrix4x4 localAiM = node->mTransformation ;
+    aiMatrix4x4 localAiM = node->mTransformation;
     aiMatrix4x4 globalAiM = parentAiM * localAiM;
 
     // ② モデルのワールド行列（SRT → Matrix4x4）
@@ -291,6 +278,65 @@ Vector3 CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName,
     }
 
     return resultPos;
+
+}
+
+Vector3 CStaticMeshRenderer::LogBoneWorldPosition(int cr, const SRT& srt)
+{
+    if (!m_pScene)
+        return Vector3::Zero;  // シーン未設定時は(0,0,0)返却
+
+    auto mesh = m_pScene->mMeshes[0];           // メッシュ 0番目
+    int boneCount = mesh->mNumBones;           //ボーンの合計数(ルートボーン込み)
+
+    if (cr < 0 || cr >= boneCount) return Vector3::Zero;//外側参照もしくはルートボーン参照しているなら0
+
+    // aiBone→aiNode
+    const aiBone* bone = mesh->mBones[cr];
+    aiNode* node = m_pScene->mRootNode->FindNode(bone->mName);
+    if (!node) return Vector3::Zero;//目的のノードがない場合も0
+
+    // Assimp 上の global 行列
+    aiMatrix4x4 globalAiM = GetGlobalAiMatrix(node);
+
+    // オブジェクト SRT をかけて最終ワールド座標を計算
+    Vector3 rawPos{
+        globalAiM.a4,
+        globalAiM.b4,
+        globalAiM.c4
+    };
+    // 回転：YawPitchRoll → Quaternion
+    auto q = Quaternion::CreateFromYawPitchRoll(
+        srt.rot.y, srt.rot.x, srt.rot.z
+    );
+    Vector3 rotated = Vector3::Transform(rawPos, q);
+    Vector3 scaled = rotated * srt.scale;
+    Vector3 world = scaled + srt.pos;
+
+    return world;
+}
+
+void CStaticMeshRenderer::ComputeModelAABB(aiVector3D& outMin, aiVector3D& outMax)
+{
+    // 初期化
+    const float INF = std::numeric_limits<float>::infinity();
+    outMin = aiVector3D(INF, INF, INF);
+    outMax = aiVector3D(-INF, -INF, -INF);
+
+    // 全メッシュを走査
+    for (unsigned m = 0; m < m_pScene->mNumMeshes; ++m) {
+        const aiMesh* mesh = m_pScene->mMeshes[m];
+        //全インデックスでループ
+        for (unsigned v = 0; v < mesh->mNumVertices; ++v) {
+            const aiVector3D& p = mesh->mVertices[v];
+            outMin.x = std::min(outMin.x, p.x);
+            outMin.y = std::min(outMin.y, p.y);
+            outMin.z = std::min(outMin.z, p.z);
+            outMax.x = std::max(outMax.x, p.x);
+            outMax.y = std::max(outMax.y, p.y);
+            outMax.z = std::max(outMax.z, p.z);
+        }
+    }
 
 }
 

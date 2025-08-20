@@ -1,7 +1,7 @@
 #pragma once
 #include "system/commontypes.h"
 #include "system/IScene.h"
-#include "Enemy.h"
+#include "Enemy_Default.h"
 
 constexpr int ENEMYMAX = 100;
 

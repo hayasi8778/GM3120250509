@@ -63,7 +63,7 @@ void gameloop()
 {
 	uint64_t delta_time = 0;
 
-	// フレームの待ち時間を計算する
+	// フレームの待ち時間を計算する(ミリ秒)
 	static FPS fpsrate(70);
 
 	// 前回実行されてからの経過時間を計測

@@ -19,6 +19,8 @@ private:
 	float Width;
 	float Height;
 	float Depth;
+
+	bool col = false; //当たり判定取るためのやつ
 public:
 	void Init() override;
 	void Update(uint64_t deltatime) override;
@@ -31,6 +33,7 @@ public:
 
 	void SetTarget(Vector3* tar) { Target = tar; }
 	Vector3* GetTarget() { return Target; }
+	void SetCol(bool collision) { col = collision; }
 	void Debug_Player();//デバック用GUI一式
 	Vector3 ConectPos();
 	void FullBurst();

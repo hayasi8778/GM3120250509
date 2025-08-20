@@ -192,6 +192,8 @@ void MecScene::draw(uint64_t deltatime)
 		}
 	}
 
+	m_player.SetCol(GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_objects[0]->GetOBB()));
+
 	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_boxSRTs[0].pos);
 
 	SRT plsrt = m_player.GetSRT();

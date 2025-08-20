@@ -121,6 +121,31 @@ void E_Missile::Draw()
 	m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
+
+	//弾のAABBボックス表示
+	Vector3 poscop = m_Position;
+	// 弾の回転角度から回転行列を作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// forward 抽出
+	Vector3 forward(transmtx._31, transmtx._32, transmtx._33);
+	forward.Normalize();
+
+	//原点とモデルの差の分ずらして再定義
+	m_Position += forward * 5.0f;
+	transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	m_Position = poscop;//positionは元に戻しておく
+
+	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 }
 
 void E_Missile::Dispose()
@@ -142,12 +167,34 @@ GM31::GE::Collision::BoundingBoxOBB E_Missile::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
+	//forwardベクトルはあえて精度の悪いものを使っているため補正はちゃんとした取り方する
+	Vector3 poscop = m_Position;
+	// 弾の回転角度から回転行列を作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// forward 抽出
+	Vector3 forward(transmtx._31, transmtx._32, transmtx._33);
+	forward.Normalize();
+
+	//原点とモデルの差の分ずらして再定義
+	m_Position += forward * 5.0f;
+
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
 		m_Position,				// 中心座標（ワールド）
 		Width,					// 幅
 		Height,					// 高さ
 		Depth);					// 奥行
+
+	m_Position = poscop;
 
 	return obb;
 }

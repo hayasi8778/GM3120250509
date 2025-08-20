@@ -207,14 +207,14 @@ void M_Rock::Action(Vector3 vec)
 GM31::GE::Collision::BoundingBoxOBB M_Rock::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
-
+	m_Position.y += 4;
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
 		m_Position,				// 中心座標（ワールド）
 		Width,					// 幅
 		Height,					// 高さ
 		Depth);					// 奥行
-
+	m_Position.y -= 4;
 	return obb;
 }
 

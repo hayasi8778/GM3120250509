@@ -7,6 +7,8 @@ class M_Gun : public Object
 private:
 	// 弾情報
 	std::vector<std::unique_ptr<Bullet>> m_bullet;
+
+	Vector3 forward;//前方ベクトルを取得するための変数
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
 	float Width;
 	float Height;

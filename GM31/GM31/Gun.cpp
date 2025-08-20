@@ -69,6 +69,21 @@ void M_Gun::Update(uint64_t deltatime)
 	{
 		m_Position.y = 0;
 	}
+
+	// 弾の回転角度から回転行列を作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// forward 抽出
+	forward = { transmtx._31, transmtx._32, transmtx._33 };
+	forward.Normalize();
 };
 
 void M_Gun::Draw()
@@ -98,6 +113,23 @@ void M_Gun::Draw()
 
 		pb->Draw();
 	}
+
+
+	Vector3 poscop = m_Position;//positionのコピーをとる
+	// 弾の回転角度から回転行列を作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+	m_Position.y += 1.0f;
+	m_Position -= forward * 2.0f;
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	m_Position = poscop;//positionは元に戻しておく
+	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 
 	//姿勢の補完をここでする
 	m_Rotation.x -= 1.55;
@@ -148,14 +180,21 @@ void M_Gun::Action(Vector3 vec)
 
 GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
 {
+	Vector3 poscop = m_Position;
+	Vector3 rotcop = m_Rotation;
 	GM31::GE::Collision::BoundingBoxOBB obb;
-
+	m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;
+	m_Position.y += 1.0f;
+	m_Position -= forward * 2.0f;
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
 		m_Position,				// 中心座標（ワールド）
 		Width,					// 幅
 		Height,					// 高さ
 		Depth);					// 奥行
+	m_Position = poscop;
+	m_Rotation = rotcop;
 
 	return obb;
 }

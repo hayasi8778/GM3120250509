@@ -2,27 +2,27 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\FL6Au\Desktop\就職作品進捗\x64\Debug\MyGame.exe</FullPath>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\MyGame.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>C:\Users\FL6Au\Desktop\就職作品進捗\x64\Debug\GeometryShader.cso</FullPath>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\GeometryShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\FL6Au\Desktop\就職作品進捗\x64\Debug\unlitTexturePS.cso</FullPath>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\unlitTexturePS.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\FL6Au\Desktop\就職作品進捗\x64\Debug\unlitTextureVS.cso</FullPath>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\unlitTextureVS.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\FL6Au\Desktop\就職作品進捗\x64\Debug\vertexLightingOneSkinVS.cso</FullPath>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\vertexLightingOneSkinVS.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\FL6Au\Desktop\就職作品進捗\x64\Debug\vertexLightingPS.cso</FullPath>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\vertexLightingPS.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\FL6Au\Desktop\就職作品進捗\x64\Debug\vertexLightingVS.cso</FullPath>
+      <FullPath>C:\Git\GM31Git\GM31\x64\Debug\vertexLightingVS.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

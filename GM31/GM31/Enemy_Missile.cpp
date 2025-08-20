@@ -181,15 +181,25 @@ void Enemy_Missile::Action(Vector3 vec)
 
 GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB()
 {
-	GM31::GE::Collision::BoundingBoxOBB obb;
+	Vector3 poscop = m_Position;
+	Vector3 rotcop = m_Rotation;
 
+	GM31::GE::Collision::BoundingBoxOBB obb;
+	
+	m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;
+	m_Position.y += 1.0f;
+	m_Position -= forward * 2.0f;
+	
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
 		m_Position,				// 中心座標（ワールド）
 		Width,					// 幅
 		Height,					// 高さ
 		Depth);					// 奥行
-
+	
+	m_Position = poscop;
+	m_Rotation = rotcop;
 	return obb;
 }
 

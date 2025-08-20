@@ -146,7 +146,14 @@ void M_Player::Update(uint64_t deltatime)
 
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
-	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
+	if (col) {
+		m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
+	}
+	else 
+	{
+		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
+	}
+	
 
 	m_Rotation.x -= 1.55;
 	m_Rotation.y -= 1.55;
@@ -175,12 +182,20 @@ GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
+	//姿勢の補完をここでする
+	m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;
+
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
 		m_Position,				// 中心座標（ワールド）
 		Width,					// 幅
 		Height,					// 高さ
 		Depth);					// 奥行
+
+	//姿勢の補完をここでする
+	m_Rotation.x -= 1.55;
+	m_Rotation.y -= 1.55;
 
 	return obb;
 }

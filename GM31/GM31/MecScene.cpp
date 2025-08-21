@@ -138,10 +138,14 @@ void MecScene::update(uint64_t deltatime)
 
 	//デバック用のアップデート
 	CameraFlip();
+
+	//当たり判定の処理
+	Collision_Hit();
 }
 
 void MecScene::draw(uint64_t deltatime) 
 {
+
 	switch (UseCamera) 
 	{
 	case UseCameraFree: 
@@ -192,8 +196,6 @@ void MecScene::draw(uint64_t deltatime)
 		}
 	}
 
-	m_player.SetCol(GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_objects[0]->GetOBB()));
-
 	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_boxSRTs[0].pos);
 
 	SRT plsrt = m_player.GetSRT();
@@ -237,6 +239,11 @@ void MecScene::draw(uint64_t deltatime)
 void::MecScene::dispose() 
 {
 
+}
+
+int MecScene::ChangeScene()
+{
+	return 0;
 }
 
 void MecScene::PlayerMove()
@@ -572,6 +579,18 @@ void MecScene::AddSpeed(float initSpeed, Vector3 Speed)
 void MecScene::SetSpeed(Vector3 Speed)
 {
 	Object_Position = Speed;
+}
+
+void MecScene::Collision_Hit()
+{
+	m_player.SetCol(GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_enemys[0]->GetOBB_Bullet(0)));
+
+	//m_enemys[0]->SetCollision(GM31::GE::Collision::CollisionOBB(m_enemys[0]->GetOBB(), m_player.GetOBB()));
+
+	for (int i = 0; i < 20; i++) 
+	{
+		m_enemys[0]->SetCollision(GM31::GE::Collision::CollisionOBB(m_enemys[0]->GetOBB(), m_player.GetOBB_Bullet(i)));
+	}
 }
 
 void MecScene::RockonDraw()

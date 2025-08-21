@@ -46,6 +46,8 @@ public:
      */
     void dispose() override;
 
+    int ChangeScene() override;
+
     /**
      * @brief ImGuiなどでデバッグ情報を表示する
      *

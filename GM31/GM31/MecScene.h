@@ -31,12 +31,15 @@ public:
 	void draw(uint64_t deltatime) override;
 	void init() override;
 	void dispose() override;
+	int ChangeScene() override;
 
 	void PlayerMove();
 	void PlayerAdhesion(); //オブジェクトの接合
 	void PlayerShot();
 	void AddSpeed(float, Vector3);
 	void SetSpeed(Vector3);
+
+	void Collision_Hit(); //オブジェクト間の当たり判定
 
 	//ロックオンカーソルの描画
 	void RockonDraw();
@@ -97,7 +100,8 @@ private:
 	M_Player m_player;//プレイヤーモデル(仮)
 
 	std::vector<std::unique_ptr<Object>> m_objects{};                    //接続可能なオブジェクト群
-	std::vector<std::unique_ptr<Object>> m_enemys{};                    //敵
+	//std::vector<std::unique_ptr<Object>> m_enemys{};                    //敵
+	std::vector<std::unique_ptr<Enemy_Missile>> m_enemys{};                    //敵
 
 	//接合中のオブジェクト(未接続のときにnullポインタで返すようにする)
 	Object* AdhesioingObject = nullptr;

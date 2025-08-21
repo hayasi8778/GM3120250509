@@ -132,3 +132,8 @@ void Shape3DScene::dispose()
 {
 
 }
+
+int Shape3DScene::ChangeScene()
+{
+	return 0;
+}

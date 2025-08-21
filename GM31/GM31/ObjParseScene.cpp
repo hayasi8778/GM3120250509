@@ -413,3 +413,8 @@ void ObjParseScene::dispose()
 {
 
 }
+
+int ObjParseScene::ChangeScene()
+{
+	return 0;
+}

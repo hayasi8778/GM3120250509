@@ -336,3 +336,13 @@ void EnemyLookatScene::dispose()
 	DisposeEnemies();
 
 }
+
+int EnemyLookatScene::ChangeScene()
+{
+	return 0;
+}
+
+int EnemyLookatScene::ChangeScene()
+{
+	return 0;
+}

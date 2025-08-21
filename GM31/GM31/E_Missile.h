@@ -5,6 +5,8 @@
 class E_Missile : public Object
 {
 private:
+	bool shot = false;//発射フラグ
+
 	Vector3 forward;//前方ベクトルを取得するための変数
 
 	Vector3 velocty = Vector3{0,0,0};
@@ -26,6 +28,7 @@ public:
 	void Action(Vector3 vec) override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 
+	void SetShot(bool st) { shot = st; }
 	void SetForward(Vector3 forw) { forward = forw; }
 	Vector3 SetForward() { return forward; }
 	int Life = 120;

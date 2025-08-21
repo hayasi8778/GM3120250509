@@ -10,4 +10,5 @@ public:
 	virtual void draw(uint64_t delta) = 0;
 	virtual void init() = 0;
 	virtual void dispose() = 0;
+	virtual int ChangeScene() = 0;
 };

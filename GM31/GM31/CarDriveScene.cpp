@@ -168,3 +168,9 @@ void CarDriveScene::dispose()
 {
 
 }
+
+
+int CarDriveScene::ChangeScene()
+{
+	return 0;
+}

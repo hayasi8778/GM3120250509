@@ -630,6 +630,11 @@ void RubikCubeScene::dispose()
 
 }
 
+int RubikCubeScene::ChangeScene()
+{
+	return 0;
+}
+
 void RubikCubeScene::UpdateRotationState(char axis, int layer) {
 	// --- ① ALLレイヤー（layer == -1）の場合 ---
 	if (layer == -1) {

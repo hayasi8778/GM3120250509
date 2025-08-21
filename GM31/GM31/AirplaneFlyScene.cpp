@@ -161,6 +161,11 @@ void AirplaneFlyScene::dispose()
 
 }
 
+int AirplaneFlyScene::ChangeScene()
+{
+	return 0;
+}
+
 void AirplaneFlyScene::Fly() 
 {
 	Vector3 inputangle = { 0.0f,0.0f,0.0f };

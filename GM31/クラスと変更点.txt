@@ -4,3 +4,8 @@ Objectクラス
 
  変更点
 　　Action関数の引数にVector3型を追加
+
+
+ISceneクラス
+
+　ChangeScene()シーン切り替え用を導入

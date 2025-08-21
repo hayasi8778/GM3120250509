@@ -167,3 +167,8 @@ void CollisionOBBScene::dispose()
 {
 
 }
+
+int CollisionOBBScene::ChangeScene()
+{
+	return 0;
+}

@@ -21,6 +21,7 @@ public:
 	void draw(uint64_t deltatime) override;
 	void init() override;
 	void dispose() override;
+	int ChangeScene() override;
 	void debugFreeCamera();
 	void debugDirectionalLight();
 	void debugModeSelect();

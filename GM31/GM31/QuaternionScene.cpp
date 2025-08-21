@@ -75,3 +75,8 @@ void QuaternionScene::init()
 void QuaternionScene::dispose()
 {
 }
+
+int QuaternionScene::ChangeScene()
+{
+	return 0;
+}

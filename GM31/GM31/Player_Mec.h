@@ -11,6 +11,9 @@ class M_Player : public Object
 private:
 	Bullet m_bullet[20];
 
+	int HP = 5;//体力
+	float Invincibility_time = 0;//無敵時間
+
 	Vector3* Target = nullptr;
 	bool Burst = false;
 	int bulletcur = 0;
@@ -29,11 +32,12 @@ public:
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
+	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int i);
 	Vector3 GetForward();
 
 	void SetTarget(Vector3* tar) { Target = tar; }
 	Vector3* GetTarget() { return Target; }
-	void SetCol(bool collision) { col = collision; }
+	void SetCol(bool collision) { if(collision)col = collision; }
 	void Debug_Player();//デバック用GUI一式
 	Vector3 ConectPos();
 	void FullBurst();

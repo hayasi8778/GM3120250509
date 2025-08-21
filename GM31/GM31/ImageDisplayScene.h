@@ -10,6 +10,7 @@ public:
 	void draw(uint64_t deltatime) override;
 	void init() override;
 	void dispose() override;
+	int ChangeScene() override;
 private:
 	Camera m_camera;
 	std::unique_ptr<CSprite> m_image;

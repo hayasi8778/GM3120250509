@@ -6,14 +6,21 @@
 class Enemy_Missile : public Object
 {
 private:
+
+	int HP = 5;
+
 	// 弾情報
 	std::vector<std::unique_ptr<E_Missile>> e_missile;
+
+	E_Missile e_missiles[20];
 
 	float cooltime = 1000;
 
 	M_Player* player = nullptr;//プレイヤー
 
 	bool FIRE = false;
+
+	bool collision_hit = false;
 
 	Vector3 forward;//前方ベクトルを取得するための変数
 
@@ -35,4 +42,6 @@ public:
 	void CreateBullet();
 
 	void SetPlayer(M_Player* pl);
+	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int bulletnum);
+	void SetCollision(bool col) { if(col) collision_hit = col; }
 };

@@ -35,3 +35,8 @@ void ImageDisplayScene::dispose()
 {
 
 }
+
+int ImageDisplayScene::ChangeScene()
+{
+	return 0;
+}

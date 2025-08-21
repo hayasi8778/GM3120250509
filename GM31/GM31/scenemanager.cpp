@@ -35,12 +35,12 @@ void SceneManager::SetCurrentScene(std::string current)
 
 void SceneManager::Init()
 {
-	/*
-	//授業資料
-	m_scenes["EnemyLookatScene"] = std::make_unique<EnemyLookatScene>();
-	m_scenes["EnemyLookatScene"]->init();
-	m_currentSceneName = "EnemyLookatScene";
-	*/
+	
+	////授業資料
+	//m_scenes["EnemyLookatScene"] = std::make_unique<EnemyLookatScene>();
+	//m_scenes["EnemyLookatScene"]->init();
+	//m_currentSceneName = "EnemyLookatScene";
+	
 
 	
 	////授業資料
@@ -48,11 +48,11 @@ void SceneManager::Init()
 	//m_scenes["ImageDisplayScene"]->init();
 	//m_currentSceneName = "ImageDisplayScene";
 	
-
-	
 	//自作物
 	m_scenes["MecScene"] = std::make_unique<MecScene>();
 	m_scenes["MecScene"]->init();
+	m_scenes["CarDriveScene"] = std::make_unique<CarDriveScene>();
+	m_scenes["CarDriveScene"]->init();
 	m_currentSceneName = "MecScene";
 	
 }
@@ -68,4 +68,5 @@ void SceneManager::Update(uint64_t deltatime)
 {
 	// 現在のシーンを更新
 	m_scenes[m_currentSceneName]->update(deltatime);
+
 }

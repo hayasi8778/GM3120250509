@@ -236,3 +236,8 @@ void WallCollisionScene::init()
 void WallCollisionScene::dispose()
 {
 }
+
+int WallCollisionScene::ChangeScene()
+{
+	return 0;
+}

@@ -41,6 +41,9 @@ void E_Missile::Init()
 
 void E_Missile::Update(uint64_t deltatime)
 {
+
+	if (!shot) return;
+
 	float time_D = static_cast<float>(deltatime) / 1000;
 	//m_Position += forward * 0.3;
 	velocty;// = Vector3{ 0,0,0 };//加速値
@@ -72,6 +75,8 @@ void E_Missile::Update(uint64_t deltatime)
 		if (priod < 0)
 		{
 			velocty = { 0,0,0 };
+			//m_Position = { 0,0,0 };
+			shot = false;
 		}
 
 		velocty += acceleration * time_D;
@@ -93,7 +98,7 @@ void E_Missile::Update(uint64_t deltatime)
 			// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
 			float yaw = atan2f(Forward.x, Forward.z);
 			float pitch = atan2f(-Forward.y,
-				sqrtf(Forward.x * Forward.x + Forward.z * Forward.z));
+			sqrtf(Forward.x * Forward.x + Forward.z * Forward.z));
 
 			// 4. Roll は今回は固定 0
 			m_Rotation = Vector3{ pitch, yaw, 0.0f };
@@ -101,6 +106,7 @@ void E_Missile::Update(uint64_t deltatime)
 
 
 		m_Position = Position;
+		if (!shot) m_Position = { 0,-10,0 };
 	}
 }
 

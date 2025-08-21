@@ -78,6 +78,21 @@ void M_Player::Init()
 
 void M_Player::Update(uint64_t deltatime)
 {
+	//衝突判定と無敵時間の処理
+	if (col)
+	{
+		Invincibility_time += static_cast<float>(deltatime) / 1000;
+
+		if (Invincibility_time > 1000)
+		{
+			HP--;
+			col = false;
+
+			Invincibility_time = 0;
+		}
+
+	}
+
 	if (Burst) //フルバーストするならの処理
 	{
 		time += static_cast<float>(deltatime) / 1000;
@@ -91,14 +106,16 @@ void M_Player::Update(uint64_t deltatime)
 			time = 0;
 		}
 
-		
-
 	}
 
 	for (int i = 0; i < 20; i++)
 	{
 		m_bullet[i].Update(deltatime);
 	}
+
+	
+
+	
 }
 
 	void M_Player::Draw()
@@ -121,9 +138,13 @@ void M_Player::Update(uint64_t deltatime)
 
 	m_shader.SetGPU();
 	
-	if(DrawModel)m_meshrenderer.Draw();
+	if (HP > 0) 
+	{
+		if (DrawModel)m_meshrenderer.Draw();
 
-	if (DrawBone)m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
+		if (DrawBone)m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
+	}
+	
 
 	//// デバッグ用のグローバル変数に値をセット
 	//g_position = m_Position;
@@ -157,8 +178,6 @@ void M_Player::Update(uint64_t deltatime)
 
 	m_Rotation.x -= 1.55;
 	m_Rotation.y -= 1.55;
-
-	
 }
 
 void M_Player::Dispose()
@@ -198,6 +217,11 @@ GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
 	m_Rotation.y -= 1.55;
 
 	return obb;
+}
+
+GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB_Bullet(int i)
+{
+	return m_bullet[i].GetOBB();
 }
 
 Vector3 M_Player::GetForward()

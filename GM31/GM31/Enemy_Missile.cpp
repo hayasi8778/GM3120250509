@@ -33,7 +33,7 @@ void Enemy_Missile::Init()
 
 	//m_Rotation.x += 0.3;
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < BulletMaxnum; i++)
 	{
 		e_missiles[i].Init();
 	}
@@ -49,17 +49,28 @@ void Enemy_Missile::Init()
 	Depth = maxpos.z - minpos.z;
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
+
+	m_interceptionSphere = std::make_unique<Sphere>(25);
 }
 
 
 
 void Enemy_Missile::Update(uint64_t deltatime)
 {
-	//m_Position.z += 0.1;
 
-	//m_Rotation.y += 0.1;
-	//m_Rotation.z += 0.1;
-	//m_Rotation.x += 0.1;
+	//è’ìÀîªíËÇ∆ñ≥ìGéûä‘ÇÃèàóù
+	if (collision_hit)
+	{
+		Invincibility_time += static_cast<float>(deltatime) / 1000;
+
+		if (Invincibility_time > 1000)
+		{
+			collision_hit = false;
+
+			Invincibility_time = 0;
+		}
+
+	}
 
 	//èeíeÇÃî≠ê∂
 	float time_D = static_cast<float>(deltatime) / 1000;
@@ -92,13 +103,12 @@ void Enemy_Missile::Update(uint64_t deltatime)
 		return b->erase;
 		});
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < BulletMaxnum; i++)
 	{
 		e_missiles[i].Update(deltatime);
 	}
 
-	//íeÇÃAABBÉ{ÉbÉNÉXï\é¶
-	// íeÇÃâÒì]äpìxÇ©ÇÁâÒì]çsóÒÇçÏê¨
+	// ï˚å¸ÉxÉNÉgÉãçÏê¨
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
 	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
 	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
@@ -106,16 +116,15 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	// çáê¨
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
-
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
-	// forward íäèo
-	forward = { transmtx._31, transmtx._32, transmtx._33 };
-	forward.Normalize();
-
-	if (collision_hit) HP--;
-
-	collision_hit = false;
+	// ï˚å¸ÉxÉNÉgÉã íäèo
+	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	Right_vec.Normalize();
+	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	Up_vec.Normalize();
+	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	Forward_vec.Normalize();
 }
 
 void Enemy_Missile::Draw()
@@ -146,7 +155,7 @@ void Enemy_Missile::Draw()
 		pb->Draw();
 	}
 
-	for (int i = 0; i < 20; i++) 
+	for (int i = 0; i < BulletMaxnum; i++)
 	{
 		e_missiles[i].Draw();
 	}
@@ -162,7 +171,7 @@ void Enemy_Missile::Draw()
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
 	m_Position.y += 1.0f;
-	m_Position -= forward * 2.0f;
+	m_Position -= Forward_vec * 2.0f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;//positionÇÕå≥Ç…ñﬂÇµÇƒÇ®Ç≠
@@ -175,6 +184,7 @@ void Enemy_Missile::Draw()
 		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 	}
 	
+	m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
 	m_Rotation.x -= 1.55;
@@ -217,7 +227,7 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB()
 	m_Rotation.x += 1.55;
 	m_Rotation.y += 1.55;
 	m_Position.y += 1.0f;
-	m_Position -= forward * 2.0f;
+	m_Position -= Forward_vec * 2.0f;
 	
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// épê®ÅiâÒì]äpìxÅj
@@ -233,6 +243,8 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB()
 
 void Enemy_Missile::CreateBullet()
 {
+	if (Bulletnum == BulletMaxnum) Bulletnum = 0;
+
 	// SRTèÓïÒçÏê¨
 	SRT srt;
 	srt.scale = m_Scale;			// ägèk
@@ -250,8 +262,8 @@ void Enemy_Missile::CreateBullet()
 	pb->SetForward(forward);
 	pb->SetPlayar(player);
 
-	e_missiles[0].SetForward(forward);
-	e_missiles[0].SetPlayar(player);
+	e_missiles[Bulletnum].SetForward(forward);
+	e_missiles[Bulletnum].SetPlayar(player);
 
 	//ëOå¸Ç´çsóÒéÊÇ¡ÇƒÇ©ÇÁépê®ï‚äÆÇ∑ÇÈ
 	//épê®ï‚äÆï™
@@ -263,13 +275,15 @@ void Enemy_Missile::CreateBullet()
 	pb->SetRotation(m_Rotation);
 	pb->SetPosition(bulletpos);
 
-	e_missiles[0].SetScale(Vector3(1, 1, 1));
-	e_missiles[0].SetRotation(m_Rotation);
-	e_missiles[0].SetPosition(bulletpos);
-	e_missiles[0].SetShot(true);
-	e_missiles[0].priod = 1000;
+	e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
+	e_missiles[Bulletnum].SetRotation(m_Rotation);
+	e_missiles[Bulletnum].SetPosition(bulletpos);
+	e_missiles[Bulletnum].SetShot(true);
+	e_missiles[Bulletnum].priod = 1000;
 
-	e_missile.push_back(std::move(pb));
+	//e_missile.push_back(std::move(pb));
+
+	Bulletnum++;
 }
 
 void Enemy_Missile::SetPlayer(M_Player* pl)
@@ -280,5 +294,22 @@ void Enemy_Missile::SetPlayer(M_Player* pl)
 GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB_Bullet(int bulletnum)
 {
 	return e_missiles[bulletnum].GetOBB();
+}
+
+void Enemy_Missile::SetCollision(bool col)
+{
+	if (!col) return;
+
+	if (!collision_hit) {
+		HP--;
+	}
+
+
+	collision_hit = true;
+}
+
+void Enemy_Missile::SetCollision_Bullet(int num, bool col)
+{
+	e_missiles[num].SetCol(col);
 }
 

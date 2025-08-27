@@ -43,6 +43,7 @@ public:
 
 	//ロックオンカーソルの描画
 	void RockonDraw();
+	void UIDraw();
 	void CameraFlip();//使用カメラ切り替え
 
 	//デバック用のGUI
@@ -51,6 +52,8 @@ public:
 
 	void PlayerMovetes();
 private:
+	float Test = 1000;
+
 	//重力
 	float gravity = -9.8f;
 	// 箱の大きさ
@@ -109,5 +112,6 @@ private:
 	//ロックオンカーソル
 	std::unique_ptr<CSprite> m_image;
 
-
+	std::unique_ptr<CSprite> HP_G;//HPの緑の部分
+	std::unique_ptr<CSprite> HP_R;//HPの赤の部分
 };

@@ -483,16 +483,6 @@ namespace myAssimp{
 			g_subsets[m].meshname = g_vertices[m][0].meshname;
 			g_subsets[m].mtrlname = g_vertices[m][0].mtrlname;
 			g_subsets[m].materialindex = g_vertices[m][0].materialindex;
-
-			// © ‚±‚±‚Å meshIndex ‚ðƒZƒbƒg
-			if (g_vertices[m].size() > 0) 
-			{
-				g_subsets[m].meshIndex = m;
-			}
-			else 
-			{
-				int tes = 200;
-			}
 			
 		}
 

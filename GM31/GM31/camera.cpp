@@ -2,6 +2,9 @@
 #include "system/renderer.h"
 #include "camera.h"
 #include "application.h"
+#include <DirectXMath.h>
+
+using namespace DirectX;
 
 void Camera::Init()
 {
@@ -58,4 +61,30 @@ void Camera::Draw()
 //	projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane);
 
 	Renderer::SetProjectionMatrix(&m_projmtx);
+}
+
+Vector3 Camera::ScreenToWorld(float screenX, float screenY, float screenZ) const
+{
+
+	D3D11_VIEWPORT vp{};
+	vp.TopLeftX = 0.0f;
+	vp.TopLeftY = 0.0f;
+	vp.Width = static_cast<float>(Application::GetWidth());
+	vp.Height = static_cast<float>(Application::GetHeight());
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+
+	XMVECTOR screenPos = XMVectorSet(screenX, screenY, screenZ, 1.0f);
+	XMVECTOR worldPos = XMVector3Unproject(
+		screenPos,
+		vp.TopLeftX, vp.TopLeftY,
+		vp.Width, vp.Height,
+		vp.MinDepth, vp.MaxDepth,
+		m_projmtx, m_viewmtx, XMMatrixIdentity()
+	);
+
+	Vector3 result;
+	XMStoreFloat3(&result, worldPos);
+	return result;
+
 }

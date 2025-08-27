@@ -21,10 +21,14 @@ public:
 	void Update();
 	void Draw();
 	void SetPosition(const Vector3& position) { m_position = position; }
+	Vector3 GetPosition() { return m_position; }
 	void SetLookat(const Vector3& position) { m_lookat = position; }
+	Vector3 GetLookat() { return m_lookat; }
 
 	Matrix4x4 GetViewMatrix() const { return m_viewmtx; }
 	Matrix4x4 GetProjMatrix() const { return m_projmtx; }
+
+	Vector3 ScreenToWorld(float screenX, float screenY, float screenZ) const;
 };
 
 // / é©óRéãì_ÉJÉÅÉâ

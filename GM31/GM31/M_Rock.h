@@ -5,6 +5,11 @@
 class M_Rock : public Object 
 {
 private:
+	//方向ベクトル
+	Vector3 Right_vec;
+	Vector3 Up_vec;
+	Vector3 Forward_vec;
+
 	bool shootflag = false;
 	bool returnRock = false;//射出から帰ってくるための帰還フラグ
 	const int DefaultLife = 500;

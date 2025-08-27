@@ -32,4 +32,6 @@ public:
 	void Draw(Vector3 scale, Vector3 rotation, Vector3 pos);
 	void Dispose();
 	void ModifyUV(const Vector2* uv);
+	int GetWidth() { return m_Width; }
+	int GetHeight() { return m_Height; }
 };

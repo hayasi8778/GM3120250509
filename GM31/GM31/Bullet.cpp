@@ -38,11 +38,26 @@ void Bullet::Init()
 	Depth = maxpos.z - minpos.z;
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
+	Boooooooom = std::make_unique<Sphere>(5);
 }
 ;
 
 void Bullet::Update(uint64_t deltatime)
 {
+
+	if (collsion)
+	{
+		boom_time += static_cast<float>(deltatime) / 1000;
+
+		if (boom_time > 1000)
+		{
+			collsion = false;
+
+			boom_time = 0;
+
+			m_Position = { 0,-10,0 };
+		}
+	}
 
 	if (!shot) return;
 
@@ -90,7 +105,7 @@ void Bullet::Update(uint64_t deltatime)
 			if (priod < 0)
 			{
 				shot = true;
-				m_Position = { 0,0,0 };
+				if (!collsion)m_Position = { 0,-10,0 };
 				Missile = true;
 			}
 
@@ -120,10 +135,28 @@ void Bullet::Update(uint64_t deltatime)
 			}
 
 
-			m_Position = Position;
+			if (!collsion)m_Position = Position;
 		}
 	}
-	else m_Position += forward * 0.3;
+	else if (!collsion)m_Position += forward * 0.3;//命中するまでは移動する
+
+	// 方向ベクトル作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// 方向ベクトル 抽出
+	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	Right_vec.Normalize();
+	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	Up_vec.Normalize();
+	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	Forward_vec.Normalize();
 	
 };
 
@@ -143,7 +176,7 @@ void Bullet::Draw()
 
 	m_shader.SetGPU();
 
-	m_meshrenderer.Draw();
+	if (!collsion)m_meshrenderer.Draw();
 
 	//弾のAABBボックス表示
 	Vector3 poscop = m_Position;
@@ -155,20 +188,19 @@ void Bullet::Draw()
 	// 合成
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
+	Matrix4x4 scaleMtx = Matrix4x4::CreateScale(m_Scale); // Vector3(幅, 高さ, 奥行き)
 
-	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-
-	// forward 抽出
-	Vector3 forward(transmtx._31, transmtx._32, transmtx._33);
-	forward.Normalize();
+	Matrix4x4 transmtx = m_RotationMtx  * Matrix4x4::CreateTranslation(m_Position);
 
 	//原点とモデルの差の分ずらして再定義
-	m_Position += forward * 5.0f;
-	transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+	m_Position += Forward_vec * (5.0f * m_Scale);
+	transmtx = m_RotationMtx * scaleMtx *Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;//positionは元に戻しておく
 
 	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+	//向き気にしなくてもいいからSRTで描画
+	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
 };
 
 void Bullet::Dispose()
@@ -190,25 +222,13 @@ GM31::GE::Collision::BoundingBoxOBB Bullet::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
+	if (collsion) return obb;
+
 	//forwardベクトルはあえて精度の悪いものを使っているため補正はちゃんとした取り方する
 	Vector3 poscop = m_Position;
-	// 弾の回転角度から回転行列を作成
-	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
-	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
-	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
-
-	// 合成
-	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
-
-
-	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-
-	// forward 抽出
-	Vector3 forward(transmtx._31, transmtx._32, transmtx._33);
-	forward.Normalize();
 
 	//原点とモデルの差の分ずらして再定義
-	m_Position += forward * 5.0f;
+	m_Position += Forward_vec * 5.0f;
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）

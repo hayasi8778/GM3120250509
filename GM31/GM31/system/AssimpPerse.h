@@ -33,8 +33,6 @@ namespace myAssimp
 		unsigned int IndexNum;				// インデックス数
 		std::string	 mtrlname;				// マテリアル名
 
-		unsigned int meshIndex;			    //
-
 	};
 
 	struct MATERIAL {

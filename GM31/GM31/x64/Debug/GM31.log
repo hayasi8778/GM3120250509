@@ -1,3 +1,54 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: 中間ディレクトリ (x64\Debug\) に別のプロジェクト (GM31.vcxproj) と共有されているファイルが含まれています。これにより、クリーンしてリビルド動作が適切に行われない可能性があります。
-  AirplaneFlyScene.cpp
+  Enemy_Missile.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(69,14): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  (ソース ファイル 'Enemy_Missile.cpp' をコンパイルしています)
+  
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(69,32): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  (ソース ファイル 'Enemy_Missile.cpp' をコンパイルしています)
+  
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(133,18): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(134,18): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(180,37): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(187,53): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(190,18): warning C4305: '-=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(191,18): warning C4305: '-=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(227,18): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(228,18): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(270,15): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(271,15): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\memory(3630,56): warning C4244: '引数': '_Ty' から 'float' への変換です。データが失われる可能性があります。
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\memory(3630,56): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\memory(3630,56): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\memory(3630,56): warning C4244:             _Ty=int
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\memory(3630,56): warning C4244:         ]
+  (ソース ファイル 'Enemy_Missile.cpp' をコンパイルしています)
+      C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\memory(3630,56):
+      テンプレートインスタンス化コンテキスト (最初に最も古いもの) は
+          C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(53,30):
+          コンパイル対象の関数 テンプレート インスタンス化 'std::unique_ptr<Sphere,std::default_delete<Sphere>> std::make_unique<Sphere,int,0>(int &&)' のリファレンスを確認してください
+  
+  MecScene.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(69,14): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  (ソース ファイル 'MecScene.cpp' をコンパイルしています)
+  
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(69,32): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  (ソース ファイル 'MecScene.cpp' をコンパイルしています)
+  
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(9,25): warning C4305: '初期化中': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(11,15): warning C4305: '初期化中': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(206,17): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(207,17): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  scenemanager.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(69,14): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  (ソース ファイル 'scenemanager.cpp' をコンパイルしています)
+  
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(69,32): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  (ソース ファイル 'scenemanager.cpp' をコンパイルしています)
+  
+  collision.cpp
+C:\Git\GM31Git\GM31\GM31\system\collision.cpp(1,9): warning C4005: 'NOMINMAX': マクロが再定義されました。
+      C:\Git\GM31Git\GM31\GM31\system\collision.cpp(1,9):
+      'NOMINMAX' は以前にコマンド ラインで宣言されています
+  
+  コードを生成中...
   GM31.vcxproj -> C:\Git\GM31Git\GM31\x64\Debug\MyGame.exe

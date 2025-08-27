@@ -41,6 +41,11 @@ void M_Gun::Init()
 	Depth = maxpos.z - minpos.z;
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
+
+	for (int i = 0; i < BulletMaxnum; i++)
+	{
+		m_bullets[i].Init();
+	}
 };
 
 void M_Gun::Update(uint64_t deltatime)
@@ -70,6 +75,11 @@ void M_Gun::Update(uint64_t deltatime)
 		m_Position.y = 0;
 	}
 
+	for (int i = 0; i < BulletMaxnum; i++)
+	{
+		m_bullets[i].Update(deltatime);
+	}
+
 	// íeÇÃâÒì]äpìxÇ©ÇÁâÒì]çsóÒÇçÏê¨
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
 	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
@@ -81,9 +91,13 @@ void M_Gun::Update(uint64_t deltatime)
 
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
-	// forward íäèo
-	forward = { transmtx._31, transmtx._32, transmtx._33 };
-	forward.Normalize();
+	// ï˚å¸ÉxÉNÉgÉã íäèo
+	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	Right_vec.Normalize();
+	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	Up_vec.Normalize();
+	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	Forward_vec.Normalize();
 };
 
 void M_Gun::Draw()
@@ -114,6 +128,10 @@ void M_Gun::Draw()
 		pb->Draw();
 	}
 
+	for (int i = 0; i < BulletMaxnum; i++)
+	{
+		m_bullets[i].Draw();
+	}
 
 	Vector3 poscop = m_Position;//positionÇÃÉRÉsÅ[ÇÇ∆ÇÈ
 	// íeÇÃâÒì]äpìxÇ©ÇÁâÒì]çsóÒÇçÏê¨
@@ -124,8 +142,9 @@ void M_Gun::Draw()
 	// çáê¨
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
-	m_Position.y += 1.0f;
-	m_Position -= forward * 2.0f;
+	//m_Position.y += 1.0f;
+	m_Position += Up_vec * 1.0f;
+	m_Position -= Forward_vec * 2.0f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;//positionÇÕå≥Ç…ñﬂÇµÇƒÇ®Ç≠
@@ -148,6 +167,8 @@ void M_Gun::Adhesioing()
 
 void M_Gun::Action(Vector3 vec)
 {
+	if (bulletnum == BulletMaxnum) bulletnum = 0;
+
 	// SRTèÓïÒçÏê¨
 	SRT srt;
 	srt.scale = m_Scale;			// ägèk
@@ -162,7 +183,8 @@ void M_Gun::Action(Vector3 vec)
 	forward.Normalize();
 	forward *= 3.0f;
 
-	pb->SetForward(forward);
+	//pb->SetForward(forward);
+	m_bullets[bulletnum].SetForward(forward);
 
 
 	//ëOå¸Ç´çsóÒéÊÇ¡ÇƒÇ©ÇÁépê®ï‚äÆÇ∑ÇÈ
@@ -171,11 +193,17 @@ void M_Gun::Action(Vector3 vec)
 	srt.rot.y += 1.55;
 	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
 
-	pb->SetScale(Vector3(1, 1, 1));
-	pb->SetRotation(m_Rotation);
-	pb->SetPosition(bulletpos);
+	//pb->SetScale(Vector3(1, 1, 1));
+	//pb->SetRotation(m_Rotation);
+	//pb->SetPosition(bulletpos);
 
-	m_bullet.push_back(std::move(pb));
+	//m_bullets[bulletnum].SetScale(Vector3(1, 1, 1));
+	m_bullets[bulletnum].SetScale(Vector3(0.5, 0.5, 0.5));
+	m_bullets[bulletnum].SetRotation(m_Rotation);
+	m_bullets[bulletnum].SetPosition(bulletpos);
+
+	bulletnum++;
+
 };
 
 GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
@@ -185,8 +213,9 @@ GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
 	GM31::GE::Collision::BoundingBoxOBB obb;
 	m_Rotation.x += 1.55;
 	m_Rotation.y += 1.55;
-	m_Position.y += 1.0f;
-	m_Position -= forward * 2.0f;
+
+	m_Position += Up_vec * 1.0f;
+	m_Position -= Forward_vec * 2.0f;
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// épê®ÅiâÒì]äpìxÅj
 		m_Position,				// íÜêSç¿ïWÅiÉèÅ[ÉãÉhÅj
@@ -197,4 +226,21 @@ GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
 	m_Rotation = rotcop;
 
 	return obb;
+}
+
+GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB_Bullet(int num) 
+{
+	if (num < BulletMaxnum) 
+	{
+		return  m_bullets[num].GetOBB();
+	}
+
+	GM31::GE::Collision::BoundingBoxOBB colbox;
+
+	return colbox;
+}
+
+void M_Gun::SetCollision_Bullet(int num, bool col)
+{
+	m_bullets[num].SetCol(col);
 }

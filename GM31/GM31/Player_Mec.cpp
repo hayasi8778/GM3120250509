@@ -11,23 +11,39 @@ void M_Player::Init()
 	
 
 	//ロボットモデル
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+		////ロボットモデル(頭)
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_Head.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+	//ロボットモデル(胴体)
 	m_mesh.Load(
-		"assets/model/Mec/MecBone.fbx",				// モデル名
+		"assets/model/Mec/MecBone_Body.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
-	////ロボットモデル
+	//ロボットモデル(左腕)
 	//m_mesh.Load(
-	//	"assets/model/Mec/NeoMecBone.fbx",				// モデル名
+	//	"assets/model/Mec/MecBone_LeftArm.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
 
+	////ロボットモデル(右腕)
 	//m_mesh.Load(
-	//	"assets/model/Mec/NeoMecBone4.fbx",				// モデル名
+	//	"assets/model/Mec/MecBone_RightArm.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
 
-	//テスト用のモデル
+	////ロボットモデル(左足)
 	//m_mesh.Load(
-	//	"assets/model/Tesmodel/man.fbx",				// モデル名
-	//	"assets/model/Tesmodel/");						// テクスチャのパス
+	//	"assets/model/Mec/MecBone_LeftFeet.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+	////ロボットモデル(右足)
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_RightFeet.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
 
 
 	//レンダラ初期化
@@ -55,6 +71,11 @@ void M_Player::Init()
 		m_bullet[i].Init();
 	}
 
+	head.Init();
+	leftarm.Init();
+	rightarm.Init();
+	leftfeet.Init();
+	rightfeet.Init();
 
 	//デバック用GUI一式
 	// BOXのSRTの設定用
@@ -113,8 +134,49 @@ void M_Player::Update(uint64_t deltatime)
 		m_bullet[i].Update(deltatime);
 	}
 
-	
+	head.Update(deltatime);
+	leftarm.Update(deltatime);
+	rightarm.Update(deltatime);
+	leftfeet.Update(deltatime);
+	rightfeet.Update(deltatime);
 
+	// 方向ベクトル作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// 方向ベクトル 抽出
+	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	Right_vec.Normalize();
+	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	Up_vec.Normalize();
+	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	Forward_vec.Normalize();
+
+	SRT srt;
+	srt.scale = m_Scale;			// 拡縮
+	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.pos = m_Position;			// 位置
+
+	head.SetRotation(srt.rot);
+	leftarm.SetRotation(srt.rot);
+	rightarm.SetRotation(srt.rot);
+	leftfeet.SetRotation(srt.rot);
+	rightfeet.SetRotation(srt.rot);
+	//姿勢の補完をここでする
+	srt.rot.x += 1.55;
+	srt.rot.y += 1.55;
+
+	head.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_Neck", srt));
+	leftarm.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_LeftArm", srt));
+	rightarm.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_RightArm", srt));
+	leftfeet.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_LeftFeet", srt));
+	rightfeet.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_RightFeet", srt));
 	
 }
 
@@ -137,7 +199,7 @@ void M_Player::Update(uint64_t deltatime)
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
 	m_shader.SetGPU();
-	
+
 	if (HP > 0) 
 	{
 		if (DrawModel)m_meshrenderer.Draw();
@@ -145,6 +207,11 @@ void M_Player::Update(uint64_t deltatime)
 		if (DrawBone)m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
 	}
 	
+	head.Draw();
+	leftarm.Draw();
+	rightarm.Draw();
+	leftfeet.Draw();
+	rightfeet.Draw();
 
 	//// デバッグ用のグローバル変数に値をセット
 	//g_position = m_Position;
@@ -164,8 +231,12 @@ void M_Player::Update(uint64_t deltatime)
 	// 合成
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
+	Vector3 poscop = m_Position;
 
+	m_Position += Up_vec * 1;
+	m_Position += Forward_vec * 0.3;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+	m_Position = poscop;
 
 	if (col) {
 		m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
@@ -252,19 +323,43 @@ void M_Player::Debug_Player()
 
 Vector3 M_Player::ConectPos() 
 {
+
+	Vector3 rotcop = m_Rotation;
+
+	Vector3 returnpos = Vector3::Zero;
+
 	//姿勢補完分
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	rotcop.x += 1.55;
+	rotcop.y += 1.55;
 
 	SRT srt;
 	srt.scale = m_Scale;			// 拡縮
-	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.rot = rotcop;			// 姿勢	srt.pos = m_Position;
 	srt.pos = m_Position;			// 位置
 
-	Vector3 returnpos = m_meshrenderer.LogBoneWorldPosition("Conect", srt);
+	returnpos = m_meshrenderer.LogBoneWorldPosition("Conect", srt);
 
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	if (returnpos != Vector3::Zero)return returnpos;
+
+	returnpos = head.Conectpos("Conect");
+
+	if (returnpos != Vector3::Zero)return returnpos;
+
+	returnpos = leftarm.Conectpos("Conect");
+
+	if (returnpos != Vector3::Zero)return returnpos;
+
+	returnpos = rightarm.Conectpos("Conect");
+
+	if (returnpos != Vector3::Zero)return returnpos;
+
+	returnpos = leftfeet.Conectpos("Conect");
+
+	if (returnpos != Vector3::Zero)return returnpos;
+
+	returnpos = rightfeet.Conectpos("Conect");
+
+	if (returnpos != Vector3::Zero)return returnpos;
 
 	return returnpos;
 	
@@ -284,7 +379,6 @@ void M_Player::FullBurst()
 
 	m_bullet[bulletcur].SetForward(forward);
 
-
 	////前向き行列取ってから姿勢補完する
 	////姿勢補完分
 	//srt.rot.x += 1.55;
@@ -299,6 +393,53 @@ void M_Player::FullBurst()
 	m_bullet[bulletcur].SetTarget(Target);
 
 	bulletcur++;
+}
+
+void M_Player::SetRotation_PL(Vector3 rot)
+{
+	SRT srt;
+	srt.scale = m_Scale;
+	srt.rot = rot;
+	srt.pos = m_Position;
+
+	SetRotation(rot);
+	head.SetRotation(rot);
+	leftarm.SetRotation(rot);
+	rightarm.SetRotation(rot);
+	leftfeet.SetRotation(rot);
+	rightfeet.SetRotation(rot);
+
+	srt.rot.x += 1.55;
+	srt.rot.y += 1.55;
+
+	//プレイヤーを構成するパーツの位置を再調整
+	head.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_Neck", srt));
+	leftarm.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_LeftArm", srt));
+	rightarm.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_RightArm", srt));
+	leftfeet.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_LeftFeet", srt));
+	rightfeet.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_RightFeet", srt));
+}
+
+bool M_Player::Collision_PL(GM31::GE::Collision::BoundingBoxOBB colobb)
+{
+	//プレイヤーを構成する要素全てと判定取ってぶつかってたらその時点でtrue返す
+	if (GM31::GE::Collision::CollisionOBB(GetOBB(), colobb)) return true;
+
+	if (GM31::GE::Collision::CollisionOBB(head.GetOBB(), colobb)) return true;
+
+	if (GM31::GE::Collision::CollisionOBB(leftarm.GetOBB(), colobb)) return true;
+
+	if (GM31::GE::Collision::CollisionOBB(rightarm.GetOBB(), colobb)) return true;
+
+	if (GM31::GE::Collision::CollisionOBB(leftfeet.GetOBB(), colobb)) return true;
+
+	if (GM31::GE::Collision::CollisionOBB(rightfeet.GetOBB(), colobb)) return true;
+	return false;
+}
+
+void M_Player::SetCollision_Bullet(int num, bool col)
+{
+	m_bullet[num].SetCol(col);
 }
 
 //バグが起きた時のために一応残しておく

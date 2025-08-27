@@ -7,12 +7,22 @@ class Enemy_Missile : public Object
 {
 private:
 
-	int HP = 5;
+	//方向ベクトル
+	Vector3 Right_vec;
+	Vector3 Up_vec;
+	Vector3 Forward_vec;
+
+	const int MaxHP = 35;
+	int HP = MaxHP;
 
 	// 弾情報
 	std::vector<std::unique_ptr<E_Missile>> e_missile;
 
-	E_Missile e_missiles[20];
+	const int BulletMaxnum = 5;
+
+	int Bulletnum = 0;
+
+	E_Missile e_missiles[5];
 
 	float cooltime = 1000;
 
@@ -20,11 +30,12 @@ private:
 
 	bool FIRE = false;
 
+	float Invincibility_time = 0;//無敵時間
 	bool collision_hit = false;
-
-	Vector3 forward;//前方ベクトルを取得するための変数
+	bool interception = false; //迎撃範囲に入っているか
 
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
+	std::unique_ptr<Sphere> m_interceptionSphere; //範囲内に入った弾を迎撃するシステム作りたい
 	float Width;
 	float Height;
 	float Depth;
@@ -41,7 +52,11 @@ public:
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 	void CreateBullet();
 
+	int GetHP() { return HP; }
+	int GetMaxHP() { return MaxHP; }
 	void SetPlayer(M_Player* pl);
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int bulletnum);
-	void SetCollision(bool col) { if(col) collision_hit = col; }
+	void SetCollision(bool col);
+	void SetCollision_Bullet(int,bool);
+	void SetInterception(bool inter) { interception = inter; }
 };

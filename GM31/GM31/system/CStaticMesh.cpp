@@ -120,7 +120,6 @@ void CStaticMesh::Load(std::string filename, std::string texturedirectory)
         s.IndexNum = sub.IndexNum;
         s.MtrlName = sub.mtrlname;
         s.MaterialIdx = sub.materialindex;
-        s.meshIndex = sub.meshIndex;
         m_subsets.emplace_back(s);
     }
 

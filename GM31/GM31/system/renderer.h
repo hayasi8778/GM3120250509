@@ -102,7 +102,7 @@ struct SUBSET {
     unsigned int IndexBase = 0;///< 開始インデックス
     unsigned int VertexBase = 0;///< 頂点ベース
     unsigned int MaterialIdx = 0;///< マテリアルインデックス
-    unsigned int meshIndex = 0;
+    
 };
 
 /**

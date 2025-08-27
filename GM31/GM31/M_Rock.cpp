@@ -132,6 +132,24 @@ void M_Rock::Update(uint64_t deltatime)
 	{
 		m_Position.y = 0;
 	}
+
+	// 弾の回転角度から回転行列を作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// 方向ベクトル 抽出
+	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	Right_vec.Normalize();
+	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	Up_vec.Normalize();
+	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	Forward_vec.Normalize();
 }
 
 void M_Rock::Draw()
@@ -160,10 +178,12 @@ void M_Rock::Draw()
 
 	// 合成
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
-
-	m_Position.y += 4;
+	//補正
+	//m_Position.y += 4;
+	m_Position += Up_vec * 4;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-	m_Position.y -= 4;
+	//m_Position.y -= 4;
+	m_Position -= Up_vec * 4;
 
 	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 
@@ -207,14 +227,15 @@ void M_Rock::Action(Vector3 vec)
 GM31::GE::Collision::BoundingBoxOBB M_Rock::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
-	m_Position.y += 4;
+
+	m_Position += Up_vec * 4;
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
 		m_Position,				// 中心座標（ワールド）
 		Width,					// 幅
 		Height,					// 高さ
 		Depth);					// 奥行
-	m_Position.y -= 4;
+	m_Position -= Up_vec * 4;
 	return obb;
 }
 

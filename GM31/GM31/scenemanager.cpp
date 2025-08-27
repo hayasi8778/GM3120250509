@@ -69,4 +69,11 @@ void SceneManager::Update(uint64_t deltatime)
 	// 現在のシーンを更新
 	m_scenes[m_currentSceneName]->update(deltatime);
 
+	//シーン切り替えを検知
+	int a = m_scenes[m_currentSceneName]->ChangeScene();
+
+	if (a != 0) 
+	{
+		m_currentSceneName = "CarDriveScene";
+	}
 }

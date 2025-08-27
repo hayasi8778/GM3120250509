@@ -49,6 +49,12 @@
     <Filter Include="ヘッダー ファイル\Object\Enemy">
       <UniqueIdentifier>{81dc89dc-990b-4d0e-a4f8-e477adf5984d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Object\Player">
+      <UniqueIdentifier>{84bb3a29-3368-4bee-9202-0931dbea0858}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Objects\Player">
+      <UniqueIdentifier>{8ac42e64-ad57-4462-9ccb-df5537b22ccd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system\imgui\imconfig.h">
@@ -297,6 +303,21 @@
     <ClInclude Include="E_Missile.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
+    <ClInclude Include="Player_Head.h">
+      <Filter>ヘッダー ファイル\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Player_RightArm.h">
+      <Filter>ヘッダー ファイル\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Player_LeftArm.h">
+      <Filter>ヘッダー ファイル\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Player_LeftFeet.h">
+      <Filter>ヘッダー ファイル\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Player_RightFeet.h">
+      <Filter>ヘッダー ファイル\Object\Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system\imgui\imgui.cpp">
@@ -487,6 +508,21 @@
     </ClCompile>
     <ClCompile Include="Enemy_Missile.cpp">
       <Filter>ソース ファイル\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Player_Head.cpp">
+      <Filter>ソース ファイル\Objects\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Player_RightArm.cpp">
+      <Filter>ソース ファイル\Objects\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Player_LeftArm.cpp">
+      <Filter>ソース ファイル\Objects\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Player_LeftFeet.cpp">
+      <Filter>ソース ファイル\Objects\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Player_RightFeet.cpp">
+      <Filter>ソース ファイル\Objects\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -26,6 +26,8 @@ void E_Missile::Init()
 		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
 		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 
+	m_Position.y = -20;
+
 	//弾の当たり判定
 	aiVector3D minpos;
 	aiVector3D maxpos;
@@ -90,39 +92,51 @@ void E_Missile::Update(uint64_t deltatime)
 		}
 
 		priod -= time_D;
-		if (priod < 0)
+		if (priod < 300)
 		{
+			if (priod < -1500) 
+			{
+				shot = false;
+			}
+			else 
+			{
+				m_Position -= Forward_vec * 2;
+			}
 			
-			shot = false;
+		}
+		else 
+		{
+			velocty += acceleration * time_D;
+			Position += velocty * time_D;
+			/*velocty += acceleration * Time;
+			Position += velocty * Time;*/
+
+			//座標更新前に角度を更新する
+			// 事前に #include <cmath> などが必要
+			const float eps = 1e-6f;
+
+			// 1. forward ベクトルを計算
+			Vector3 Forward = -(Position - m_Position);
+
+			// 2. 動きがある場合のみ回転計算
+			if (Forward.LengthSquared() > eps) {
+				Forward.Normalize();
+
+				// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
+				float yaw = atan2f(Forward.x, Forward.z);
+				float pitch = atan2f(-Forward.y,
+					sqrtf(Forward.x * Forward.x + Forward.z * Forward.z));
+
+				// 4. Roll は今回は固定 0
+				m_Rotation = Vector3{ pitch, yaw, 0.0f };
+			}
+
+
+			m_Position = Position;
 		}
 
-		velocty += acceleration * time_D;
-		Position += velocty * time_D;
-		/*velocty += acceleration * Time;
-		Position += velocty * Time;*/
 
-		//座標更新前に角度を更新する
-		// 事前に #include <cmath> などが必要
-		const float eps = 1e-6f;
-
-		// 1. forward ベクトルを計算
-		Vector3 Forward = -(Position - m_Position);
-
-		// 2. 動きがある場合のみ回転計算
-		if (Forward.LengthSquared() > eps) {
-			Forward.Normalize();
-
-			// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
-			float yaw = atan2f(Forward.x, Forward.z);
-			float pitch = atan2f(-Forward.y,
-			sqrtf(Forward.x * Forward.x + Forward.z * Forward.z));
-
-			// 4. Roll は今回は固定 0
-			m_Rotation = Vector3{ pitch, yaw, 0.0f };
-		}
-
-
-		m_Position = Position;
+		
 		if (!shot) {
 			velocty = { 0,0,0 };
 			//何かに当たっているなら爆発させるのでポジションはそのまま
@@ -205,6 +219,12 @@ void E_Missile::Adhesioing()
 void E_Missile::Action(Vector3 vec)
 {
 
+}
+
+void E_Missile::Reset()
+{
+	m_Position = { 0,-20,0 };
+	shot = false;
 }
 
 GM31::GE::Collision::BoundingBoxOBB E_Missile::GetOBB()

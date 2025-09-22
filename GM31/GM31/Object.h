@@ -51,7 +51,9 @@ public:
 	virtual void Dispose() = 0;
 	virtual void Adhesioing() = 0;
 	virtual void Action(Vector3 vec) = 0;
+	//virtual void Reset() = 0;
 	virtual GM31::GE::Collision::BoundingBoxOBB GetOBB() = 0;
+	
 
 	int GetAttribute() { return Attribute; }//ÉQÉbÉ^Å[ÇæÇØ
 

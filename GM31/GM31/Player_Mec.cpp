@@ -1,5 +1,5 @@
 #include "Player_Mec.h"
-
+#include <iostream>
 
 void M_Player::Init()
 {
@@ -8,17 +8,6 @@ void M_Player::Init()
 
 	//プレイヤーなので接触フラグは最初からon
 	adhesioing = true;
-	
-
-	//ロボットモデル
-	//m_mesh.Load(
-	//	"assets/model/Mec/MecBone.fbx",				// モデル名
-	//	"assets/model/Mec/");						// テクスチャのパス
-
-		////ロボットモデル(頭)
-	//m_mesh.Load(
-	//	"assets/model/Mec/MecBone_Head.fbx",				// モデル名
-	//	"assets/model/Mec/");						// テクスチャのパス
 
 	//ロボットモデル(胴体)
 	m_mesh.Load(
@@ -27,7 +16,7 @@ void M_Player::Init()
 
 	//ロボットモデル(左腕)
 	//m_mesh.Load(
-	//	"assets/model/Mec/MecBone_LeftArm.fbx",				// モデル名
+	//	"assets/model/Mec/MecBone_LeftArm_TestModel.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
 
 	////ロボットモデル(右腕)
@@ -78,10 +67,10 @@ void M_Player::Init()
 	rightfeet.Init();
 
 	//デバック用GUI一式
-	// BOXのSRTの設定用
-	DebugUI::RedistDebugFunction([this]() {
-		Debug_Player();
-		});
+	//// BOXのSRTの設定用
+	//DebugUI::RedistDebugFunction([this]() {
+	//	Debug_Player();
+	//	});
 
 	//弾の当たり判定
 	aiVector3D minpos;
@@ -99,6 +88,10 @@ void M_Player::Init()
 
 void M_Player::Update(uint64_t deltatime)
 {
+
+	//m_Rotation.y += 0.1;
+	//m_Rotation.z += 0.1;
+
 	//衝突判定と無敵時間の処理
 	if (col)
 	{
@@ -106,7 +99,6 @@ void M_Player::Update(uint64_t deltatime)
 
 		if (Invincibility_time > 1000)
 		{
-			HP--;
 			col = false;
 
 			Invincibility_time = 0;
@@ -164,7 +156,7 @@ void M_Player::Update(uint64_t deltatime)
 	srt.pos = m_Position;			// 位置
 
 	head.SetRotation(srt.rot);
-	leftarm.SetRotation(srt.rot);
+	//leftarm.SetRotation(srt.rot);
 	rightarm.SetRotation(srt.rot);
 	leftfeet.SetRotation(srt.rot);
 	rightfeet.SetRotation(srt.rot);
@@ -182,9 +174,6 @@ void M_Player::Update(uint64_t deltatime)
 
 	void M_Player::Draw()
 {
-		//姿勢の補完をここでする
-		m_Rotation.x += 1.55;
-		m_Rotation.y += 1.55;
 
 	// SRT情報作成
 	SRT srt;
@@ -192,13 +181,17 @@ void M_Player::Update(uint64_t deltatime)
 	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
 	srt.pos = m_Position;			// 位置
 
+	//姿勢保管
+	srt.rot.x += 1.55;
+	srt.rot.y += 1.55;
+
 	Matrix4x4 worldmtx;
 
 	worldmtx = srt.GetMatrix();
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	m_shader.SetGPU();//これ最終的に外に持っていきたい
 
 	if (HP > 0) 
 	{
@@ -207,6 +200,7 @@ void M_Player::Update(uint64_t deltatime)
 		if (DrawBone)m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
 	}
 	
+	//プレイヤーの階層型モデル
 	head.Draw();
 	leftarm.Draw();
 	rightarm.Draw();
@@ -220,13 +214,13 @@ void M_Player::Update(uint64_t deltatime)
 
 	for (int i = 0; i < 20; i++)
 	{
-		m_bullet[i].Draw();
+		//m_bullet[i].Draw();
 	}
 
 	// 弾の回転角度から回転行列を作成
-	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
-	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
-	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(srt.rot.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(srt.rot.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(srt.rot.z);
 
 	// 合成
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
@@ -246,9 +240,6 @@ void M_Player::Update(uint64_t deltatime)
 		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 	}
 	
-
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
 }
 
 void M_Player::Dispose()
@@ -263,9 +254,21 @@ void M_Player::Adhesioing()
 
 void M_Player::Action(Vector3 vec)
 {
-	Burst = true;
+	/*Burst = true;
 
-	FullBurst();
+	FullBurst();*/
+
+	DoublePistol++;
+	if (DoublePistol > 2) 
+	{
+		DoublePistol = 0;
+	}
+
+	head.Action(vec);
+	if(DoublePistol !=1)leftarm.Action(vec);
+	if (DoublePistol != 0)rightarm.Action(vec);
+	leftfeet.Action(vec);
+	rightfeet.Action(vec);
 }
 
 GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
@@ -288,6 +291,17 @@ GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
 	m_Rotation.y -= 1.55;
 
 	return obb;
+}
+
+void M_Player::Reset() 
+{
+	HP = MaxHP;
+
+	head.Reset();
+	leftarm.Reset();
+	rightarm.Reset();
+	leftfeet.Reset();
+	rightfeet.Reset();
 }
 
 GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB_Bullet(int i)
@@ -339,17 +353,19 @@ Vector3 M_Player::ConectPos()
 
 	returnpos = m_meshrenderer.LogBoneWorldPosition("Conect", srt);
 
+	//returnpos =  m_meshrenderer.LogBoneWorldPosition("Hand", srt);
+
 	if (returnpos != Vector3::Zero)return returnpos;
 
 	returnpos = head.Conectpos("Conect");
 
 	if (returnpos != Vector3::Zero)return returnpos;
 
-	returnpos = leftarm.Conectpos("Conect");
+	returnpos = leftarm.Conectpos("Hand");
 
 	if (returnpos != Vector3::Zero)return returnpos;
 
-	returnpos = rightarm.Conectpos("Conect");
+	returnpos = rightarm.Conectpos("Hand");
 
 	if (returnpos != Vector3::Zero)return returnpos;
 
@@ -363,6 +379,57 @@ Vector3 M_Player::ConectPos()
 
 	return returnpos;
 	
+}
+
+Vector3 M_Player::ConectPos(int i)
+{
+
+	Vector3 returnpos = Vector3::Zero;
+	Vector3 rotcop = m_Rotation;
+	SRT srt;
+	switch (i)
+	{
+	case 0:
+
+		//姿勢補完分
+		rotcop.x += 1.55;
+		rotcop.y += 1.55;
+
+		srt.scale = m_Scale;			// 拡縮
+		srt.rot = rotcop;			// 姿勢	srt.pos = m_Position;
+		srt.pos = m_Position;			// 位置
+
+		returnpos = m_meshrenderer.LogBoneWorldPosition("Conect", srt);
+		
+		break;
+
+	case 1://頭
+		returnpos = head.Conectpos("Conect");
+		break;
+
+	case 2://左腕
+		returnpos = leftarm.Conectpos("Hand");
+		//returnpos = leftarm.Conectpos("Conect");
+		break;
+
+	case 3://右腕
+		returnpos = rightarm.Conectpos("Hand");
+		break;
+
+	case 4://左足
+		returnpos = leftfeet.Conectpos("Conect");
+		break;
+
+	case 5://右足
+		returnpos = rightfeet.Conectpos("Conect");
+		break;
+
+	default:
+		break;
+	}
+
+	return returnpos;
+
 }
 
 void M_Player::FullBurst()
@@ -404,8 +471,15 @@ void M_Player::SetRotation_PL(Vector3 rot)
 
 	SetRotation(rot);
 	head.SetRotation(rot);
-	leftarm.SetRotation(rot);
-	rightarm.SetRotation(rot);
+	if (Target) {
+		leftarm.Rockon(*Target);
+		rightarm.Rockon(*Target);
+	}
+	else {
+		leftarm.SetRotation(rot);
+		rightarm.SetRotation(rot);
+	}
+	
 	leftfeet.SetRotation(rot);
 	rightfeet.SetRotation(rot);
 
@@ -439,6 +513,11 @@ bool M_Player::Collision_PL(GM31::GE::Collision::BoundingBoxOBB colobb)
 
 void M_Player::SetCollision_Bullet(int num, bool col)
 {
+	std::cout << "[SetCollision_Bullet] num=" << num
+		<< " col=" << col
+		<< " time=" << std::chrono::steady_clock::now().time_since_epoch().count()
+		<< std::endl;
+
 	m_bullet[num].SetCol(col);
 }
 

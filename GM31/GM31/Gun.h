@@ -5,14 +5,12 @@
 class M_Gun : public Object
 {
 private:
+	//玉出る方向にレイ出す
 
 	//方向ベクトル
 	Vector3 Right_vec;
 	Vector3 Up_vec;
 	Vector3 Forward_vec;
-
-	// 弾情報
-	std::vector<std::unique_ptr<Bullet>> m_bullet;
 
 	int bulletnum = 0;
 
@@ -31,6 +29,7 @@ public:
 	void Dispose() override;
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
+	void Reset();
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int num);
 	void SetCollision_Bullet(int, bool);

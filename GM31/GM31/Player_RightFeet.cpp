@@ -139,6 +139,11 @@ void Player_RightFeet::Action(Vector3 vec)
 
 }
 
+void Player_RightFeet::Reset()
+{
+
+}
+
 GM31::GE::Collision::BoundingBoxOBB Player_RightFeet::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;

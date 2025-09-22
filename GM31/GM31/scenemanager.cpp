@@ -1,17 +1,20 @@
 #include	"system/IScene.h"
 #include	"scenemanager.h"
-#include    "ImageDisplayScene.h"
-#include    "RubikCubeScene.h"
-#include    "Shape3DScene.h"
-#include    "CollisionOBBScene.h"
-#include    "ObjParseScene.h"
-#include    "AirplaneFlyScene.h"
-#include    "WallCollisionScene.h"
-#include	"EnemyLookatScene.h"
-#include	"CarDriveScene.h"
+//#include    "ImageDisplayScene.h"
+//#include    "RubikCubeScene.h"
+//#include    "Shape3DScene.h"
+//#include    "CollisionOBBScene.h"
+//#include    "ObjParseScene.h"
+//#include    "AirplaneFlyScene.h"
+//#include    "WallCollisionScene.h"
+//#include	"EnemyLookatScene.h"
+//#include	"CarDriveScene.h"
 
 //こっから授業外で自作したヘッダー
 #include "MecScene.h"
+#include "TitleScene.h"
+#include "ResultScene.h"
+#include "Gameover.h"
 
 std::unordered_map<std::string, std::unique_ptr<IScene>> SceneManager::m_scenes;
 std::string SceneManager::m_currentSceneName = "";
@@ -51,9 +54,15 @@ void SceneManager::Init()
 	//自作物
 	m_scenes["MecScene"] = std::make_unique<MecScene>();
 	m_scenes["MecScene"]->init();
-	m_scenes["CarDriveScene"] = std::make_unique<CarDriveScene>();
-	m_scenes["CarDriveScene"]->init();
-	m_currentSceneName = "MecScene";
+
+	m_scenes["TitleScene"] = std::make_unique<TitleScene>();
+	m_scenes["TitleScene"]->init();
+	m_scenes["ResultScene"] = std::make_unique<ResultScene>();
+	m_scenes["ResultScene"]->init();
+	m_scenes["Gameover"] = std::make_unique<Gameover>();
+	m_scenes["Gameover"]->init();
+
+	m_currentSceneName = "TitleScene";
 	
 }
 
@@ -72,8 +81,28 @@ void SceneManager::Update(uint64_t deltatime)
 	//シーン切り替えを検知
 	int a = m_scenes[m_currentSceneName]->ChangeScene();
 
-	if (a != 0) 
+	switch (a)
 	{
-		m_currentSceneName = "CarDriveScene";
+	case 0://シーン続行
+
+		break;
+
+	case 1:
+		m_currentSceneName = "MecScene";
+		break;
+	case 2:
+		m_currentSceneName = "ResultScene";
+		break;
+
+	case 3:
+		m_currentSceneName = "TitleScene";
+		break;
+	case 4:
+		m_currentSceneName = "Gameover";
+		break;
+	default:
+		m_currentSceneName = "TitleScene";
+		break;
 	}
+
 }

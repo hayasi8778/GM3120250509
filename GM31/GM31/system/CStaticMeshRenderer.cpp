@@ -17,6 +17,63 @@ static DirectX::SimpleMath::Matrix ToSM(const aiMatrix4x4& m)
     );
 }
 
+SRT MatrixToSRT(const Matrix4x4& m)
+{
+    SRT srt;
+
+    // --- 平行移動 ---
+    srt.pos = { m._41, m._42, m._43 };
+
+    // --- スケール ---
+    Vector3 axisX(m._11, m._12, m._13);
+    Vector3 axisY(m._21, m._22, m._23);
+    Vector3 axisZ(m._31, m._32, m._33);
+
+    srt.scale.x = axisX.Length();
+    srt.scale.y = axisY.Length();
+    srt.scale.z = axisZ.Length();
+
+    // --- 回転行列（スケール除去後） ---
+    if (srt.scale.x != 0) axisX /= srt.scale.x;
+    if (srt.scale.y != 0) axisY /= srt.scale.y;
+    if (srt.scale.z != 0) axisZ /= srt.scale.z;
+
+    Matrix4x4 rotMat;
+    rotMat._11 = axisX.x; rotMat._12 = axisX.y; rotMat._13 = axisX.z; rotMat._14 = 0;
+    rotMat._21 = axisY.x; rotMat._22 = axisY.y; rotMat._23 = axisY.z; rotMat._24 = 0;
+    rotMat._31 = axisZ.x; rotMat._32 = axisZ.y; rotMat._33 = axisZ.z; rotMat._34 = 0;
+    rotMat._41 = 0;       rotMat._42 = 0;       rotMat._43 = 0;       rotMat._44 = 1;
+
+    // --- 回転行列 → クォータニオン ---
+    Quaternion q = Quaternion::CreateFromRotationMatrix(rotMat);
+
+    // --- クォータニオン → オイラー角（YawPitchRoll） ---
+    q.Normalize();
+    // --- クォータニオン → オイラー角（左手系） ---
+        // rot.x = Pitch, rot.y = Yaw, rot.z = Roll
+    float sinr_cosp = 2.0f * (q.w * q.x + q.y * q.z);
+    float cosr_cosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+    float pitch = std::atan2(sinr_cosp, cosr_cosp);
+
+    float sinp = 2.0f * (q.w * q.y - q.z * q.x);
+    float yaw;
+    if (std::abs(sinp) >= 1.0f)
+        yaw = std::copysign(DirectX::XM_PIDIV2, sinp); // ±90°
+    else
+        yaw = std::asin(sinp);
+
+    float siny_cosp = 2.0f * (q.w * q.z + q.x * q.y);
+    float cosy_cosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+    float roll = std::atan2(siny_cosp, cosy_cosp);
+
+
+    // rot は (pitch, yaw, roll) ではなく (x=Pitch, y=Yaw, z=Roll) で格納
+    srt.rot = { pitch, yaw, roll };
+
+    return srt;
+}
+
+
 // ① GetGlobalAiMatrix(): aiNode 階層を辿って完全な world 行列を再現
 aiMatrix4x4 GetGlobalAiMatrix(const aiNode* node)
 {
@@ -316,6 +373,67 @@ Vector3 CStaticMeshRenderer::LogBoneWorldPosition(int cr, const SRT& srt)
     return world;
 }
 
+void CStaticMeshRenderer::ComputeModelAABB(const aiScene* scene, aiVector3D& outMin, aiVector3D& outMax)
+{
+    // 初期化
+    const float INF = std::numeric_limits<float>::infinity();
+    outMin = aiVector3D(INF, INF, INF);
+    outMax = aiVector3D(-INF, -INF, -INF);
+
+    // 全メッシュを走査
+    for (unsigned m = 0; m < scene->mNumMeshes; ++m) {
+        const aiMesh* mesh = scene->mMeshes[m];
+        //全インデックスでループ
+        for (unsigned v = 0; v < mesh->mNumVertices; ++v) {
+            const aiVector3D& p = mesh->mVertices[v];
+            outMin.x = std::min(outMin.x, p.x);
+            outMin.y = std::min(outMin.y, p.y);
+            outMin.z = std::min(outMin.z, p.z);
+            outMax.x = std::max(outMax.x, p.x);
+            outMax.y = std::max(outMax.y, p.y);
+            outMax.z = std::max(outMax.z, p.z);
+        }
+    }
+
+}
+
+void CStaticMeshRenderer::ApplyAnimationToNode(const aiNode* node, const Matrix4x4& parentWorld, const SRT srt, const std::unordered_map<std::string, Matrix4x4>& latestNodeTransforms, const Color& boneColor)
+{
+    // ノード名で検索
+    auto it = latestNodeTransforms.find(node->mName.C_Str());
+    Matrix4x4 local = Matrix4x4::Identity;
+    if (it != latestNodeTransforms.end()) {
+        local = it->second; // アニメ適用済みのローカル行列
+    }
+    else {
+        local = ToSM(node->mTransformation); // フォールバック(bind pose)
+    }
+
+    //モデルのSRTからマトリクス生成
+    Matrix4x4 modelWorld = srt.GetMatrix();
+
+    Matrix4x4 world = local * modelWorld;
+
+    // 3) world行列をSRTに分解
+    SRT boneSrt = srt;
+
+    boneSrt = MatrixToSRT(world);
+
+    //boneSrt.pos = { world._41, world._42, world._43 };
+    //boneSrt.pos = { local._41 * srt.scale.x, local._42 * srt.scale.y, local._43 * srt.scale.z };
+
+    // SetWorldMatrixしてスフィア描画
+    Renderer::SetWorldMatrix(&world);
+    m_BoneViz->Draw(boneSrt, boneColor);
+    //m_BoneViz->Draw(srt, boneColor);
+
+    for (UINT i = 0; i < node->mNumChildren; ++i) {
+        ApplyAnimationToNode(node->mChildren[i], world, srt, latestNodeTransforms, boneColor);
+        //ApplyAnimationToNode(node->mChildren[i], local, srt, latestNodeTransforms, boneColor);
+    }
+
+}
+
 void CStaticMeshRenderer::ComputeModelAABB(aiVector3D& outMin, aiVector3D& outMax)
 {
     // 初期化
@@ -337,7 +455,6 @@ void CStaticMeshRenderer::ComputeModelAABB(aiVector3D& outMin, aiVector3D& outMa
             outMax.z = std::max(outMax.z, p.z);
         }
     }
-
 }
 
 bool CStaticMeshRenderer::FindAndLogBoneRecursive(const aiNode* node,

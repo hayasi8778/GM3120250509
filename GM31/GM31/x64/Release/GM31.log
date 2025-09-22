@@ -1,11 +1,57 @@
-﻿  MecScene.cpp
-C:\Git\GM31Git\GM31\GM31\MecScene.cpp(73,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
-C:\Git\GM31Git\GM31\GM31\MecScene.cpp(82,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
-C:\Git\GM31Git\GM31\GM31\MecScene.cpp(90,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
-C:\Git\GM31Git\GM31\GM31\MecScene.cpp(96,17): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+﻿  E_Missile.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(73,1): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\E_Missile.cpp(204,48): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.36.32532\include\memory(3465,56): warning C4244: '引数': '_Ty' から 'float' への変換です。データが失われる可能性があります。
+          with
+          [
+              _Ty=int
+          ]
+C:\Git\GM31Git\GM31\GM31\E_Missile.cpp(43,20): message : コンパイル対象の関数 テンプレート インスタンス化 'std::unique_ptr<Sphere,std::default_delete<Sphere>> std::make_unique<Sphere,int,0>(int &&)' のリファレンスを確認してください
+  Enemy_Missile.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(73,1): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(224,37): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.36.32532\include\memory(3465,56): warning C4244: '引数': '_Ty' から 'float' への変換です。データが失われる可能性があります。
+          with
+          [
+              _Ty=int
+          ]
+C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp(63,30): message : コンパイル対象の関数 テンプレート インスタンス化 'std::unique_ptr<Sphere,std::default_delete<Sphere>> std::make_unique<Sphere,int,0>(int &&)' のリファレンスを確認してください
+  M_Rock.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(73,1): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\M_Rock.cpp(110,11): warning C4244: '-=': 'float' から 'int' への変換です。データが失われる可能性があります。
+C:\Git\GM31Git\GM31\GM31\M_Rock.cpp(129,22): warning C4305: '-=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\M_Rock.cpp(214,10): warning C4244: '=': 'const int' から 'float' への変換です。データが失われる可能性があります。
+  MecScene.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(73,1): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(9,25): warning C4305: '初期化中': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(11,15): warning C4305: '初期化中': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(240,21): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\MecScene.cpp(241,21): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  Player_LeftArm.cpp
+C:\Git\GM31Git\GM31\GM31\Player_LeftArm.cpp(148,37): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+  Player_Mec.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(73,1): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(164,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(165,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(185,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(186,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(231,30): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(236,37): warning C4305: '引数': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(267,22): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(268,22): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(278,22): warning C4305: '-=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(279,22): warning C4305: '-=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(334,18): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(335,18): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(383,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(384,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(467,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+C:\Git\GM31Git\GM31\GM31\Player_Mec.cpp(468,19): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
+  scenemanager.cpp
+C:\Git\GM31Git\GM31\GM31\Player_Mec.h(73,1): warning C4305: '+=': 'double' から 'float' へ切り詰めます。
   コード生成しています。
-  1 of 3134 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  0 of 6712 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    35 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   GM31.vcxproj -> C:\Git\GM31Git\GM31\x64\Release\MyGame.exe

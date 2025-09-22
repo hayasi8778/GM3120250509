@@ -13,9 +13,13 @@ void Enemy_Missile::Init()
 	//属性
 	Attribute = ENEMY;
 
+	//m_mesh.Load(
+	//	"assets/model/Gun/Gun_Testmodel2.fbx",				// モデル名
+	//		"assets/model/Gun/");						// テクスチャのパス
+
 	m_mesh.Load(
-		"assets/model/Mec/Gun2.fbx",				// モデル名
-		"assets/model/Mec/");						// テクスチャのパス
+		"assets/model/Enemy/EnemyTes.fbx",				// モデル名
+		"assets/model/Enemy/");						// テクスチャのパス
 
 
 	//レンダラ初期化
@@ -31,6 +35,8 @@ void Enemy_Missile::Init()
 	m_Position.z += 50;
 	m_Position.y += 10;
 
+	m_Scale *= 3;
+
 	//m_Rotation.x += 0.3;
 
 	for (int i = 0; i < BulletMaxnum; i++)
@@ -43,6 +49,10 @@ void Enemy_Missile::Init()
 	aiVector3D maxpos;
 
 	ModelAABB(minpos, maxpos);
+
+	//スケール分かける
+	minpos *= 3;
+	maxpos *= 3;
 
 	Width = maxpos.x - minpos.x;
 	Height = maxpos.y - minpos.y;
@@ -57,6 +67,33 @@ void Enemy_Missile::Init()
 
 void Enemy_Missile::Update(uint64_t deltatime)
 {
+	//死んでるなら移動させる
+	if (HP <= 0) { m_Position = { 0.0f,-20.0f,0.0f }; return; }
+
+	//プレイヤーから距離を取るようにする
+	Vector3 P_E_Renged = m_Position - player->GetPosition();
+	if (P_E_Renged.x < 0) 
+	{
+		P_E_Renged.x *= -1;
+	}
+	if (P_E_Renged.y < 0)
+	{
+		P_E_Renged.y *= -1;
+	}
+	if (P_E_Renged.z < 0)
+	{
+		P_E_Renged.z *= -1;
+	}
+	//距離判定
+	if (P_E_Renged.x + P_E_Renged.y + P_E_Renged.z < 80) 
+	{
+		//プレイヤーから離れる
+		m_Position += player->GetForward() * 0.1f;
+	}
+	else 
+	{
+		int tes = 100;
+	}
 
 	//衝突判定と無敵時間の処理
 	if (collision_hit)
@@ -71,6 +108,21 @@ void Enemy_Missile::Update(uint64_t deltatime)
 		}
 
 	}
+
+	if (interception)
+	{
+		interception_time += static_cast<float>(deltatime) / 1000;
+
+		if (interception_time > 120)
+		{
+			//ここオフにすると迎撃しなくなる
+			//interception = false;
+			interception_time = 0;
+		}
+
+	}
+
+	
 
 	//銃弾の発生
 	float time_D = static_cast<float>(deltatime) / 1000;
@@ -87,26 +139,23 @@ void Enemy_Missile::Update(uint64_t deltatime)
 		}
 	}
 	
-	// 移動(弾丸)
-	for (auto& pb : e_missile) {
-
-		pb->Update(deltatime);
-		pb->Life--;
-		if (pb->Life <= 0) {
-			pb->erase = true;
-		}
-	}
-
-	// 削除フラグがTRUEになっているものを消す
-	std::erase_if(e_missile, [](const std::unique_ptr<E_Missile>& b) {
-
-		return b->erase;
-		});
 
 	for (int i = 0; i < BulletMaxnum; i++)
 	{
 		e_missiles[i].Update(deltatime);
 	}
+
+	Vector3 TargetForward = (m_Position - player->GetPosition());
+
+	TargetForward.Normalize();
+
+	// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
+	float yaw = atan2f(TargetForward.x, TargetForward.z);
+	float pitch = atan2f(-TargetForward.y,
+		sqrtf(TargetForward.x * TargetForward.x + TargetForward.z * TargetForward.z));
+
+	// 4. Roll は今回は固定 0
+	m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
 
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -130,8 +179,8 @@ void Enemy_Missile::Update(uint64_t deltatime)
 void Enemy_Missile::Draw()
 {
 	//姿勢の補完をここでする
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	/*m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;*/
 
 	// SRT情報作成
 	SRT srt;
@@ -147,19 +196,14 @@ void Enemy_Missile::Draw()
 
 	m_shader.SetGPU();
 
-	if (HP > 0)m_meshrenderer.Draw();//HPがないなら描画しない
+	if (HP > 0) {
+		m_meshrenderer.Draw();//HPがないなら描画しない
 
-	// 移動
-	for (auto& pb : e_missile) {
-
-		pb->Draw();
+		for (int i = 0; i < BulletMaxnum; i++)
+		{
+			e_missiles[i].Draw();
+		}
 	}
-
-	for (int i = 0; i < BulletMaxnum; i++)
-	{
-		e_missiles[i].Draw();
-	}
-
 
 	Vector3 poscop = m_Position;//positionのコピーをとる
 	// 弾の回転角度から回転行列を作成
@@ -170,8 +214,8 @@ void Enemy_Missile::Draw()
 	// 合成
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
-	m_Position.y += 1.0f;
-	m_Position -= Forward_vec * 2.0f;
+	m_Position.y += 3.0f;
+	m_Position += Right_vec * 3.0f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;//positionは元に戻しておく
@@ -184,11 +228,17 @@ void Enemy_Missile::Draw()
 		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 	}
 	
-	m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+	if (interception) 
+	{
+		//m_interceptionSphere->Draw(transmtx, { 0.0,0.0,0.5,0.2 });
+	}
+	else {
+		//m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+	}
 
 	//姿勢の補完をここでする
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	/*m_Rotation.x -= 1.55;
+	m_Rotation.y -= 1.55;*/
 
 
 
@@ -217,6 +267,15 @@ void Enemy_Missile::Action(Vector3 vec)
 	}
 }
 
+void Enemy_Missile::Reset()
+{
+	HP = MaxHP;
+	for (int i = 0; i < BulletMaxnum; i++)
+	{
+		e_missiles[i].Reset();
+	}
+}
+
 GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB()
 {
 	Vector3 poscop = m_Position;
@@ -224,10 +283,10 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB()
 
 	GM31::GE::Collision::BoundingBoxOBB obb;
 	
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	/*m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;*/
 	m_Position.y += 1.0f;
-	m_Position -= Forward_vec * 2.0f;
+	m_Position -= Forward_vec * 1.5f;
 	
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
@@ -239,6 +298,13 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB()
 	m_Position = poscop;
 	m_Rotation = rotcop;
 	return obb;
+}
+
+GM31::GE::Collision::BoundingSphere Enemy_Missile::GetShere()
+{
+	if (interception) return GM31::GE::Collision::BoundingSphere({ 0,-10,0 }, 1);
+
+	return GM31::GE::Collision::BoundingSphere(m_Position, 25);
 }
 
 void Enemy_Missile::CreateBullet()
@@ -267,9 +333,12 @@ void Enemy_Missile::CreateBullet()
 
 	//前向き行列取ってから姿勢補完する
 	//姿勢補完分
-	srt.rot.x += 1.55;
-	srt.rot.y += 1.55;
+	/*srt.rot.x += 1.55;
+	srt.rot.y += 1.55;*/
 	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
+
+	//指定したボーンがないならオブジェクトの中心座標から球を打つ
+	if (bulletpos == Vector3::Zero) bulletpos = m_Position;
 
 	pb->SetScale(Vector3(1, 1, 1));
 	pb->SetRotation(m_Rotation);

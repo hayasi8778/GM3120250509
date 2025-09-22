@@ -14,8 +14,8 @@ void M_Gun::Init()
 	Attribute = JOINABLE;
 
 	m_mesh.Load(
-		"assets/model/Mec/Gun.fbx",				// モデル名
-		"assets/model/Mec/");						// テクスチャのパス
+		"assets/model/Gun/Gun_Testmodel2.fbx",				// モデル名
+		"assets/model/Gun/");						// テクスチャのパス
 
 
 	//レンダラ初期化
@@ -50,21 +50,7 @@ void M_Gun::Init()
 
 void M_Gun::Update(uint64_t deltatime)
 {
-	// 移動(弾丸)
-	for (auto& pb : m_bullet) {
 
-		pb->Update(deltatime);
-		pb->Life--;
-		if (pb->Life <= 0) {
-			pb->erase = true;
-		}
-	}
-
-	// 削除フラグがTRUEになっているものを消す
-	std::erase_if(m_bullet, [](const std::unique_ptr<Bullet>& b) {
-		
-		return b->erase;
-		});
 
 	if (!adhesioing) //重力
 	{
@@ -103,8 +89,8 @@ void M_Gun::Update(uint64_t deltatime)
 void M_Gun::Draw()
 {
 	//姿勢の補完をここでする
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	/*m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;*/
 
 	// SRT情報作成
 	SRT srt;
@@ -121,12 +107,6 @@ void M_Gun::Draw()
 	m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
-
-	// 移動
-	for (auto& pb : m_bullet) {
-
-		pb->Draw();
-	}
 
 	for (int i = 0; i < BulletMaxnum; i++)
 	{
@@ -151,8 +131,8 @@ void M_Gun::Draw()
 	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 
 	//姿勢の補完をここでする
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	/*m_Rotation.x -= 1.55;
+	m_Rotation.y -= 1.55;*/
 };
 
 void M_Gun::Dispose()
@@ -179,7 +159,10 @@ void M_Gun::Action(Vector3 vec)
 	std::unique_ptr<Bullet> pb = std::make_unique<Bullet>();
 
 	Matrix4x4 world = srt.GetMatrix();
-	Vector3 forward = world.Forward();
+	//Vector3 forward = world.Forward();
+	//多少下を狙うようにする
+	vec.y -= 2;
+	Vector3 forward = (vec - GetPosition());
 	forward.Normalize();
 	forward *= 3.0f;
 
@@ -188,9 +171,6 @@ void M_Gun::Action(Vector3 vec)
 
 
 	//前向き行列取ってから姿勢補完する
-	//姿勢補完分
-	srt.rot.x += 1.55;
-	srt.rot.y += 1.55;
 	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
 
 	//pb->SetScale(Vector3(1, 1, 1));
@@ -206,13 +186,18 @@ void M_Gun::Action(Vector3 vec)
 
 };
 
+void M_Gun::Reset()
+{
+
+};
+
 GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
 {
 	Vector3 poscop = m_Position;
 	Vector3 rotcop = m_Rotation;
 	GM31::GE::Collision::BoundingBoxOBB obb;
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	/*m_Rotation.x += 1.55;
+	m_Rotation.y += 1.55;*/
 
 	m_Position += Up_vec * 1.0f;
 	m_Position -= Forward_vec * 2.0f;

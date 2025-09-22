@@ -6,9 +6,9 @@
 
 void Skydome::Init()
 {
-	m_Position = Vector3(0.0f, 0.0f, 0.0f);
+	m_Position = Vector3(1.0f, 0.0f, 0.0f);
 	m_Rotation = Vector3(0.0f, 0.0f, 0.0f);
-	m_Scale = Vector3(1.0f, 1.0f, 1.0f);
+	m_Scale = Vector3(0.5f, 0.5f, 0.5f);
 
 	// ƒ‚ƒfƒ‹‚Ì‰Šú‰»
 	m_mesh.Load(

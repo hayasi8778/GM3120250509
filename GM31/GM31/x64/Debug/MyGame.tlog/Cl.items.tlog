@@ -10,6 +10,7 @@ C:\Git\GM31Git\GM31\GM31\Enemy_Missile.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\En
 C:\Git\GM31Git\GM31\GM31\E_Missile.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\E_Missile.obj
 C:\Git\GM31Git\GM31\GM31\Field.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\Field.obj
 C:\Git\GM31Git\GM31\GM31\game.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\game.obj
+C:\Git\GM31Git\GM31\GM31\Gameover.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\Gameover.obj
 C:\Git\GM31Git\GM31\GM31\Gun.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\Gun.obj
 C:\Git\GM31Git\GM31\GM31\ImageDisplayScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\ImageDisplayScene.obj
 C:\Git\GM31Git\GM31\GM31\main.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\main.obj
@@ -25,6 +26,7 @@ C:\Git\GM31Git\GM31\GM31\Player_RightArm.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\
 C:\Git\GM31Git\GM31\GM31\Player_RightFeet.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\Player_RightFeet.obj
 C:\Git\GM31Git\GM31\GM31\qtlooatat.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\qtlooatat.obj
 C:\Git\GM31Git\GM31\GM31\QuaternionScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\QuaternionScene.obj
+C:\Git\GM31Git\GM31\GM31\ResultScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\ResultScene.obj
 C:\Git\GM31Git\GM31\GM31\RubikCubeScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\RubikCubeScene.obj
 C:\Git\GM31Git\GM31\GM31\SceneChanger.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\SceneChanger.obj
 C:\Git\GM31Git\GM31\GM31\scenemanager.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\scenemanager.obj
@@ -63,4 +65,5 @@ C:\Git\GM31Git\GM31\GM31\system\PlaneDrawer.cpp;C:\Git\GM31Git\GM31\GM31\x64\Deb
 C:\Git\GM31Git\GM31\GM31\system\renderer.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\renderer.obj
 C:\Git\GM31Git\GM31\GM31\system\SphereDrawer.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\SphereDrawer.obj
 C:\Git\GM31Git\GM31\GM31\system\stb.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\stb.obj
+C:\Git\GM31Git\GM31\GM31\TitleScene.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\TitleScene.obj
 C:\Git\GM31Git\GM31\GM31\walls.cpp;C:\Git\GM31Git\GM31\GM31\x64\Debug\walls.obj

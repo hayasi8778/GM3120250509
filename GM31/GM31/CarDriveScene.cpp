@@ -147,20 +147,20 @@ void CarDriveScene::init()
 	m_skydome = std::make_unique<Skydome>();
 	m_skydome->Init();
 	
-	// デバッグフリーカメラ
-	DebugUI::RedistDebugFunction([this]() {
-		debugFreeCamera();
-		});
+	//// デバッグフリーカメラ
+	//DebugUI::RedistDebugFunction([this]() {
+	//	debugFreeCamera();
+	//	});
 
-	// デバッグLIGHT
-	DebugUI::RedistDebugFunction([this]() {
-		debugDirectionalLight();
-		});
+	//// デバッグLIGHT
+	//DebugUI::RedistDebugFunction([this]() {
+	//	debugDirectionalLight();
+	//	});
 
-	// デバッグMODE SELECT
-	DebugUI::RedistDebugFunction([this]() {
-		debugModeSelect();
-		});
+	//// デバッグMODE SELECT
+	//DebugUI::RedistDebugFunction([this]() {
+	//	debugModeSelect();
+	//	});
 
 }
 
@@ -172,5 +172,10 @@ void CarDriveScene::dispose()
 
 int CarDriveScene::ChangeScene()
 {
+	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_J)) 
+	{
+		return 3;
+	}
+
 	return 0;
 }

@@ -10,7 +10,7 @@ private:
 	Vector3 Up_vec;
 	Vector3 Forward_vec;
 
-	Vector3 forward;//前方ベクトルを取得するための変数
+	Vector3 forward = { 0,0,0 };//前方ベクトルを取得するための変数
 	Vector3 velocty = Vector3{ 0,0,0 };
 	Vector3 Targetpos = Vector3{ 0,0,0 };
 	Vector3* Target_P = nullptr;
@@ -41,6 +41,7 @@ public:
 	void Dispose() override;
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
+	void Reset();
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 
 	void SetForward(Vector3 forw) { forward = forw; shot = true; collsion = false; }
@@ -48,7 +49,7 @@ public:
 	void SetTarget(Vector3 pos) { Targetpos = pos; }
 	void SetTarget(Vector3* pos) { Target_P = pos; }
 	void Setinduction(float ,Vector3);
-	void SetCol(bool col) { collsion = col; }
+	void SetCol(bool col) {collsion = col;}
 	int Life = 120;
 	bool erase = false;
 };

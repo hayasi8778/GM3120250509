@@ -124,6 +124,9 @@ namespace GM31 {namespace GE {namespace {}
 			BoundingSphere sphere,
 			BoundingBoxOBB obb);
 
+		bool CollisionSphereOBB_(const BoundingSphere& sphere,
+			const BoundingBoxOBB& obb);
+
 		// ƒJƒvƒZƒ‹“¯Žm‚Ì“–‚½‚è”»’è
 		bool CollisionCapsule(BoundingCapsule p1, BoundingCapsule p2);
 

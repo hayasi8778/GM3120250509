@@ -137,6 +137,11 @@ void Player_Head::Action(Vector3 vec)
 
 }
 
+void Player_Head::Reset() 
+{
+	m_Scale = { 1,1,1 };
+}
+
 GM31::GE::Collision::BoundingBoxOBB Player_Head::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;

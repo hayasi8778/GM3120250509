@@ -24,7 +24,8 @@ private:
 
 	Bullet m_bullet[20];
 
-	int HP = 5;//体力
+	int MaxHP = 5;
+	int HP = MaxHP;//体力
 	float Invincibility_time = 0;//無敵時間
 
 	Vector3* Target = nullptr;
@@ -39,12 +40,14 @@ private:
 
 	bool col = false; //当たり判定取るためのやつ
 
-
 	Player_Head head;
 	Player_LeftArm leftarm;
 	Player_RightArm rightarm;
 	Player_LeftFeet leftfeet;
 	Player_RightFeet rightfeet;
+
+	int DoublePistol = 3;//二丁拳銃を交互に打つための変数
+
 public:
 	int TestInt = 0;//デバックであると便利だから作っておく
 
@@ -55,14 +58,18 @@ public:
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
+	void Reset();
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int i);
 	Vector3 GetForward();
 
+	int GetHP() { return HP; }
+	int GetMaxHP() { return MaxHP; }
 	void SetTarget(Vector3* tar) { Target = tar; }
 	Vector3* GetTarget() { return Target; }
-	void SetCol(bool collision) { if(collision)col = collision; }
+	void SetCol(bool collision) { if (collision) { HP--; col = collision; } };
 	void Debug_Player();//デバック用GUI一式
 	Vector3 ConectPos();
+	Vector3 ConectPos(int i);
 	void FullBurst();
 	//当たり判定のために描画時の角度情報返す関数を作っておく
 	Vector3 GetRotation_col() { Vector3 rotcop = m_Rotation; 
@@ -77,6 +84,8 @@ public:
 
 	bool DrawBone = false;
 	bool DrawModel = true;
+
+	int GetDoublePistol() { return DoublePistol; }
 
 	//void ModelAABB(aiVector3D& outMin, aiVector3D& outMax);
 		

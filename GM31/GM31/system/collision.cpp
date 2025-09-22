@@ -369,40 +369,6 @@ namespace GM31 {
 				return true;
 			}
 
-			//球とOBBの当たり判定
-			bool CollisionSphereOBB(const BoundingSphere& sphere, const BoundingBoxOBB& obb)
-			{
-				// 球の中心から OBB 中心へのベクトル
-				Vector3 dir = sphere.center - obb.worldcenter;
-
-				// ローカル座標系に変換（各軸方向に射影）
-				float localX = obb.axisX.Dot(dir);
-				float localY = obb.axisY.Dot(dir);
-				float localZ = obb.axisZ.Dot(dir);
-
-				// OBB の半サイズ
-				float hx = obb.lengthx * 0.5f;
-				float hy = obb.lengthy * 0.5f;
-				float hz = obb.lengthz * 0.5f;
-
-				// ローカル空間で最近接点をクランプ
-				float closestX = std::max(-hx, std::min(localX, hx));
-				float closestY = std::max(-hy, std::min(localY, hy));
-				float closestZ = std::max(-hz, std::min(localZ, hz));
-
-				// 最近接点をワールド座標に戻す
-				Vector3 closestPoint =
-					obb.worldcenter +
-					obb.axisX * closestX +
-					obb.axisY * closestY +
-					obb.axisZ * closestZ;
-
-				// 距離の二乗を計算
-				float distSq = (closestPoint - sphere.center).LengthSquared();
-
-				return distSq <= (sphere.radius * sphere.radius);
-			}
-
 
 			// AABB
 			bool CollisionAABB(BoundingBoxAABB p1, BoundingBoxAABB p2) {
@@ -577,6 +543,40 @@ namespace GM31 {
 				}
 
 				return false;
+			}
+
+			//球とOBBの当たり判定(上のやつが短い期間に連続して呼び出せないため連続で呼び出せる奴作る)
+			bool CollisionSphereOBB_(const BoundingSphere& sphere, const BoundingBoxOBB& obb)
+			{
+				// 球の中心から OBB 中心へのベクトル
+				Vector3 dir = sphere.center - obb.worldcenter;
+
+				// ローカル座標系に変換（各軸方向に射影）
+				float localX = obb.axisX.Dot(dir);
+				float localY = obb.axisY.Dot(dir);
+				float localZ = obb.axisZ.Dot(dir);
+
+				// OBB の半サイズ
+				float hx = obb.lengthx * 0.5f;
+				float hy = obb.lengthy * 0.5f;
+				float hz = obb.lengthz * 0.5f;
+
+				// ローカル空間で最近接点をクランプ
+				float closestX = std::max(-hx, std::min(localX, hx));
+				float closestY = std::max(-hy, std::min(localY, hy));
+				float closestZ = std::max(-hz, std::min(localZ, hz));
+
+				// 最近接点をワールド座標に戻す
+				Vector3 closestPoint =
+					obb.worldcenter +
+					obb.axisX * closestX +
+					obb.axisY * closestY +
+					obb.axisZ * closestZ;
+
+				// 距離の二乗を計算
+				float distSq = (closestPoint - sphere.center).LengthSquared();
+
+				return distSq <= (sphere.radius * sphere.radius);
 			}
 
 			// カプセル同士の当たり判定

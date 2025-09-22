@@ -224,6 +224,11 @@ void M_Rock::Action(Vector3 vec)
 	forward *= 3.0f;
 }
 
+void M_Rock::Reset() 
+{
+
+}
+
 GM31::GE::Collision::BoundingBoxOBB M_Rock::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;

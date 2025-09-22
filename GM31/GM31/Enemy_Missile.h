@@ -12,11 +12,12 @@ private:
 	Vector3 Up_vec;
 	Vector3 Forward_vec;
 
-	const int MaxHP = 35;
-	int HP = MaxHP;
+	//弾をよける動き作るために一番近い弾の位置とその向きを取得する
+	Vector3 CurentBulletpos = { 0,0,0 };
+	Vector3 CurentBulletrot = { 0,0,0 };
 
-	// 弾情報
-	std::vector<std::unique_ptr<E_Missile>> e_missile;
+	const int MaxHP = 5;
+	int HP = MaxHP;
 
 	const int BulletMaxnum = 5;
 
@@ -28,11 +29,12 @@ private:
 
 	M_Player* player = nullptr;//プレイヤー
 
-	bool FIRE = false;
+	bool FIRE = true;
 
 	float Invincibility_time = 0;//無敵時間
 	bool collision_hit = false;
 	bool interception = false; //迎撃範囲に入っているか
+	float interception_time = 0;
 
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
 	std::unique_ptr<Sphere> m_interceptionSphere; //範囲内に入った弾を迎撃するシステム作りたい
@@ -49,13 +51,18 @@ public:
 	void Dispose() override;
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
+	void Reset();
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
+	GM31::GE::Collision::BoundingSphere GetShere();
 	void CreateBullet();
 
 	int GetHP() { return HP; }
 	int GetMaxHP() { return MaxHP; }
 	void SetPlayer(M_Player* pl);
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int bulletnum);
+
+	Vector3 GetCenter() { return m_Position - Forward_vec * 1.5f; }//当たり判定の中心
+
 	void SetCollision(bool col);
 	void SetCollision_Bullet(int,bool);
 	void SetInterception(bool inter) { interception = inter; }

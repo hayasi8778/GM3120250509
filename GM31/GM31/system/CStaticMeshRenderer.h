@@ -61,6 +61,20 @@ public:
 	//ボーン番号を指定する座標出力
 	Vector3 LogBoneWorldPosition(int cr, const SRT& srt);
 
+	void ComputeModelAABB(const aiScene* scene,
+		aiVector3D& outMin,
+		aiVector3D& outMax);
+
+	//アニメーションに対してボーン行列を更新する
+	void ApplyAnimationToNode(
+		const aiNode* node,
+		const Matrix4x4& parentWorld,
+		const SRT srt,
+		const std::unordered_map<std::string, Matrix4x4>& latestNodeTransforms,
+		const Color& boneColor);
+
+	const aiScene* GetaiScene() { return m_pScene; }
+
 	//AABB作るためのやつ
 	void ComputeModelAABB(
 		aiVector3D& outMin,

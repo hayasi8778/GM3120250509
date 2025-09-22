@@ -77,8 +77,9 @@
     <LibraryPath>C:\Assimp\5.2.5\lib;C:\DirectXLib\directxtk\lib\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\DirectXLib\directxtk\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\DirectXLib\directxtk\lib\x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>C:\DirectXLib\directxtk\lib\x64\Release;C:\Assimp\5.2.5\lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>C:\DirectXLib\directxtk\include;C:\Assimp\5.2.5\include;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -166,6 +167,7 @@
     <ClInclude Include="Field.h" />
     <ClInclude Include="fpscontrol.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="Gameover.h" />
     <ClInclude Include="Gun.h" />
     <ClInclude Include="ImageDisplayScene.h" />
     <ClInclude Include="main.h" />
@@ -182,6 +184,7 @@
     <ClInclude Include="Player_RightFeet.h" />
     <ClInclude Include="quat.h" />
     <ClInclude Include="QuaternionScene.h" />
+    <ClInclude Include="ResultScene.h" />
     <ClInclude Include="RubikCubeScene.h" />
     <ClInclude Include="SceneChanger.h" />
     <ClInclude Include="scenemanager.h" />
@@ -235,6 +238,7 @@
     <ClInclude Include="system\SphereDrawer.h" />
     <ClInclude Include="system\stb_image.h" />
     <ClInclude Include="system\transform.h" />
+    <ClInclude Include="TitleScene.h" />
     <ClInclude Include="WallCollisionScene.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
@@ -251,11 +255,13 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyLookatScene.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Enemy_Missile.cpp" />
     <ClCompile Include="E_Missile.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="Gameover.cpp" />
     <ClCompile Include="Gun.cpp" />
     <ClCompile Include="ImageDisplayScene.cpp" />
     <ClCompile Include="main.cpp" />
@@ -271,6 +277,7 @@
     <ClCompile Include="Player_RightFeet.cpp" />
     <ClCompile Include="qtlooatat.cpp" />
     <ClCompile Include="QuaternionScene.cpp" />
+    <ClCompile Include="ResultScene.cpp" />
     <ClCompile Include="RubikCubeScene.cpp" />
     <ClCompile Include="SceneChanger.cpp" />
     <ClCompile Include="scenemanager.cpp" />
@@ -309,8 +316,10 @@
     <ClCompile Include="system\renderer.cpp" />
     <ClCompile Include="system\SphereDrawer.cpp" />
     <ClCompile Include="system\stb.cpp" />
+    <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="WallCollisionScene.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="walls.cpp" />
   </ItemGroup>

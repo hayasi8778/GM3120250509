@@ -1,0 +1,84 @@
+{
+    "value0": {
+        "Name": "òOäœåïïøÅAí’ÅAñ[",
+        "Diffuse": {
+            "r": 0.800000011920929,
+            "g": 0.800000011920929,
+            "b": 0.800000011920929,
+            "a": 1.0
+        },
+        "Specular": {
+            "r": 0.10000000149011612,
+            "g": 0.10000000149011612,
+            "b": 0.10000000149011612
+        },
+        "SpecularPower": 5.0,
+        "Ambient": {
+            "r": 0.5,
+            "g": 0.5,
+            "b": 0.5
+        },
+        "Emissive": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0
+        },
+        "Metallic": 0.0,
+        "Roughness": 0.5,
+        "DrawFlag": 31,
+        "EdgeColor": {
+            "r": 0.5,
+            "g": 0.5,
+            "b": 0.5,
+            "a": 0.6000000238418579
+        },
+        "EdgeSize": 0.6000000238418579,
+        "TextureIndex": 0,
+        "SphereTextureIndex": -1,
+        "SphereMode": 0,
+        "ToonFlag": 0,
+        "ToonTextureIndex": 1,
+        "FaceNum": 4008
+    },
+    "value1": {
+        "Name": "òOäœåïìÅêg",
+        "Diffuse": {
+            "r": 0.800000011920929,
+            "g": 0.800000011920929,
+            "b": 0.800000011920929,
+            "a": 1.0
+        },
+        "Specular": {
+            "r": 0.10000000149011612,
+            "g": 0.10000000149011612,
+            "b": 0.20000000298023225
+        },
+        "SpecularPower": 5.0,
+        "Ambient": {
+            "r": 0.5,
+            "g": 0.5,
+            "b": 0.5
+        },
+        "Emissive": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 0.0
+        },
+        "Metallic": 0.0,
+        "Roughness": 0.5,
+        "DrawFlag": 30,
+        "EdgeColor": {
+            "r": 0.5,
+            "g": 0.5,
+            "b": 0.5,
+            "a": 0.6000000238418579
+        },
+        "EdgeSize": 0.6000000238418579,
+        "TextureIndex": 0,
+        "SphereTextureIndex": 2,
+        "SphereMode": 2,
+        "ToonFlag": 0,
+        "ToonTextureIndex": 3,
+        "FaceNum": 960
+    }
+}

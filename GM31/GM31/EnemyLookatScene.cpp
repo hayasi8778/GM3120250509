@@ -342,7 +342,3 @@ int EnemyLookatScene::ChangeScene()
 	return 0;
 }
 
-int EnemyLookatScene::ChangeScene()
-{
-	return 0;
-}

@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "Field.h"
 #include "system/CSprite.h"
+#include "Skydome.h"
 
 #include "Player_Mec.h"
 #include "M_Rock.h"
@@ -42,6 +43,7 @@ public:
 	void Collision_Hit(); //オブジェクト間の当たり判定
 
 	//ロックオンカーソルの描画
+	void RockonUpdate();
 	void RockonDraw();
 	void UIDraw();
 	void CameraFlip();//使用カメラ切り替え
@@ -49,7 +51,7 @@ public:
 	//デバック用のGUI
 	void Debug_Box();
 	void debugFreeCamera();
-
+	
 	void PlayerMovetes();
 private:
 	float Test = 1000;
@@ -81,10 +83,13 @@ private:
 	// 回転行列
 	Matrix4x4 m_RotationMtx{};
 
-	int UseCamera = UseCameraFree;//どのカメラ使うか
+	int UseCamera = UseCameraRockOn;//どのカメラ使うか
 	Camera m_camera;									// 固定カメラ
 	Vector3 camRot = Vector3{ 0,0,0 };					//カメラの向き
 	FreeCamera m_cameraF;								//デバック用の自由カメラ
+
+	std::unique_ptr<Skydome> m_skydome;							// スカイドーム
+
 	//デバック用の箱
 	std::unique_ptr<Box> m_shapecube;					// 立方体
 	std::unique_ptr<Box> m_shapecube2;					// 立方体
@@ -104,14 +109,26 @@ private:
 
 	std::vector<std::unique_ptr<Object>> m_objects{};                    //接続可能なオブジェクト群
 	//std::vector<std::unique_ptr<Object>> m_enemys{};                    //敵
-	std::vector<std::unique_ptr<Enemy_Missile>> m_enemys{};                    //敵
+	std::vector<std::unique_ptr<Enemy_Missile>> m_enemys{};               //敵
 
-	//接合中のオブジェクト(未接続のときにnullポインタで返すようにする)
-	Object* AdhesioingObject = nullptr;
+	//接合中のオブジェクト(未接続のときにnullポインタで返すようにする)	全部位につけれるように用意しておく
+	const int ADHESIOINGMAX = 5;
+	Object* AdhesioingObjects[5] = { nullptr ,nullptr ,nullptr ,nullptr ,nullptr };
+	//Object* AdhesioingObject_0 = nullptr;
+	//Object* AdhesioingObject_1 = nullptr;
+	//Object* AdhesioingObject_2 = nullptr;
+	//Object* AdhesioingObject_3 = nullptr;
+	//Object* AdhesioingObject_4 = nullptr;
+	//Object* AdhesioingObject_5 = nullptr;
+	//ロックオン中の敵
+	Enemy_Missile* RockonEnemy = nullptr;
 
 	//ロックオンカーソル
 	std::unique_ptr<CSprite> m_image;
 
-	std::unique_ptr<CSprite> HP_G;//HPの緑の部分
-	std::unique_ptr<CSprite> HP_R;//HPの赤の部分
+	std::unique_ptr<CSprite> HP_Player_G;//HPの緑の部分
+	std::unique_ptr<CSprite> HP_Player_R;//HPの赤の部分
+
+	std::unique_ptr<CSprite> HP_Enemy_G;//HPの緑の部分
+	std::unique_ptr<CSprite> HP_Enemy_R;//HPの赤の部分
 };

@@ -29,6 +29,7 @@ public:
 	void Dispose() override;
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
+	void Reset();
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 	void SetPlayer(M_Player* pl);
 };

@@ -23,6 +23,7 @@ public:
 	void Dispose() override;
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
+	void Reset();
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 
 	Vector3 Conectpos(const std::string& targetName);

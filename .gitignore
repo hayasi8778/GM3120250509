@@ -1,0 +1,52 @@
+# ============================================
+# Visual Studio + C++ (DirectX11) 用 .gitignore
+# ============================================
+
+# --- Visual Studio 関連 ---
+.vs/
+*.user
+*.suo
+
+# --- ビルド出力 ---
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+Debug/
+Release/
+ipch/
+*.ilk
+*.pdb
+*.obj
+*.log
+*.tlog
+
+# --- 一時・中間ファイル ---
+*.tmp
+*.cache
+*.log
+*.userprefs
+*.VC.db
+*.VC.VC.opendb
+
+# --- 自動生成されたファイル ---
+*.idb
+*.pch
+*.aps
+*.ncb
+*.sdf
+*.opendb
+
+# --- バックアップ・ローカル設定 ---
+*.bak
+*.orig
+*.old
+
+# --- パッケージ、外部依存 ---
+*.zip
+*.7z
+*.rar
+
+# --- Windows 一般 ---
+Thumbs.db
+Desktop.ini

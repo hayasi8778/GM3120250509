@@ -37,6 +37,7 @@ public:
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int num);
 	void SetCollision_Bullet(int, bool);
+	Vector3 GetBulletpos(int num);
 
 	int Damage_Bullet() { return ATK; }
 

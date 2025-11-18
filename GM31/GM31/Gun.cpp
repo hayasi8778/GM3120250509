@@ -243,3 +243,8 @@ void M_Gun::SetCollision_Bullet(int num, bool col)
 {
 	m_bullets[num].SetCol(col);
 }
+
+Vector3 M_Gun::GetBulletpos(int num)
+{
+	return m_bullets[num].GetPosition();
+}

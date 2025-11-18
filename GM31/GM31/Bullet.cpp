@@ -39,7 +39,7 @@ void Bullet::Init()
 	Height = maxpos.y - minpos.y;
 	Depth = maxpos.z - minpos.z;
 
-	m_Position.y = -15;
+	m_Position.y = -100;
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
 	Boooooooom = std::make_unique<Sphere>(5);
@@ -59,7 +59,7 @@ void Bullet::Update(uint64_t deltatime)
 
 			boom_time = 0;
 
-			m_Position = { 0,-10,0 };
+			m_Position = { 0,-100,0 };
 		}
 	}
 

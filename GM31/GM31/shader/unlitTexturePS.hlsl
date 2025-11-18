@@ -17,5 +17,6 @@ float4 main(in PS_IN In) : SV_Target
 		outDiffuse = In.Diffuse;
 	}
 
+    //return float4(1, 1, 0, 1);
     return outDiffuse;
 }

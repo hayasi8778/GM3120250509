@@ -55,6 +55,15 @@
     <Filter Include="ソース ファイル\Objects\Player">
       <UniqueIdentifier>{8ac42e64-ad57-4462-9ccb-df5537b22ccd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Objects\Enemy">
+      <UniqueIdentifier>{3df90511-0d67-4302-abfe-cd31cc7fa246}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Object\Enemy\EnemyParts">
+      <UniqueIdentifier>{bd7d2401-ed16-427a-9c77-59456db5b524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Objects\Enemy\EnemyParts">
+      <UniqueIdentifier>{4a3641b2-8726-4d3e-9632-077a68d36e2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system\imgui\imconfig.h">
@@ -327,6 +336,33 @@
     <ClInclude Include="Gameover.h">
       <Filter>ヘッダー ファイル\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="E_Beam.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="E_Beam02.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyAI.h">
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_Head.h">
+      <Filter>ヘッダー ファイル\Object\Enemy\EnemyParts</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_LeftArm.h">
+      <Filter>ヘッダー ファイル\Object\Enemy\EnemyParts</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_LeftFeet.h">
+      <Filter>ヘッダー ファイル\Object\Enemy\EnemyParts</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_RightArm.h">
+      <Filter>ヘッダー ファイル\Object\Enemy\EnemyParts</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_RightFeet.h">
+      <Filter>ヘッダー ファイル\Object\Enemy\EnemyParts</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system\imgui\imgui.cpp">
@@ -542,6 +578,30 @@
     <ClCompile Include="Gameover.cpp">
       <Filter>ソース ファイル\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="E_Beam.cpp">
+      <Filter>ソース ファイル\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Beam02.cpp">
+      <Filter>ソース ファイル\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyAI.cpp">
+      <Filter>ソース ファイル\Objects\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_Head.cpp">
+      <Filter>ソース ファイル\Objects\Enemy\EnemyParts</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_LeftArm.cpp">
+      <Filter>ソース ファイル\Objects\Enemy\EnemyParts</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_LeftFeet.cpp">
+      <Filter>ソース ファイル\Objects\Enemy\EnemyParts</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_RightArm.cpp">
+      <Filter>ソース ファイル\Objects\Enemy\EnemyParts</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_RightFeet.cpp">
+      <Filter>ソース ファイル\Objects\Enemy\EnemyParts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\common.hlsl">
@@ -564,6 +624,18 @@
     </FxCompile>
     <FxCompile Include="shader\GeometryShader.hlsl">
       <Filter>リソース ファイル\GS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\monochromePS.hlsl">
+      <Filter>リソース ファイル\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\rgbSpritPS.hlsl">
+      <Filter>リソース ファイル\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\ShadowVS.hlsl">
+      <Filter>リソース ファイル\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\shadowPS.hlsl">
+      <Filter>リソース ファイル\PS</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

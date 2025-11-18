@@ -1,5 +1,11 @@
 #include "Player_LeftFeet.h"
 
+void Player_LeftFeet::Init(Vector3* rot)
+{
+	MainRotation = rot;
+	Init();
+}
+
 void Player_LeftFeet::Init()
 {
 	//属性
@@ -19,9 +25,9 @@ void Player_LeftFeet::Init()
 	m_Rotation = m_meshrenderer.GetModelRot();
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
@@ -67,6 +73,11 @@ void Player_LeftFeet::Update(uint64_t deltatime)
 	Forward_vec.Normalize();
 }
 
+void Player_LeftFeet::LateUpdate(uint64_t deltatime) 
+{
+
+}
+
 void Player_LeftFeet::Dispose()
 {
 
@@ -90,11 +101,11 @@ void Player_LeftFeet::Draw()
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	//m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
 
-	m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
+	//m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
 
 
 	//// デバッグ用のグローバル変数に値をセット
@@ -121,7 +132,7 @@ void Player_LeftFeet::Draw()
 	}
 	else
 	{
-		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
+		//m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 	}
 
 
@@ -136,12 +147,17 @@ void Player_LeftFeet::Adhesioing()
 
 void Player_LeftFeet::Action(Vector3 vec)
 {
-
+	if (Connectableobject)Connectableobject->Action(Vector3(0.0f, 0.0f, 0.0f));
 }
 
 void Player_LeftFeet::Reset()
 {
 
+}
+
+int Player_LeftFeet::GetShaderNum()
+{
+	return 0;
 }
 
 GM31::GE::Collision::BoundingBoxOBB Player_LeftFeet::GetOBB()
@@ -184,4 +200,18 @@ Vector3 Player_LeftFeet::Conectpos(const std::string& targetName)
 	conect = m_meshrenderer.LogBoneWorldPosition(targetName, srt);
 
 	return conect;
+}
+
+void Player_LeftFeet::Conect(Object* obj)
+{
+	Connectableobject = obj;
+	//接続フラグをonにして接続時の処理を通す
+	obj->SetAdhesioing(true);
+	obj->Adhesioing();
+}
+
+void Player_LeftFeet::Release()
+{
+	if (Connectableobject) Connectableobject->SetAdhesioing(false);
+	Connectableobject = nullptr;
 }

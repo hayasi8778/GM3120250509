@@ -20,19 +20,25 @@ private:
 	float Width;
 	float Height;
 	float Depth;
+
+	const int ATK = 1;
 public:
 	M_Gun();
 	~M_Gun();
 	void Init() override;
 	void Update(uint64_t deltatime) override;
+	void LateUpdate(uint64_t deltatime) override;
 	void Draw() override;
 	void Dispose() override;
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
 	void Reset();
+	int GetShaderNum() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int num);
 	void SetCollision_Bullet(int, bool);
+
+	int Damage_Bullet() { return ATK; }
 
 	const int BulletMaxnum = 5;
 };

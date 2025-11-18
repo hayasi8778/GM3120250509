@@ -21,6 +21,9 @@ class Object {
 protected:
 	//オブジェクトの種類
 	int Attribute = DEFAULT;
+	//どの部位に接続可能なオブジェクトか 
+	//						頭   胴体    左腕   右腕   左足   右足
+	bool Connectable[6] = { false,false ,false ,false ,false ,false };
 
 	// SRT情報（姿勢情報）
 	Vector3	m_Position = Vector3(0.0f, 0.0f, 0.0f);
@@ -41,19 +44,22 @@ protected:
 	Vector3	m_Destrot = { 0.0f,0.0f,0.0f };
 
 	// 描画の為の情報（見た目に関わる部分）
-	CShader			m_shader;	// シェーダ
+	//CShader			m_shader;	// シェーダ
 public:
 	Object() = default;
 	virtual ~Object() = default;
 	virtual void Init() = 0;
 	virtual void Update(uint64_t deltatime) = 0;
+	virtual void LateUpdate(uint64_t deltatime) = 0;//Update→Actionの順で動くので最終的にフラグを切るのはここで行う
 	virtual void Draw() = 0;
 	virtual void Dispose() = 0;
 	virtual void Adhesioing() = 0;
 	virtual void Action(Vector3 vec) = 0;
 	//virtual void Reset() = 0;
+	virtual int GetShaderNum() = 0;
 	virtual GM31::GE::Collision::BoundingBoxOBB GetOBB() = 0;
 	
+	bool  CanConnectable(int i) { return  Connectable[i]; }
 
 	int GetAttribute() { return Attribute; }//ゲッターだけ
 

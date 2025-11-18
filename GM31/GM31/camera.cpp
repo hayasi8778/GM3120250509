@@ -4,6 +4,8 @@
 #include "application.h"
 #include <DirectXMath.h>
 
+#include "Random.h"
+
 using namespace DirectX;
 
 void Camera::Init()
@@ -21,6 +23,16 @@ void Camera::Dispose()
 void Camera::Update()
 {
 
+}
+
+void Camera::LateUpdate()
+{
+	RandomGen rand;
+
+	//ƒJƒƒ‰‚ğ—h‚ç‚µ‚½‚¢
+	float RanX = rand.UniformFloat(-10.0f, 10.0f);
+
+	m_lookat.x += RanX;
 }
 
 void Camera::Draw()

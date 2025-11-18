@@ -20,6 +20,28 @@ void MecScene::init()
 	m_field = std::make_unique<Field>();
 	m_field->Init();
 
+	// シェーダーの初期化
+	m_Sceneshader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+			"shader/unlitTextureVS.hlsl",			// 頂点シェーダー
+			"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
+
+	// シェーダーの初期化
+	m_Monochromeshader.Create(
+		"shader/unlitTextureVS.hlsl",			// 頂点シェーダー
+			"shader/monochromePS.hlsl");			// ピクセルシェーダー(モノクロ)
+
+	// シェーダーの初期化
+	m_rgbSpritshader.Create(
+		"shader/unlitTextureVS.hlsl",			// 頂点シェーダー
+		"shader/rgbSpritPS.hlsl");			// ピクセルシェーダー(モノクロ)
+
+	// シェーダーの初期化
+	m_Shadowshader.Create(
+		"shader/ShadowVS.hlsl",			// 頂点シェーダー
+		"shader/shadowPS.hlsl");			// ピクセルシェーダー(丸影)
+
 	// スカイドームの初期化
 	m_skydome = std::make_unique<Skydome>();
 	m_skydome->Init();
@@ -74,6 +96,8 @@ void MecScene::init()
 	//銃を取り付けておく
 	AdhesioingObjects[2] = m_objects[0].get();
 	AdhesioingObjects[3] = m_objects[1].get();
+	m_player.Conect(2, m_objects[0].get());
+	m_player.Conect(3, m_objects[1].get());
 	//接続の初期化
 	for (int i = 0; i < ADHESIOINGMAX; i++) 
 	{
@@ -87,21 +111,15 @@ void MecScene::init()
 	
 
 	//敵
-	m_enemys.push_back(std::make_unique<Enemy_Missile>());
-	m_enemys.push_back(std::make_unique<Enemy_Missile>());
+	Enemy.Init(pl);
+	RockonEnemy = Enemy.GetEnemy();
+	Enemy.AddGun(dynamic_cast<M_Gun*>(m_objects[0].get()));
+	Enemy.AddGun(dynamic_cast<M_Gun*>(m_objects[1].get()));
 
-	for (int i = 0; i < m_enemys.size(); i++)
-	{
-		m_enemys[i]->Init();
-		m_enemys[i]->SetPlayer(pl);
-	}
-
-	//初期のターゲット決めておく
-	RockonEnemy = m_enemys[1].get();
 	//プレイヤーが座標受け取れるようにする
-	m_player.SetTarget(RockonEnemy->GetPosition_P());
+	m_player.SetTarget(Enemy.GetEnemy()->GetPosition_P());
 
-	m_enemys[1]->SetPosition({ 25,7,5 });
+	//m_enemys[1]->SetPosition({ 25,7,5 });
 
 	// 画像のUV座標
 	Vector2 uv[4] = {
@@ -124,6 +142,8 @@ void MecScene::init()
 
 void MecScene::update(uint64_t deltatime)
 {
+
+
 	m_boxSRTs[0].pos = m_objects[0]->GetPosition();
 
 	//座標入れる
@@ -132,7 +152,7 @@ void MecScene::update(uint64_t deltatime)
 	if (UseCamera == UseCameraRockOn) PlayerMovetes();
 	else PlayerMove();
 	
-
+	//接続の処理(重いから無効化しておく)
 	PlayerAdhesion();
 
 	PlayerShot();
@@ -144,10 +164,7 @@ void MecScene::update(uint64_t deltatime)
 		m_objects[i]->Update(deltatime);
 	}
 
-	for (int i = 0; i < m_enemys.size(); i++)
-	{
-		m_enemys[i]->Update(deltatime);
-	}
+	Enemy.Update(deltatime);
 
 	//m_camera.SetLookat(m_boxSRTs[0].pos);
 	m_camera.SetLookat(m_player.GetPosition());
@@ -159,7 +176,7 @@ void MecScene::update(uint64_t deltatime)
 		campos.y += 20;
 		m_camera.SetPosition(campos);
 		break;
-	case UseCameraRockOn:
+	case UseCameraRockOn://敵をロックオンするカメラ
 		// 1. forward ベクトルを計算
 		//Vector3 camForward = (m_player.GetPosition() - m_enemys[0]->GetPosition());
 		Vector3 camForward = (m_player.GetPosition() - RockonEnemy->GetPosition());
@@ -167,11 +184,27 @@ void MecScene::update(uint64_t deltatime)
 		campos.y += 20;
 		m_camera.SetPosition(campos);
 		//プレイヤー角度も変更
-		m_player.SetRotation_PL({ 0,camRot.y,0 });
+		//m_player.SetRotation_PL({ 0,camRot.y,0 });
 		break;
 	}
+
 	//ロックオンの更新
 	RockonUpdate();
+
+	//アップデート後の更新
+	m_player.LateUpdate(deltatime);
+
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+		m_objects[i]->LateUpdate(deltatime);
+	}
+
+	Enemy.LateUpdate(deltatime);
+
+	if (Enemy.GetEnemy()->GetShaderNum() == 2) {
+		m_camera.LateUpdate();
+	}
+
 
 	//デバック用のアップデート
 	CameraFlip();
@@ -198,8 +231,57 @@ void MecScene::draw(uint64_t deltatime)
 		break;
 	}
 
-	m_skydome->Draw();	// スカイドームの描画
-	m_field->Draw(); //フィールド描画
+	//使用するシェーダーの種類
+	int Shadernum = 0;
+
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+		//シェーダーに優先度決めて設定する
+		if (m_objects[i]->GetShaderNum() > Shadernum) 
+		{
+			Shadernum = m_objects[i]->GetShaderNum();
+		}
+	}
+
+	Shadernum = Enemy.GetEnemy()->GetShaderNum();
+
+	switch (Shadernum) //シェーダーの番号で使うしぇーだーを決定する
+	{
+	case 0:
+		m_Sceneshader.SetGPU();//通常描画
+
+		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
+
+		m_field->Draw(); //フィールド描画
+		//m_Shadowshader.SetGPU(); //丸影
+		break;
+	case 1:
+		m_Monochromeshader.SetGPU();//モノクロ
+		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
+
+		m_field->Draw(); //フィールド描画
+		break;
+
+	case 2://色収差(フィールド含む)
+		//m_Sceneshader.SetGPU();//通常描画
+
+		m_rgbSpritshader.SetGPU();//色収差
+		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
+		m_field->Draw(); //フィールド描画
+
+	case 3://色収差
+		m_Sceneshader.SetGPU();//通常描画
+
+		m_field->Draw(); //フィールド描画
+		m_rgbSpritshader.SetGPU();//色収差
+		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
+	default:
+		m_Sceneshader.SetGPU();//例外が入っても通常の描画にしておく
+		break;
+	}
+	
+	
+	
 
 	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(Box_Position);
 
@@ -263,11 +345,8 @@ void MecScene::draw(uint64_t deltatime)
 	{
 		m_objects[i]->Draw();
 	}
-
-	for (int i = 0; i < m_enemys.size(); i++)
-	{
-		m_enemys[i]->Draw();
-	}
+	//m_Shadowshader.SetGPU(); //丸影
+	Enemy.Draw();
 
 	//透過の関係で一番最後(最終的にはプレイヤーと一番近い敵とでフォワードベクトル取ってその向きに出す)
 	if(UseCamera == UseCameraRockOn)
@@ -286,39 +365,23 @@ int MecScene::ChangeScene()
 	if (m_player.GetHP() < 1) //プレイヤーが死んだらリザルト
 	{
 		m_player.Reset();
-		for (int i = 0; i < m_enemys.size(); i++)
-		{
-			m_enemys[i]->Reset();
-			//座標を初期位置に戻す
-			
-		}
-		m_enemys[0]->SetPosition({ 0,10,50 });
-		m_enemys[1]->SetPosition({ 5,7,5 });
+		Enemy.Reset();
+		//m_enemys[1]->SetPosition({ 5,7,5 });
 		return 4;
 	}
 
 	//敵全滅させたらシーン切り替え
-	for (int i = 0; i < m_enemys.size(); i++) 
+	if (Enemy.GetEnemy()->GetHP() > 0)
 	{
-		if (m_enemys[i]->GetHP() > 0) 
-		{
-			return 0;//体力残ってるならシーン切り替えない
-		}
+		return 0;//体力残ってるならシーン切り替えない
 	}
 	//シーンのリセット
 	m_player.Reset();
-	for (int i = 0; i < m_enemys.size(); i++)
-	{
-		m_enemys[i]->Reset();
-	}
-	m_enemys[0]->SetPosition({ 0,10,50 });
-	m_enemys[1]->SetPosition({ 25,7,5 });
+	Enemy.Reset();
+	//m_enemys[1]->SetPosition({ 25,7,5 });
 	return 2;
 
-	if (m_enemys[0]->GetHP() < 0) 
-	{
-		return 2;
-	}
+	return 0;
 	
 }
 
@@ -501,21 +564,21 @@ void MecScene::PlayerMove()
 	//取り付けられているオブジェクトも同時に動かす
 
 	//この接続地点の取り方多分重いから代用案考える
-	for (int i = 0; i < ADHESIOINGMAX; i++) 
-	{
-		if (AdhesioingObjects[i]) 
-		{
-			if (AdhesioingObjects[i])
-			{
-				if (AdhesioingObjects[i]->GetAttribute() == JOINABLE && AdhesioingObjects[i]->GetAdhesioing())
-				{
-					AdhesioingObjects[i]->SetPosition(m_player.ConectPos(i) + Object_Speed);//場所
-					AdhesioingObjects[i]->SetRotation(m_player.GetRotation());//角度
-				}
+	//for (int i = 0; i < ADHESIOINGMAX; i++) 
+	//{
+	//	if (AdhesioingObjects[i]) 
+	//	{
+	//		if (AdhesioingObjects[i])
+	//		{
+	//			if (AdhesioingObjects[i]->GetAttribute() == JOINABLE && AdhesioingObjects[i]->GetAdhesioing())
+	//			{
+	//				AdhesioingObjects[i]->SetPosition(m_player.ConectPos(i) + Object_Speed);//場所
+	//				AdhesioingObjects[i]->SetRotation(m_player.GetRotation());//角度
+	//			}
 
-			}
-		}
-	}
+	//		}
+	//	}
+	//}
 	
 	//Object_Speed = Object_Speed  - rate;
 	
@@ -529,13 +592,15 @@ void MecScene::PlayerAdhesion()
 {
 	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_L))//取り付けテスト処理
 	{
-		if (AdhesioingObjects[2])return;//既に取り付けてあるなら処理しない
+		//if (AdhesioingObjects[2])return;//既に取り付けてあるなら処理しない
 
 		// 1) プレイヤーの位置を取得
 		Vector3 playerPos = m_player.GetPosition();
 
 		// 2) もっとも近いオブジェクト探索
 		float minDistSq = std::numeric_limits<float>::max();
+
+		Object* minobj = nullptr;
 
 		for (auto& uptr : m_objects) {
 			Object* obj = uptr.get();
@@ -544,6 +609,8 @@ void MecScene::PlayerAdhesion()
 			if (obj == &m_player) continue;
 			// 接続可能オブジェクトじゃない場合も除外
 			if (obj->GetAttribute() != JOINABLE) continue;
+			//既に接続している場合も除外
+			if (obj->GetAdhesioing()) continue;
 
 			Vector3 pos = obj->GetPosition();
 			float dx = pos.x - playerPos.x;
@@ -553,33 +620,48 @@ void MecScene::PlayerAdhesion()
 			float distSq = dx * dx + dy * dy + dz * dz;
 			if (distSq < minDistSq) {
 				minDistSq = distSq;
-				AdhesioingObjects[2] = obj;
+				minobj = obj;
+				//旧
+				//AdhesioingObjects[2] = obj;
 			}
 
 		}
 
-		// 3) 見つかった最も近いオブジェクトにだけ処理を通す
-		if (AdhesioingObjects[2]) {
-			AdhesioingObjects[2]->SetAdhesioing(true);
-			AdhesioingObjects[2]->SetPosition(m_player.ConectPos(2));
-			AdhesioingObjects[2]->Adhesioing();
-			m_player.TestInt++;
+		//旧
+		//// 3) 見つかった最も近いオブジェクトにだけ処理を通す
+		//if (AdhesioingObjects[2]) {
+		//	AdhesioingObjects[2]->SetAdhesioing(true);
+		//	AdhesioingObjects[2]->SetPosition(m_player.ConectPos(2));
+		//	AdhesioingObjects[2]->Adhesioing();
+		//	m_player.TestInt++;
+		//}
+
+		//一番近いオブジェクトが取り付け不可じゃないなら
+		if (minobj) {
+			if (m_player.Canconect(minobj) != 100)
+			{
+				m_player.Conect(m_player.Canconect(minobj), minobj);
+				//minobj->Adhesioing();
+			}
 		}
+		
 
 
-		//m_objects[0]->SetAdhesioing(true);
 	}
 	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_K))//取り外しテスト処理
 	{
-		if (AdhesioingObjects[2])
-		{
-			if (AdhesioingObjects[2]->GetAttribute() == JOINABLE)
-			{
-				AdhesioingObjects[2]->SetAdhesioing(false);
-				AdhesioingObjects[2] = nullptr;
-			}
-			
-		}
+		//旧
+		//if (AdhesioingObjects[2])
+		//{
+		//	if (AdhesioingObjects[2]->GetAttribute() == JOINABLE)
+		//	{
+		//		AdhesioingObjects[2]->SetAdhesioing(false);
+		//		AdhesioingObjects[2] = nullptr;
+		//	}
+		//	
+		//}
+
+		m_player.ReleaseALL();
 	}
 
 
@@ -590,12 +672,12 @@ void MecScene::PlayerShot()
 	
 	// 弾発射
 	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_J)) {
-
+		
 		m_player.Action(Vector3{ 0,0,0 });
 		//m_player.SetTarget(m_enemys[0]->GetPosition_P());
 		m_player.SetTarget(RockonEnemy->GetPosition_P());
 
-		for (int i = 0; i < ADHESIOINGMAX; i++) 
+		/*for (int i = 0; i < ADHESIOINGMAX; i++) 
 		{
 			if (AdhesioingObjects[i]) 
 			{
@@ -621,25 +703,13 @@ void MecScene::PlayerShot()
 				}
 				
 			}
-		}
-		//for (int i = 0; i < m_objects.size(); i++)
-		//{
-		//	if (m_objects[i]->GetAttribute() == JOINABLE && m_objects[i]->GetAdhesioing())
-		//	{
-		//		//m_objects[i]->Action(RockonEnemy->GetPosition());
-		//		m_objects[i]->Action(RockonEnemy->GetCenter());
-		//	}
-		//	
-		//}
+		}*/
 	}
 
-	// 敵のアクション
+	// 敵の射撃フラグ無効化
 	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_P))
 	{
-		for (int i = 0; i < m_enemys.size(); i++)
-		{
-			m_enemys[i]->Action(Vector3{ 0,0,0 });
-		}
+		Enemy.GetEnemy()->ReturnFire();
 	}
 
 
@@ -684,86 +754,56 @@ void MecScene::SetSpeed(Vector3 Speed)
 }
 
 void MecScene::Collision_Hit()//弾とオブジェクトの当たり判定
+
+	//	ここめちゃくちゃ重いから軽量化の手段考えておく
 {
-	for (int ene = 0; ene < m_enemys.size(); ene++) //敵の数分ループ
+
+	if (Enemy.GetEnemy()->GetHP() <= 0) //敵が既に死んでいるなら次
 	{
-		if (m_enemys[ene]->GetHP() <= 0) //敵が既に死んでいるなら次
-		{
-			continue;
-		}
-
-		for (int i = 0; i < 5; i++)//この敵の弾がプレイヤーにあたっているか
-		{
-			/*bool col = GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_enemys[0]->GetOBB_Bullet(i));*/
-
-			bool col = m_player.Collision_PL(m_enemys[ene]->GetOBB_Bullet(i));
-			m_player.SetCol(col);
-			if (col)
-			{
-				m_enemys[ene]->SetCollision_Bullet(i, col);
-			}
-		}
-
-		for (int i = 0; i < 20; i++)
-		{
-			bool col = GM31::GE::Collision::CollisionOBB(m_enemys[ene]->GetOBB(), m_player.GetOBB_Bullet(i));
-			bool inter = GM31::GE::Collision::CollisionSphereOBB_(m_enemys[ene]->GetShere(), m_player.GetOBB_Bullet(i));
-			m_enemys[ene]->SetCollision(col);
-			if (col) m_player.SetCollision_Bullet(i, col);
-			if (inter) {
-				m_enemys[ene]->SetInterception(inter);
-
-				m_player.SetCollision_Bullet(i, true);
-			}
-		}
-		for (int i = 0; i < ADHESIOINGMAX; i++) 
-		{
-			if (!AdhesioingObjects[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
-			if (auto gun = dynamic_cast<M_Gun*>(AdhesioingObjects[i]))
-			{
-				for (int i = 0; i < 5; i++)
-				{
-					bool col = GM31::GE::Collision::CollisionOBB(m_enemys[ene]->GetOBB(), gun->GetOBB_Bullet(i));
-					bool inter = GM31::GE::Collision::CollisionSphereOBB_(m_enemys[ene]->GetShere(), gun->GetOBB_Bullet(i));
-					m_enemys[ene]->SetCollision(col);
-					if (col) gun->SetCollision_Bullet(i, col);
-					if (inter) {
-						m_enemys[ene]->SetInterception(inter);
-						gun->SetCollision_Bullet(i, inter);
-					}
-				}
-			}
-		}
-		
+		return;
 	}
 
-	
-	//AdhesioingObject
-	for (auto& obj : m_objects)
+	for (int i = 0; i < 5; i++)//この敵の弾がプレイヤーにあたっているか
 	{
-		// unique_ptr<Object> → Object* にして dynamic_cast
-		//if (auto gun = dynamic_cast<M_Gun*>(obj.get()))
-		for (int i = 0; i < ADHESIOINGMAX; i++) 
+		/*bool col = GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_enemys[0]->GetOBB_Bullet(i));*/
+
+		if (Enemy.GetEnemy()->GetBulletcol(i))continue;//検査する弾丸が使われていないなら検査しない
+
+		bool col = m_player.Collision_PL(Enemy.GetEnemy()->GetOBB_Bullet(i));
+		m_player.SetCol(col);
+
+		if (col)
 		{
-			if (!AdhesioingObjects[i]) continue;
-			if (auto gun = dynamic_cast<M_Gun*>(AdhesioingObjects[i]))
-			{
-				for (int i = 0; i < 5; i++)
-				{
-					bool col = GM31::GE::Collision::CollisionOBB(m_enemys[0]->GetOBB(), gun->GetOBB_Bullet(i));
-					bool inter = GM31::GE::Collision::CollisionSphereOBB_(m_enemys[0]->GetShere(), gun->GetOBB_Bullet(i));
-					m_enemys[0]->SetCollision(col);
-					if (col) gun->SetCollision_Bullet(i, col);
-					if (inter) {
-						m_enemys[0]->SetInterception(inter);
-						gun->SetCollision_Bullet(i, inter);
-					}
-				}
-			}
+			m_player.HitDamage(Enemy.GetEnemy()->Damage_Bullet());
+			Enemy.GetEnemy()->SetCollision_Bullet(i, col);
 		}
-		
 	}
 
+	if (m_player.Collision_PL(Enemy.GetEnemy()->GetOBB_Beam())) //この敵のビームがプレイヤーにあたっているか
+	{
+		m_player.SetCol(true);
+		m_player.HitDamage(Enemy.GetEnemy()->Damage_Beam());
+	}
+
+	//for (int i = 0; i < ADHESIOINGMAX; i++) //銃を親オブジェクトとした弾と敵の当たり判定
+	//{
+	//	if (!AdhesioingObjects[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
+	//	if (auto gun = dynamic_cast<M_Gun*>(AdhesioingObjects[i]))
+	//	{
+	//		for (int i = 0; i < 5; i++)
+	//		{
+	//			bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetEnemy()->GetOBB(), gun->GetOBB_Bullet(i));
+	//			bool inter = GM31::GE::Collision::CollisionSphereOBB_(Enemy.GetEnemy()->GetShere(), gun->GetOBB_Bullet(i));
+	//			Enemy.GetEnemy()->SetCollision(col);
+	//			if (col) gun->SetCollision_Bullet(i, col);
+	//			if (inter) {
+	//				Enemy.GetEnemy()->SetAvoidance(inter);
+	//				Enemy.GetEnemy()->Stepavoidance(gun->GetPosition());
+	//				//gun->SetCollision_Bullet(i, inter);
+	//			}
+	//		}
+	//	}
+	//}
 	
 }
 
@@ -781,22 +821,16 @@ void MecScene::RockonUpdate()
 		// 2) もっとも近いオブジェクト探索
 		float minDistSq = std::numeric_limits<float>::max();
 
-		for (auto& uptr : m_enemys) {
-			Enemy_Missile* obj = uptr.get();
+		Vector3 pos = Enemy.GetEnemy()->GetPosition();
+		float dx = pos.x - playerPos.x;
+		float dy = pos.y - playerPos.y;
+		float dz = pos.z - playerPos.z;
 
-			if (obj->GetHP() == 0)continue;
-
-			Vector3 pos = obj->GetPosition();
-			float dx = pos.x - playerPos.x;
-			float dy = pos.y - playerPos.y;
-			float dz = pos.z - playerPos.z;
-
-			float distSq = dx * dx + dy * dy + dz * dz;
-			if (distSq < minDistSq) {
-				minDistSq = distSq;
-				RockonEnemy = obj;
-				m_player.SetTarget(RockonEnemy->GetPosition_P());
-			}
+		float distSq = dx * dx + dy * dy + dz * dz;
+		if (distSq < minDistSq) {
+			minDistSq = distSq;
+			//RockonEnemy = Enemy.GetEnemy();
+			m_player.SetTarget(Enemy.GetEnemy()->GetPosition_P());
 		}
 	}
 	
@@ -930,20 +964,16 @@ void MecScene::CameraFlip()
 			// 2) もっとも近いオブジェクト探索
 			float minDistSq = std::numeric_limits<float>::max();
 
-			for (auto& uptr : m_enemys) {
-				Enemy_Missile* obj = uptr.get();
+			Vector3 pos = Enemy.GetEnemy()->GetPosition();
+			float dx = pos.x - playerPos.x;
+			float dy = pos.y - playerPos.y;
+			float dz = pos.z - playerPos.z;
 
-				Vector3 pos = obj->GetPosition();
-				float dx = pos.x - playerPos.x;
-				float dy = pos.y - playerPos.y;
-				float dz = pos.z - playerPos.z;
-
-				float distSq = dx * dx + dy * dy + dz * dz;
-				if (distSq < minDistSq) {
-					minDistSq = distSq;
-					RockonEnemy = obj;
-					m_player.SetTarget(RockonEnemy->GetPosition_P());
-				}
+			float distSq = dx * dx + dy * dy + dz * dz;
+			if (distSq < minDistSq) {
+				minDistSq = distSq;
+				RockonEnemy = Enemy.GetEnemy();
+				m_player.SetTarget(Enemy.GetEnemy()->GetPosition_P());
 			}
 		}
 	}
@@ -1107,21 +1137,21 @@ void MecScene::PlayerMovetes()
 	m_player.SetPosition(m_player.GetPosition() + Object_Speed);
 
 	//この接続地点の取り方多分重いから代用案考える
-	for (int i = 0; i < ADHESIOINGMAX; i++) 
-	{
-		if (AdhesioingObjects[i]) 
-		{
-			if (AdhesioingObjects[i])
-			{
-				if (AdhesioingObjects[i]->GetAttribute() == JOINABLE && AdhesioingObjects[i]->GetAdhesioing())
-				{
-					AdhesioingObjects[i]->SetPosition(m_player.ConectPos(i) + Object_Speed);//場所
-					AdhesioingObjects[i]->SetRotation(camRot);//角度
-				}
+	//for (int i = 0; i < ADHESIOINGMAX; i++) 
+	//{
+	//	if (AdhesioingObjects[i]) 
+	//	{
+	//		if (AdhesioingObjects[i])
+	//		{
+	//			if (AdhesioingObjects[i]->GetAttribute() == JOINABLE && AdhesioingObjects[i]->GetAdhesioing())
+	//			{
+	//				AdhesioingObjects[i]->SetPosition(m_player.ConectPos(i) + Object_Speed);//場所
+	//				AdhesioingObjects[i]->SetRotation(camRot);//角度
+	//			}
 
-			}
-		}
-	}
+	//		}
+	//	}
+	//}
 	
 	Object_Speed *= dampingFactor;
 

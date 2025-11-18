@@ -1,12 +1,6 @@
-#include "Player_Head.h"
+#include "Enemy_RightFeet.h"
 
-void Player_Head::Init(Vector3* rot)
-{
-	MainRotation = rot;
-	Init();
-}
-
-void Player_Head::Init()
+void Enemy_RightFeet::Init()
 {
 	//属性
 	Attribute = PLAYER;
@@ -16,7 +10,7 @@ void Player_Head::Init()
 
 	//ロボットモデル(頭)
 	m_mesh.Load(
-		"assets/model/Mec/MecBone_Head.fbx",				// モデル名
+		"assets/model/Mec/MecBone_RightFeet.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
 	//レンダラ初期化
@@ -52,7 +46,7 @@ void Player_Head::Init()
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
 }
 
-void Player_Head::Update(uint64_t deltatime)
+void Enemy_RightFeet::Update(uint64_t deltatime)
 {
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -73,16 +67,17 @@ void Player_Head::Update(uint64_t deltatime)
 	Forward_vec.Normalize();
 }
 
-void Player_Head::LateUpdate(uint64_t deltatime)
-{
-}
-
-void Player_Head::Dispose()
+void Enemy_RightFeet::LateUpdate(uint64_t deltatime)
 {
 
 }
 
-void Player_Head::Draw()
+void Enemy_RightFeet::Dispose()
+{
+
+}
+
+void Enemy_RightFeet::Draw()
 {
 	//姿勢の補完をここでする
 	m_Rotation.x += 1.55;
@@ -104,7 +99,6 @@ void Player_Head::Draw()
 
 	m_meshrenderer.Draw();
 
-	//これとOBBはシーンシェーダー上書きするからdebug時のみ使う
 	//m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
 
 
@@ -121,16 +115,18 @@ void Player_Head::Draw()
 	// 合成
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
-	m_Position += Up_vec * 1;
+	Vector3 poscop = m_Position;
+
+	m_Position -= Up_vec * 3.5;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-	m_Position -= Up_vec * 1;
+	m_Position = poscop;
 
 	if (col) {
 		m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
 	}
 	else
 	{
-		//m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
+		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 	}
 
 
@@ -138,27 +134,27 @@ void Player_Head::Draw()
 	m_Rotation.y -= 1.55;
 }
 
-void Player_Head::Adhesioing()
+void Enemy_RightFeet::Adhesioing()
 {
 
 }
 
-void Player_Head::Action(Vector3 vec)
+void Enemy_RightFeet::Action(Vector3 vec)
 {
-	if (Connectableobject)Connectableobject->Action(Vector3(0.0f,0.0f,0.0f));
+
 }
 
-void Player_Head::Reset() 
+void Enemy_RightFeet::Reset()
 {
-	m_Scale = { 1,1,1 };
+
 }
 
-int Player_Head::GetShaderNum()
+int Enemy_RightFeet::GetShaderNum()
 {
 	return 0;
 }
 
-GM31::GE::Collision::BoundingBoxOBB Player_Head::GetOBB()
+GM31::GE::Collision::BoundingBoxOBB Enemy_RightFeet::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
@@ -180,7 +176,7 @@ GM31::GE::Collision::BoundingBoxOBB Player_Head::GetOBB()
 	return obb;
 }
 
-Vector3 Player_Head::Conectpos(const std::string& targetName)
+Vector3 Enemy_RightFeet::Conectpos(const std::string& targetName)
 {
 	Vector3 conect = { 0,0,0 };
 
@@ -195,21 +191,7 @@ Vector3 Player_Head::Conectpos(const std::string& targetName)
 	srt.rot = rotcop;
 	srt.pos = m_Position;
 
-	conect = m_meshrenderer.LogBoneWorldPosition(targetName ,srt);
+	conect = m_meshrenderer.LogBoneWorldPosition(targetName, srt);
 
 	return conect;
-}
-
-void Player_Head::Conect(Object* obj)
-{
-	Connectableobject = obj;
-	//接続フラグをonにして接続時の処理を通す
-	obj->SetAdhesioing(true);
-	obj->Adhesioing();
-}
-
-void Player_Head::Release()
-{
-	if (Connectableobject) Connectableobject->SetAdhesioing(false);
-	Connectableobject = nullptr;
 }

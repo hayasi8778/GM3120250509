@@ -1,27 +1,29 @@
 #pragma once
+#pragma once
 #include "Object.h"
+#include "Player_Mec.h"
 
-class Player_LeftFeet :public Object
+class E_Beam02 : public Object
 {
 private:
-	Object* Connectableobject = nullptr;//接続されたオブジェクト
 
 	//方向ベクトル
 	Vector3 Right_vec;
 	Vector3 Up_vec;
 	Vector3 Forward_vec;
 
-	//本体の角度情報
-	Vector3* MainRotation;
+	float boom_time = 0;//爆発の残る時間
+
+	bool collsion = false;
 
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
+	std::unique_ptr<Sphere> Boooooooom;// 弾が当たった後に爆発させたい
 	float Width;
 	float Height;
 	float Depth;
-
-	bool col = false; //当たり判定取るためのやつ
 public:
-	void Init(Vector3*);//本体の角度取るためのやつ
+	E_Beam02();
+	~E_Beam02();
 	void Init() override;
 	void Update(uint64_t deltatime) override;
 	void LateUpdate(uint64_t deltatime) override;
@@ -33,8 +35,7 @@ public:
 	int GetShaderNum() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 
-	Vector3 Conectpos(const std::string& targetName);
-	bool CanConect() { if (Connectableobject == nullptr) { return true; } return false; }
-	void Conect(Object*);
-	void Release();
+	void SetRightVec(Vector3 rightvec) { Right_vec = rightvec; }
+	void SetUpVec(Vector3 upvec) { Up_vec = upvec; }
+	void SetForwardVec(Vector3 forwardvec) { Forward_vec = forwardvec; }
 };

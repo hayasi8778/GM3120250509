@@ -1,12 +1,6 @@
-#include "Player_Head.h"
+#include "Enemy_Head.h"
 
-void Player_Head::Init(Vector3* rot)
-{
-	MainRotation = rot;
-	Init();
-}
-
-void Player_Head::Init()
+void Enemy_Head::Init()
 {
 	//属性
 	Attribute = PLAYER;
@@ -52,7 +46,7 @@ void Player_Head::Init()
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
 }
 
-void Player_Head::Update(uint64_t deltatime)
+void Enemy_Head::Update(uint64_t deltatime)
 {
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -73,16 +67,16 @@ void Player_Head::Update(uint64_t deltatime)
 	Forward_vec.Normalize();
 }
 
-void Player_Head::LateUpdate(uint64_t deltatime)
+void Enemy_Head::LateUpdate(uint64_t deltatime)
 {
 }
 
-void Player_Head::Dispose()
+void Enemy_Head::Dispose()
 {
 
 }
 
-void Player_Head::Draw()
+void Enemy_Head::Draw()
 {
 	//姿勢の補完をここでする
 	m_Rotation.x += 1.55;
@@ -138,27 +132,27 @@ void Player_Head::Draw()
 	m_Rotation.y -= 1.55;
 }
 
-void Player_Head::Adhesioing()
+void Enemy_Head::Adhesioing()
 {
 
 }
 
-void Player_Head::Action(Vector3 vec)
+void Enemy_Head::Action(Vector3 vec)
 {
-	if (Connectableobject)Connectableobject->Action(Vector3(0.0f,0.0f,0.0f));
+
 }
 
-void Player_Head::Reset() 
+void Enemy_Head::Reset()
 {
 	m_Scale = { 1,1,1 };
 }
 
-int Player_Head::GetShaderNum()
+int Enemy_Head::GetShaderNum()
 {
 	return 0;
 }
 
-GM31::GE::Collision::BoundingBoxOBB Player_Head::GetOBB()
+GM31::GE::Collision::BoundingBoxOBB Enemy_Head::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
@@ -180,7 +174,7 @@ GM31::GE::Collision::BoundingBoxOBB Player_Head::GetOBB()
 	return obb;
 }
 
-Vector3 Player_Head::Conectpos(const std::string& targetName)
+Vector3 Enemy_Head::Conectpos(const std::string& targetName)
 {
 	Vector3 conect = { 0,0,0 };
 
@@ -195,21 +189,7 @@ Vector3 Player_Head::Conectpos(const std::string& targetName)
 	srt.rot = rotcop;
 	srt.pos = m_Position;
 
-	conect = m_meshrenderer.LogBoneWorldPosition(targetName ,srt);
+	conect = m_meshrenderer.LogBoneWorldPosition(targetName, srt);
 
 	return conect;
-}
-
-void Player_Head::Conect(Object* obj)
-{
-	Connectableobject = obj;
-	//接続フラグをonにして接続時の処理を通す
-	obj->SetAdhesioing(true);
-	obj->Adhesioing();
-}
-
-void Player_Head::Release()
-{
-	if (Connectableobject) Connectableobject->SetAdhesioing(false);
-	Connectableobject = nullptr;
 }

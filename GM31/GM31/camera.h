@@ -19,6 +19,7 @@ public:
 	void Init();
 	void Dispose();
 	void Update();
+	void LateUpdate();
 	void Draw();
 	void SetPosition(const Vector3& position) { m_position = position; }
 	Vector3 GetPosition() { return m_position; }

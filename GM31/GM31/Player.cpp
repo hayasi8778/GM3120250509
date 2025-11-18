@@ -47,9 +47,9 @@ void Player::Init()
 	m_meshrenderer.Init(m_mesh);
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 //		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 //		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
@@ -218,6 +218,10 @@ void Player::Update(uint64_t deltatime)
 	}
 }
 
+void Player::LateUpdate(uint64_t deltatime) {
+
+}
+
 void Player::Update2()
 {
 
@@ -367,7 +371,7 @@ void Player::Draw()
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	//m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
 
@@ -390,6 +394,11 @@ void Player::Adhesioing()
 void Player::Action(Vector3 vec)
 {
 
+}
+
+int Player::GetShaderNum() 
+{
+	return 0;
 }
 
 GM31::GE::Collision::BoundingBoxOBB Player::GetOBB()

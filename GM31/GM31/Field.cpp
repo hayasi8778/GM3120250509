@@ -37,7 +37,7 @@ void Field::Init()
 	// インデックスバッファ生成
 	m_IndexBuffer.Create(indices);
 
-	// シェーダオブジェクト生成
+	//// シェーダオブジェクト生成
 	m_Shader.Create("shader/unlitTextureVS.hlsl","shader/unlitTexturePS.hlsl");
 
 	// マテリアル生成
@@ -103,7 +103,7 @@ void Field::Draw()
 	// トポロジーをセット（旧プリミティブタイプ）
 	devicecontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	m_Shader.SetGPU();
+	//m_Shader.SetGPU();
 	m_VertexBuffer.SetGPU();
 	m_IndexBuffer.SetGPU();
 

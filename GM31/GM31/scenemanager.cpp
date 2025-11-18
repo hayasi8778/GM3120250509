@@ -62,7 +62,7 @@ void SceneManager::Init()
 	m_scenes["Gameover"] = std::make_unique<Gameover>();
 	m_scenes["Gameover"]->init();
 
-	m_currentSceneName = "TitleScene";
+	m_currentSceneName = "MecScene";
 	
 }
 
@@ -89,6 +89,7 @@ void SceneManager::Update(uint64_t deltatime)
 
 	case 1:
 		m_currentSceneName = "MecScene";
+		//m_currentSceneName = "Gameover";
 		break;
 	case 2:
 		m_currentSceneName = "ResultScene";

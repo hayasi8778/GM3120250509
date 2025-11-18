@@ -13,8 +13,9 @@
 #include "M_Rock.h"
 #include "Gun.h"
 #include "Enemy_Missile.h"
+#include "EnemyAI.h"
 
-enum UseCamera //オブジェクトの役割
+enum UseCamera //カメラの役割
 {
 	UseCameraFree, 
 	UseCameraNormal,
@@ -58,6 +59,13 @@ private:
 
 	//重力
 	float gravity = -9.8f;
+
+	// 描画の為の情報（見た目に関わる部分）
+	CShader			m_Sceneshader;	// 通常のシェーダ
+	CShader			m_Monochromeshader;	// シェーダ(モノクロ)
+	CShader			m_rgbSpritshader;	// シェーダ(色収差)
+	CShader			m_Shadowshader;		//シェーダー(丸影)
+
 	// 箱の大きさ
 	static constexpr float CUBE_SIZE = 10.0f;
 
@@ -108,18 +116,14 @@ private:
 	M_Player m_player;//プレイヤーモデル(仮)
 
 	std::vector<std::unique_ptr<Object>> m_objects{};                    //接続可能なオブジェクト群
-	//std::vector<std::unique_ptr<Object>> m_enemys{};                    //敵
-	std::vector<std::unique_ptr<Enemy_Missile>> m_enemys{};               //敵
+
+	EnemyThinking Enemy;												//プレイヤーの動きを受け取って動く敵
+	//std::vector<std::unique_ptr<Enemy_Missile>> m_enemys{};               //敵
 
 	//接合中のオブジェクト(未接続のときにnullポインタで返すようにする)	全部位につけれるように用意しておく
 	const int ADHESIOINGMAX = 5;
+	//銃弾の当たり判定をどうするか決めるまでは銃の保存に使う
 	Object* AdhesioingObjects[5] = { nullptr ,nullptr ,nullptr ,nullptr ,nullptr };
-	//Object* AdhesioingObject_0 = nullptr;
-	//Object* AdhesioingObject_1 = nullptr;
-	//Object* AdhesioingObject_2 = nullptr;
-	//Object* AdhesioingObject_3 = nullptr;
-	//Object* AdhesioingObject_4 = nullptr;
-	//Object* AdhesioingObject_5 = nullptr;
 	//ロックオン中の敵
 	Enemy_Missile* RockonEnemy = nullptr;
 

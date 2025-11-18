@@ -19,13 +19,15 @@ void Bullet::Init()
 		"assets/model/starwars/laser.x",		// モデル名
 		"assets/model/starwars/");				// テクスチャのパス;
 
+
+
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 
 	//弾の当たり判定
 	aiVector3D minpos;
@@ -162,6 +164,11 @@ void Bullet::Update(uint64_t deltatime)
 	
 };
 
+void Bullet::LateUpdate(uint64_t deltatime) 
+{
+
+}
+
 void Bullet::Draw()
 {
 	// SRT情報作成
@@ -176,7 +183,7 @@ void Bullet::Draw()
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	//m_shader.SetGPU();
 
 	if (!collsion)m_meshrenderer.Draw();
 
@@ -224,6 +231,11 @@ void Bullet::Reset()
 {
 
 };
+
+int Bullet::GetShaderNum()
+{
+	return 0;
+}
 
 GM31::GE::Collision::BoundingBoxOBB Bullet::GetOBB()
 {

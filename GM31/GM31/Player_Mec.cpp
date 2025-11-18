@@ -41,9 +41,9 @@ void M_Player::Init()
 	m_Rotation = m_meshrenderer.GetModelRot();
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
@@ -55,10 +55,6 @@ void M_Player::Init()
 	//位置補正
 	m_Position.y += 9;
 
-	for (int i = 0; i < 20; i++) 
-	{
-		m_bullet[i].Init();
-	}
 
 	head.Init();
 	leftarm.Init();
@@ -106,25 +102,22 @@ void M_Player::Update(uint64_t deltatime)
 
 	}
 
-	if (Burst) //フルバーストするならの処理
-	{
-		time += static_cast<float>(deltatime) / 1000;
-		if (time > 100) 
-		{
-			FullBurst();
-			if (bulletcur > 19) {
-				Burst = false;
-				bulletcur = 0;
-			}
-			time = 0;
-		}
+	if (Target != nullptr) {
+		//ターゲットの方向く
+		Vector3 TargetForward = (m_Position - *Target);
 
+		TargetForward.Normalize();
+
+		// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
+		float yaw = atan2f(TargetForward.x, TargetForward.z);
+		float pitch = atan2f(-TargetForward.y,
+			sqrtf(TargetForward.x * TargetForward.x + TargetForward.z * TargetForward.z));
+
+		// 4. Roll は今回は固定 0
+		SetRotation_PL({ 0.0f,yaw, 0.0f });
 	}
 
-	for (int i = 0; i < 20; i++)
-	{
-		m_bullet[i].Update(deltatime);
-	}
+	
 
 	head.Update(deltatime);
 	leftarm.Update(deltatime);
@@ -157,7 +150,7 @@ void M_Player::Update(uint64_t deltatime)
 
 	head.SetRotation(srt.rot);
 	//leftarm.SetRotation(srt.rot);
-	rightarm.SetRotation(srt.rot);
+	//rightarm.SetRotation(srt.rot);
 	leftfeet.SetRotation(srt.rot);
 	rightfeet.SetRotation(srt.rot);
 	//姿勢の補完をここでする
@@ -172,7 +165,17 @@ void M_Player::Update(uint64_t deltatime)
 	
 }
 
-	void M_Player::Draw()
+void M_Player::LateUpdate(uint64_t deltatime) 
+{
+	Shot = false;//射撃フラグ切る
+	head.LateUpdate(deltatime);
+	leftarm.LateUpdate(deltatime);
+	rightarm.LateUpdate(deltatime);
+	leftfeet.LateUpdate(deltatime);
+	rightfeet.LateUpdate(deltatime);
+}
+
+void M_Player::Draw()
 {
 
 	// SRT情報作成
@@ -191,7 +194,7 @@ void M_Player::Update(uint64_t deltatime)
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();//これ最終的に外に持っていきたい
+	//m_shader.SetGPU();//これ最終的に外に持っていきたい
 
 	if (HP > 0) 
 	{
@@ -259,16 +262,18 @@ void M_Player::Action(Vector3 vec)
 	FullBurst();*/
 
 	DoublePistol++;
-	if (DoublePistol > 2) 
+	if (DoublePistol > 1) 
 	{
 		DoublePistol = 0;
 	}
 
 	head.Action(vec);
-	if(DoublePistol !=1)leftarm.Action(vec);
-	if (DoublePistol != 0)rightarm.Action(vec);
+	if(DoublePistol !=1)leftarm.Action(*Target);
+	if (DoublePistol != 0)rightarm.Action(*Target);
 	leftfeet.Action(vec);
 	rightfeet.Action(vec);
+
+	Shot = true;//射撃フラグを付ける
 }
 
 GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
@@ -297,6 +302,8 @@ void M_Player::Reset()
 {
 	HP = MaxHP;
 
+	m_Position = { 0.0f, 9.0f,0.0f };
+
 	head.Reset();
 	leftarm.Reset();
 	rightarm.Reset();
@@ -304,9 +311,9 @@ void M_Player::Reset()
 	rightfeet.Reset();
 }
 
-GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB_Bullet(int i)
+int M_Player::GetShaderNum()
 {
-	return m_bullet[i].GetOBB();
+	return 0;
 }
 
 Vector3 M_Player::GetForward()
@@ -316,11 +323,58 @@ Vector3 M_Player::GetForward()
 	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
 	srt.pos = m_Position;			// 位置
 
-	//新しい弾を作る
+	//前向きベクトルをとって返す
 	Matrix4x4 world = srt.GetMatrix();
 	Vector3 Forward = world.Forward();
 	return Forward;
 }
+
+Vector3 M_Player::GetRight()
+{
+	return Right_vec;
+}
+
+Vector3 M_Player::GetUp()
+{
+	return Up_vec;
+}
+
+void M_Player::SetTarget(Vector3* vec)//対象の座標を保存しつつその方向を向く
+{
+	Target = vec;
+
+	//ターゲットの方向く
+	Vector3 TargetForward = (m_Position - *Target);
+
+	TargetForward.Normalize();
+
+	// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
+	float yaw = atan2f(TargetForward.x, TargetForward.z);
+	float pitch = atan2f(-TargetForward.y,
+		sqrtf(TargetForward.x * TargetForward.x + TargetForward.z * TargetForward.z));
+
+	// 4. Roll は今回は固定 0
+	m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
+
+	// 方向ベクトル作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// 方向ベクトル 抽出
+	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	Right_vec.Normalize();
+	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	Up_vec.Normalize();
+	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	Forward_vec.Normalize();
+}
+
 
 void M_Player::Debug_Player()
 {
@@ -432,36 +486,6 @@ Vector3 M_Player::ConectPos(int i)
 
 }
 
-void M_Player::FullBurst()
-{
-	if (!Target) return;
-	
-	SRT srt = GetSRT();
-
-	srt.rot.x += 1.5;
-	Matrix4x4 world = srt.GetMatrix();
-	Vector3 forward = world.Forward();
-	forward.Normalize();
-	forward *= 3.0f;
-
-	m_bullet[bulletcur].SetForward(forward);
-
-	////前向き行列取ってから姿勢補完する
-	////姿勢補完分
-	//srt.rot.x += 1.55;
-	//srt.rot.y += 1.55;
-	//Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
-
-
-	m_bullet[bulletcur].SetScale(Vector3(1, 1, 1));
-	m_bullet[bulletcur].SetRotation(srt.rot);
-	m_bullet[bulletcur].SetPosition(srt.pos);
-	m_bullet[bulletcur].Setinduction(1000, forward);
-	m_bullet[bulletcur].SetTarget(Target);
-
-	bulletcur++;
-}
-
 void M_Player::SetRotation_PL(Vector3 rot)
 {
 	SRT srt;
@@ -494,6 +518,32 @@ void M_Player::SetRotation_PL(Vector3 rot)
 	rightfeet.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_RightFeet", srt));
 }
 
+bool M_Player::Connectable(int ConnectionPoint)
+{
+	switch (ConnectionPoint) {
+	case 0://頭
+		if (!HeadSet) return true;
+		break;
+	case 1://胴体
+		if (!BodySet) return true;
+		break;
+	case 2://左腕
+		if (!LeftArmSet) return true;
+		break;
+	case 3://右腕
+		if (!RightArmSet) return true;
+		break;
+	case 4://左足
+		if (!LeftArmSet) return true;
+		break;
+	case 5://右足
+		if (!RightArmSet) return true;
+		break;
+	}
+	//範囲外か既に装着済みならfalseで返す
+	return false;
+}
+
 bool M_Player::Collision_PL(GM31::GE::Collision::BoundingBoxOBB colobb)
 {
 	//プレイヤーを構成する要素全てと判定取ってぶつかってたらその時点でtrue返す
@@ -511,14 +561,83 @@ bool M_Player::Collision_PL(GM31::GE::Collision::BoundingBoxOBB colobb)
 	return false;
 }
 
-void M_Player::SetCollision_Bullet(int num, bool col)
+int M_Player::Canconect(Object* obj)
 {
-	std::cout << "[SetCollision_Bullet] num=" << num
-		<< " col=" << col
-		<< " time=" << std::chrono::steady_clock::now().time_since_epoch().count()
-		<< std::endl;
+	//接続可能な中で一番若い数を返す
+	if (obj->CanConnectable(0) && head.CanConect()) return 0;
+	if (obj->CanConnectable(2) && leftarm.CanConect()) return 2;
+	if (obj->CanConnectable(3) && rightarm.CanConect()) return 3;
+	if (obj->CanConnectable(4) && leftfeet.CanConect()) return 4;
+	if (obj->CanConnectable(5) && rightfeet.CanConect()) return 5;
 
-	m_bullet[num].SetCol(col);
+	return 100;
+}
+
+void M_Player::Conect(int Adhesinom, Object* obj)
+{
+	switch (Adhesinom)
+	{
+	case 0:
+		head.Conect(obj);
+		break;
+	case 1:
+		Connectableobject = obj;
+		//接続フラグをonにして接続時の処理を通す
+		obj->SetAdhesioing(true);
+		obj->Adhesioing();
+		break;
+	case 2:
+		leftarm.Conect(obj);
+		break;
+	case 3:
+		rightarm.Conect(obj);
+		break;
+	case 4:
+		leftfeet.Conect(obj);
+		break;
+	case 5:
+		rightfeet.Conect(obj);
+		break;
+	default:
+		break;
+	}
+}
+
+void M_Player::Release(int Adhesinom)
+{
+	switch (Adhesinom)
+	{
+	case 0:
+		head.Release();
+		break;
+	case 1:
+		Connectableobject = nullptr;
+		break;
+	case 2:
+		leftarm.Release();
+		break;
+	case 3:
+		rightarm.Release();
+		break;
+	case 4:
+		leftfeet.Release();
+		break;
+	case 5:
+		rightfeet.Release();
+		break;
+	}
+}
+
+void M_Player::ReleaseALL()
+{
+		head.Release();
+		if (Connectableobject) Connectableobject->SetAdhesioing(false);
+		Connectableobject = nullptr;
+		leftarm.Release();
+		rightarm.Release();
+		leftfeet.Release();
+		rightfeet.Release();
+
 }
 
 //バグが起きた時のために一応残しておく

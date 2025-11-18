@@ -181,6 +181,11 @@ void Renderer::Init()
     m_Device->CreateSamplerState(&samplerDesc, samplerState.GetAddressOf());
     m_DeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 
+
+    //丸影描画用にシャドウマップ用のサンプラー用意しておく(サンプラー増やせなかったので断念)
+    //m_DeviceContext->PSSetShaderResources(2, 1, &shadowMapSRV);  // t2
+    //m_DeviceContext->PSSetSamplers(2, 1, &shadowSampler);        // s2
+
     // --- 定数バッファ生成 ---
     D3D11_BUFFER_DESC bufferDesc{};
     bufferDesc.ByteWidth = sizeof(Matrix4x4);

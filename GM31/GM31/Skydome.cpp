@@ -18,7 +18,7 @@ void Skydome::Init()
 	// レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
 
-	// シェーダーの初期化
+	//// シェーダーの初期化
 	m_shader.Create(
 		"shader/unlitTextureVS.hlsl",		// 頂点シェーダー
 		"shader/unlitTexturePS.hlsl");		// ピクセルシェーダー
@@ -43,7 +43,7 @@ void Skydome::Draw()
 	worldmtx = srt.GetMatrix();
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
-	m_shader.SetGPU();		// シェーダのセット
+	//m_shader.SetGPU();		// シェーダのセット
 	m_meshrenderer.Draw();	// メッシュレンダラの描画
 }
 

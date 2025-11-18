@@ -117,12 +117,14 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\DirectXLib\directxtk\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -151,7 +153,16 @@
   <ItemGroup>
     <ClInclude Include="AirplaneFlyScene.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Buller.h" />
+    <ClInclude Include="EnemyAI.h" />
+    <ClInclude Include="Enemy_Head.h" />
+    <ClInclude Include="Enemy_LeftArm.h" />
+    <ClInclude Include="Enemy_LeftFeet.h" />
+    <ClInclude Include="Enemy_RightArm.h" />
+    <ClInclude Include="Enemy_RightFeet.h" />
+    <ClInclude Include="E_Beam.h" />
+    <ClInclude Include="Buller.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="camera.h" />
     <ClInclude Include="CarDriveScene.h" />
     <ClInclude Include="CDumpMatrix.h" />
@@ -161,29 +172,53 @@
     <ClInclude Include="EnemyLookatScene.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Enemy_Missile.h" />
+    <ClInclude Include="Enemy_Missile.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Enemy_Rotation_Random.h" />
-    <ClInclude Include="E_Missile.h" />
+    <ClInclude Include="E_Beam02.h" />
+    <ClInclude Include="E_Missile.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Field.h" />
     <ClInclude Include="fpscontrol.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="Gameover.h" />
-    <ClInclude Include="Gun.h" />
+    <ClInclude Include="Gun.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="ImageDisplayScene.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="MecScene.h" />
-    <ClInclude Include="M_Rock.h" />
+    <ClInclude Include="MecScene.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="M_Rock.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjParseScene.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Player_Head.h" />
-    <ClInclude Include="Player_LeftArm.h" />
-    <ClInclude Include="Player_LeftFeet.h" />
-    <ClInclude Include="Player_Mec.h" />
-    <ClInclude Include="Player_RightArm.h" />
-    <ClInclude Include="Player_RightFeet.h" />
+    <ClInclude Include="Player_Head.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Player_LeftArm.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Player_LeftFeet.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Player_Mec.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Player_RightArm.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Player_RightFeet.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="quat.h" />
     <ClInclude Include="QuaternionScene.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="ResultScene.h" />
     <ClInclude Include="RubikCubeScene.h" />
     <ClInclude Include="SceneChanger.h" />
@@ -247,34 +282,66 @@
   <ItemGroup>
     <ClCompile Include="AirplaneFlyScene.cpp" />
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="Bullet.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CarDriveScene.cpp" />
     <ClCompile Include="CollisionOBBScene.cpp" />
     <ClCompile Include="Enemies.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyAI.cpp" />
     <ClCompile Include="EnemyLookatScene.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Enemy_Missile.cpp" />
-    <ClCompile Include="E_Missile.cpp" />
+    <ClCompile Include="Enemy_Head.cpp" />
+    <ClCompile Include="Enemy_LeftArm.cpp" />
+    <ClCompile Include="Enemy_LeftFeet.cpp" />
+    <ClCompile Include="Enemy_Missile.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Enemy_RightArm.cpp" />
+    <ClCompile Include="Enemy_RightFeet.cpp" />
+    <ClCompile Include="E_Beam.cpp" />
+    <ClCompile Include="E_Beam02.cpp" />
+    <ClCompile Include="E_Missile.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="Gameover.cpp" />
-    <ClCompile Include="Gun.cpp" />
+    <ClCompile Include="Gun.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="ImageDisplayScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MecScene.cpp" />
-    <ClCompile Include="M_Rock.cpp" />
+    <ClCompile Include="MecScene.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="M_Rock.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="ObjParseScene.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Player_Head.cpp" />
-    <ClCompile Include="Player_LeftArm.cpp" />
-    <ClCompile Include="Player_LeftFeet.cpp" />
-    <ClCompile Include="Player_Mec.cpp" />
-    <ClCompile Include="Player_RightArm.cpp" />
-    <ClCompile Include="Player_RightFeet.cpp" />
+    <ClCompile Include="Player_Head.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Player_LeftArm.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Player_LeftFeet.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Player_Mec.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Player_RightArm.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Player_RightFeet.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="qtlooatat.cpp" />
     <ClCompile Include="QuaternionScene.cpp" />
     <ClCompile Include="ResultScene.cpp" />
@@ -335,6 +402,32 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="shader\monochromePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shader\rgbSpritPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shader\shadowPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="shader\ShadowVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="shader\unlitTexturePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

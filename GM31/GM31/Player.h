@@ -27,11 +27,13 @@ class Player  : public Object{
 public:
 	void Init() override;
 	void Update(uint64_t deltatime) override;
+	void LateUpdate(uint64_t deltatime) override;
 	void Update2();				// NOInterporation
 	void Draw() override;
 	void Dispose() override;
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
+	int GetShaderNum() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 
 	/*void SetPosition(Vector3 pos) { m_Position = pos; }

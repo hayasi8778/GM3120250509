@@ -13,6 +13,10 @@ void M_Gun::Init()
 	//属性
 	Attribute = JOINABLE;
 
+	//両腕に取り付け可能なオブジェクト
+	Connectable[2] = true;
+	Connectable[3] = true;
+
 	m_mesh.Load(
 		"assets/model/Gun/Gun_Testmodel2.fbx",				// モデル名
 		"assets/model/Gun/");						// テクスチャのパス
@@ -22,9 +26,9 @@ void M_Gun::Init()
 	m_meshrenderer.Init(m_mesh);
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
@@ -86,6 +90,11 @@ void M_Gun::Update(uint64_t deltatime)
 	Forward_vec.Normalize();
 };
 
+void M_Gun::LateUpdate(uint64_t deltatime) 
+{
+
+}
+
 void M_Gun::Draw()
 {
 	//姿勢の補完をここでする
@@ -104,7 +113,7 @@ void M_Gun::Draw()
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	//m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
 
@@ -124,7 +133,7 @@ void M_Gun::Draw()
 
 	//m_Position.y += 1.0f;
 	m_Position += Up_vec * 1.0f;
-	m_Position -= Forward_vec * 2.0f;
+	m_Position -= Forward_vec * 5.0f;//元々2.0f
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;//positionは元に戻しておく
@@ -190,6 +199,11 @@ void M_Gun::Reset()
 {
 
 };
+
+int M_Gun::GetShaderNum()
+{
+	return 0;
+}
 
 GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
 {

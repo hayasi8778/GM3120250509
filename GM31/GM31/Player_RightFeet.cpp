@@ -1,5 +1,11 @@
 #include "Player_RightFeet.h"
 
+void Player_RightFeet::Init(Vector3* rot)
+{
+	MainRotation = rot;
+	Init();
+}
+
 void Player_RightFeet::Init()
 {
 	//属性
@@ -19,9 +25,9 @@ void Player_RightFeet::Init()
 	m_Rotation = m_meshrenderer.GetModelRot();
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
@@ -67,6 +73,11 @@ void Player_RightFeet::Update(uint64_t deltatime)
 	Forward_vec.Normalize();
 }
 
+void Player_RightFeet::LateUpdate(uint64_t deltatime) 
+{
+
+}
+
 void Player_RightFeet::Dispose()
 {
 
@@ -90,11 +101,11 @@ void Player_RightFeet::Draw()
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	//m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
 
-	m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
+	//m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
 
 
 	//// デバッグ用のグローバル変数に値をセット
@@ -136,12 +147,17 @@ void Player_RightFeet::Adhesioing()
 
 void Player_RightFeet::Action(Vector3 vec)
 {
-
+	if (Connectableobject)Connectableobject->Action(Vector3(0.0f, 0.0f, 0.0f));
 }
 
 void Player_RightFeet::Reset()
 {
 
+}
+
+int Player_RightFeet::GetShaderNum()
+{
+	return 0;
 }
 
 GM31::GE::Collision::BoundingBoxOBB Player_RightFeet::GetOBB()
@@ -184,4 +200,18 @@ Vector3 Player_RightFeet::Conectpos(const std::string& targetName)
 	conect = m_meshrenderer.LogBoneWorldPosition(targetName, srt);
 
 	return conect;
+}
+
+void Player_RightFeet::Conect(Object* obj)
+{
+	Connectableobject = obj;
+	//接続フラグをonにして接続時の処理を通す
+	obj->SetAdhesioing(true);
+	obj->Adhesioing();
+}
+
+void Player_RightFeet::Release()
+{
+	if (Connectableobject) Connectableobject->SetAdhesioing(false);
+	Connectableobject = nullptr;
 }

@@ -17,9 +17,9 @@ void M_Rock::Init()
 	m_meshrenderer.Init(m_mesh);
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
@@ -152,6 +152,11 @@ void M_Rock::Update(uint64_t deltatime)
 	Forward_vec.Normalize();
 }
 
+void M_Rock::LateUpdate(uint64_t deltatime) 
+{
+
+}
+
 void M_Rock::Draw()
 {
 
@@ -167,7 +172,8 @@ void M_Rock::Draw()
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	//シェーダー
+	//m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
 
@@ -227,6 +233,11 @@ void M_Rock::Action(Vector3 vec)
 void M_Rock::Reset() 
 {
 
+}
+
+int M_Rock::GetShaderNum()
+{
+	return 0;
 }
 
 GM31::GE::Collision::BoundingBoxOBB M_Rock::GetOBB()

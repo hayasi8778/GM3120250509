@@ -1,8 +1,9 @@
 #pragma once
 #include "Object.h"
 #include "Player_Mec.h"
+#include "E_Beam02.h"
 
-class E_Missile : public Object
+class E_Beam : public Object
 {
 private:
 
@@ -17,7 +18,7 @@ private:
 
 	Vector3 forward;//前方ベクトルを取得するための変数
 
-	Vector3 velocty = Vector3{0,0,0};
+	Vector3 velocty = Vector3{ 0,0,0 };
 
 	M_Player* player = nullptr;
 
@@ -28,9 +29,11 @@ private:
 	float Width;
 	float Height;
 	float Depth;
+
+	E_Beam02 beam02;
 public:
-	E_Missile();
-	~E_Missile();
+	E_Beam();
+	~E_Beam();
 	void Init() override;
 	void Update(uint64_t deltatime) override;
 	void LateUpdate(uint64_t deltatime) override;
@@ -41,8 +44,9 @@ public:
 	void Reset();
 	int GetShaderNum() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
+	GM31::GE::Collision::BoundingBoxOBB GetOBB02();
 
-	void SetShot(bool st) { shot = st; collsion = false;}//フラグのリセット
+	void SetShot(bool st) { shot = st; collsion = false; }//フラグのリセット
 	void SetForward(Vector3 forw) { forward = forw; }
 	Vector3 SetForward() { return forward; }
 	int Life = 120;
@@ -50,5 +54,4 @@ public:
 	float priod = 1000;
 	void SetPlayar(M_Player* pl) { player = pl; }
 	void SetCol(bool col) { collsion = col; }
-	bool GetCollsion() { return collsion; }
 };

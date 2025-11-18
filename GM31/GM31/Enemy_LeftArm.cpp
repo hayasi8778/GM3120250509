@@ -1,12 +1,6 @@
-#include "Player_LeftArm.h"
+#include "Enemy_LeftArm.h"
 
-void Player_LeftArm::Init(Vector3* rot)
-{
-	MainRotation = rot;
-	Init();
-}
-
-void Player_LeftArm::Init()
+void Enemy_LeftArm::Init()
 {
 	//属性
 	Attribute = PLAYER;
@@ -58,14 +52,13 @@ void Player_LeftArm::Init()
 	m_Rotation.z += 1.40f;
 }
 
-void Player_LeftArm::Update(uint64_t deltatime)
+void Enemy_LeftArm::Update(uint64_t deltatime)
 {
-	if (recoil != 0) 
+	if (recoil != 0)
 	{
 		recoil -= 0.2f;//銃を撃った反動をそれっぽくする
 		if (recoil < 0) recoil = 0.0f;
 	}
-	
 
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -85,15 +78,15 @@ void Player_LeftArm::Update(uint64_t deltatime)
 	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
 	Forward_vec.Normalize();
 
-	if (armfloat) 
+	if (armfloat)
 	{
 		Armrot += 0.005f;
-		if (Armrot > -1.3) 
+		if (Armrot > -1.3)
 		{
 			armfloat = false;
 		}
 	}
-	else 
+	else
 	{
 		Armrot -= 0.005f;
 		if (Armrot < -1.6)
@@ -103,24 +96,17 @@ void Player_LeftArm::Update(uint64_t deltatime)
 	}
 }
 
-void Player_LeftArm::Dispose()
+void Enemy_LeftArm::Dispose()
 {
 
 }
 
-void Player_LeftArm::LateUpdate(uint64_t deltatime) 
+void Enemy_LeftArm::LateUpdate(uint64_t deltatime)
 {
-	//座標が決定した後に追従させる
-	if (Connectableobject != nullptr) {
-		//接続しているオブジェクトを追従させる
-		Connectableobject->SetPosition(Conectpos("Hand"));//場所
-		Vector3 coprot = m_Rotation;
-		coprot.y -= 1.4f;
-		Connectableobject->SetRotation(coprot);//角度
-	}
+
 }
 
-void Player_LeftArm::Draw()
+void Enemy_LeftArm::Draw()
 {
 	//姿勢の補完をここでする
 	/*m_Rotation.x += 1.55;
@@ -166,7 +152,7 @@ void Player_LeftArm::Draw()
 	m_Position += Right_vec * 4;
 	m_Position += Forward_vec * 0.5;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-	
+
 	m_Position = poscop;
 
 	//if (col) {
@@ -182,28 +168,27 @@ void Player_LeftArm::Draw()
 	m_Rotation.y -= 1.55;*/
 }
 
-void Player_LeftArm::Adhesioing()
+void Enemy_LeftArm::Adhesioing()
 {
 
 }
 
-void Player_LeftArm::Action(Vector3 vec)
+void Enemy_LeftArm::Action(Vector3 vec)
 {
 	recoil = 3.0f;
-	if (Connectableobject)Connectableobject->Action(vec);
 }
 
-void Player_LeftArm::Reset()
+void Enemy_LeftArm::Reset()
 {
 
 }
 
-int Player_LeftArm::GetShaderNum()
+int Enemy_LeftArm::GetShaderNum()
 {
 	return 0;
 }
 
-GM31::GE::Collision::BoundingBoxOBB Player_LeftArm::GetOBB()
+GM31::GE::Collision::BoundingBoxOBB Enemy_LeftArm::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
@@ -225,7 +210,7 @@ GM31::GE::Collision::BoundingBoxOBB Player_LeftArm::GetOBB()
 	return obb;
 }
 
-Vector3 Player_LeftArm::Conectpos(const std::string& targetName)
+Vector3 Enemy_LeftArm::Conectpos(const std::string& targetName)
 {
 	Vector3 conect = { 0,0,0 };
 	SRT srt;
@@ -235,13 +220,13 @@ Vector3 Player_LeftArm::Conectpos(const std::string& targetName)
 	srt.pos = m_Position;
 
 	conect = m_meshrenderer.LogBoneWorldPosition(targetName, srt);
-	
+
 	//conect = m_meshrenderer.LogBoneWorldPosition(3, srt);
 
 	return conect;
 }
 
-void Player_LeftArm::Rockon(Vector3 rot)
+void Enemy_LeftArm::Rockon(Vector3 rot)
 {
 	// 1. forward ベクトルを計算
 	Vector3 Forward = -(rot - m_Position);
@@ -263,20 +248,6 @@ void Player_LeftArm::Rockon(Vector3 rot)
 	Quaternion qFinal = qBase * q90;
 
 	// 4. Roll は今回は固定 0
-	m_Rotation = Vector3{ 0.0f, yaw + 1.4f,pitch +recoil };//90度曲げるから例外的にRall yaw pitchの順に入れる
-	
-}
+	m_Rotation = Vector3{ 0.0f, yaw + 1.4f,pitch + recoil };//90度曲げるから例外的にRall yaw pitchの順に入れる
 
-void Player_LeftArm::Conect(Object* obj)
-{
-	Connectableobject = obj;
-	//接続フラグをonにして接続時の処理を通す
-	obj->SetAdhesioing(true);
-	obj->Adhesioing();
-}
-
-void Player_LeftArm::Release()
-{
-	if (Connectableobject) Connectableobject->SetAdhesioing(false);
-	Connectableobject = nullptr;
 }

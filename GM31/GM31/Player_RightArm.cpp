@@ -1,5 +1,11 @@
 #include "Player_RightArm.h"
 
+void Player_RightArm::Init(Vector3* rot)
+{
+	MainRotation = rot;
+	Init();
+}
+
 void Player_RightArm::Init()
 {
 	//属性
@@ -14,7 +20,7 @@ void Player_RightArm::Init()
 	//	"assets/model/Mec/");						// テクスチャのパス
 
 	m_mesh.Load(
-		"assets/model/Mec/MecBone_RightArm_TestModel.fbx",				// モデル名
+		"assets/model/Mec/MecBone_RightArm_TestModel2.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
 	//レンダラ初期化
@@ -23,9 +29,9 @@ void Player_RightArm::Init()
 	m_Rotation = m_meshrenderer.GetModelRot();
 
 	// シェーダーの初期化
-	m_shader.Create(
-		"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-		"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
+	//m_shader.Create(
+	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
+	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
@@ -96,6 +102,18 @@ void Player_RightArm::Update(uint64_t deltatime)
 	}
 }
 
+void Player_RightArm::LateUpdate(uint64_t deltatime) 
+{
+	//座標が決定した後に追従させる
+	if (Connectableobject != nullptr) {
+		//接続しているオブジェクトを追従させる
+		Connectableobject->SetPosition(Conectpos("Hand"));//場所
+		Vector3 coprot = m_Rotation;
+		coprot.y += 1.4f;
+		Connectableobject->SetRotation(coprot);//角度
+	}
+}
+
 void Player_RightArm::Dispose()
 {
 
@@ -122,11 +140,11 @@ void Player_RightArm::Draw()
 
 	Renderer::SetWorldMatrix(&worldmtx);		// GPUにセット
 
-	m_shader.SetGPU();
+	//m_shader.SetGPU();
 
 	m_meshrenderer.Draw();
 
-	m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
+	//m_meshrenderer.DrawWithBones(srt, { 1.0f, 1.0f, 0.0f });
 
 
 	//// デバッグ用のグローバル変数に値をセット
@@ -171,11 +189,17 @@ void Player_RightArm::Adhesioing()
 void Player_RightArm::Action(Vector3 vec)
 {
 	recoil = 3.0f;
+	if (Connectableobject)Connectableobject->Action(vec);
 }
 
 void Player_RightArm::Reset()
 {
 
+}
+
+int Player_RightArm::GetShaderNum()
+{
+	return 0;
 }
 
 GM31::GE::Collision::BoundingBoxOBB Player_RightArm::GetOBB()
@@ -231,4 +255,18 @@ void Player_RightArm::Rockon(Vector3 rot)
 	// 4. Roll は今回は固定 0
 	m_Rotation = Vector3{ 0.0f, yaw - 1.4f,-pitch - recoil };//90度曲げるから例外的にRall yaw pitchの順に入れる
 
+}
+
+void Player_RightArm::Conect(Object* obj)
+{
+	Connectableobject = obj;
+	//接続フラグをonにして接続時の処理を通す
+	obj->SetAdhesioing(true);
+	obj->Adhesioing();
+}
+
+void Player_RightArm::Release()
+{
+	if (Connectableobject) Connectableobject->SetAdhesioing(false);
+	Connectableobject = nullptr;
 }

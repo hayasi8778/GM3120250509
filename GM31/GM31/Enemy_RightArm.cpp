@@ -1,12 +1,6 @@
-#include "Player_LeftArm.h"
+#include "Enemy_RightArm.h"
 
-void Player_LeftArm::Init(Vector3* rot)
-{
-	MainRotation = rot;
-	Init();
-}
-
-void Player_LeftArm::Init()
+void Enemy_RightArm::Init()
 {
 	//属性
 	Attribute = PLAYER;
@@ -14,12 +8,13 @@ void Player_LeftArm::Init()
 	//プレイヤーなので接触フラグは最初からon
 	adhesioing = true;
 
-	//ロボットモデル(左腕)
+	//ロボットモデル(頭)
 	//m_mesh.Load(
-	//	"assets/model/Mec/MecBone_LeftArm.fbx",				// モデル名
+	//	"assets/model/Mec/MecBone_RightArm.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
+
 	m_mesh.Load(
-		"assets/model/Mec/MecBone_LeftArm_TestModel.fbx",				// モデル名
+		"assets/model/Mec/MecBone_RightArm_TestModel2.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
 	//レンダラ初期化
@@ -42,8 +37,6 @@ void Player_LeftArm::Init()
 	//位置補正
 	m_Position.y += 9;
 
-	m_Rotation.z -= 1.40f;
-
 	//弾の当たり判定
 	aiVector3D minpos;
 	aiVector3D maxpos;
@@ -55,17 +48,16 @@ void Player_LeftArm::Init()
 	Depth = maxpos.z - minpos.z;
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
-	m_Rotation.z += 1.40f;
 }
 
-void Player_LeftArm::Update(uint64_t deltatime)
+void Enemy_RightArm::Update(uint64_t deltatime)
 {
-	if (recoil != 0) 
+
+	if (recoil != 0)
 	{
 		recoil -= 0.2f;//銃を撃った反動をそれっぽくする
 		if (recoil < 0) recoil = 0.0f;
 	}
-	
 
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -85,42 +77,36 @@ void Player_LeftArm::Update(uint64_t deltatime)
 	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
 	Forward_vec.Normalize();
 
-	if (armfloat) 
+	//腕いい感じに振る処理
+	if (armfloat)
 	{
 		Armrot += 0.005f;
-		if (Armrot > -1.3) 
+		if (Armrot > 1.6)
 		{
 			armfloat = false;
 		}
 	}
-	else 
+	else
 	{
 		Armrot -= 0.005f;
-		if (Armrot < -1.6)
+		if (Armrot < 1.3)
 		{
 			armfloat = true;
 		}
 	}
 }
 
-void Player_LeftArm::Dispose()
+void Enemy_RightArm::LateUpdate(uint64_t deltatime)
 {
 
 }
 
-void Player_LeftArm::LateUpdate(uint64_t deltatime) 
+void Enemy_RightArm::Dispose()
 {
-	//座標が決定した後に追従させる
-	if (Connectableobject != nullptr) {
-		//接続しているオブジェクトを追従させる
-		Connectableobject->SetPosition(Conectpos("Hand"));//場所
-		Vector3 coprot = m_Rotation;
-		coprot.y -= 1.4f;
-		Connectableobject->SetRotation(coprot);//角度
-	}
+
 }
 
-void Player_LeftArm::Draw()
+void Enemy_RightArm::Draw()
 {
 	//姿勢の補完をここでする
 	/*m_Rotation.x += 1.55;
@@ -132,7 +118,7 @@ void Player_LeftArm::Draw()
 	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
 	srt.pos = m_Position;			// 位置
 
-	srt.pos += Right_vec * 1.5;
+	srt.pos -= Right_vec * 1.5;
 	//srt.rot.z += Armrot;
 
 	Matrix4x4 worldmtx;
@@ -163,53 +149,48 @@ void Player_LeftArm::Draw()
 
 	Vector3 poscop = m_Position;
 
-	m_Position += Right_vec * 4;
-	m_Position += Forward_vec * 0.5;
+	m_Position -= Right_vec * 4;
+	m_Position -= Up_vec * 0.5;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-	
+
 	m_Position = poscop;
 
-	//if (col) {
-	//	m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
-	//}
-	//else
-	//{
-	//	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
-	//}
+	if (col) {
+		//m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
+	}
+	else
+	{
+		//m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
+	}
 
 
 	/*m_Rotation.x -= 1.55;
 	m_Rotation.y -= 1.55;*/
 }
 
-void Player_LeftArm::Adhesioing()
+void Enemy_RightArm::Adhesioing()
 {
 
 }
 
-void Player_LeftArm::Action(Vector3 vec)
+void Enemy_RightArm::Action(Vector3 vec)
 {
 	recoil = 3.0f;
-	if (Connectableobject)Connectableobject->Action(vec);
 }
 
-void Player_LeftArm::Reset()
+void Enemy_RightArm::Reset()
 {
 
 }
 
-int Player_LeftArm::GetShaderNum()
+int Enemy_RightArm::GetShaderNum()
 {
 	return 0;
 }
 
-GM31::GE::Collision::BoundingBoxOBB Player_LeftArm::GetOBB()
+GM31::GE::Collision::BoundingBoxOBB Enemy_RightArm::GetOBB()
 {
 	GM31::GE::Collision::BoundingBoxOBB obb;
-
-	//姿勢の補完をここでする
-	/*m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;*/
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// 姿勢（回転角度）
@@ -218,16 +199,13 @@ GM31::GE::Collision::BoundingBoxOBB Player_LeftArm::GetOBB()
 		Height,					// 高さ
 		Depth);					// 奥行
 
-	//姿勢の補完をここでする
-	/*m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;*/
-
 	return obb;
 }
 
-Vector3 Player_LeftArm::Conectpos(const std::string& targetName)
+Vector3 Enemy_RightArm::Conectpos(const std::string& targetName)
 {
 	Vector3 conect = { 0,0,0 };
+
 	SRT srt;
 
 	srt.scale = m_Scale;
@@ -235,13 +213,11 @@ Vector3 Player_LeftArm::Conectpos(const std::string& targetName)
 	srt.pos = m_Position;
 
 	conect = m_meshrenderer.LogBoneWorldPosition(targetName, srt);
-	
-	//conect = m_meshrenderer.LogBoneWorldPosition(3, srt);
 
 	return conect;
 }
 
-void Player_LeftArm::Rockon(Vector3 rot)
+void Enemy_RightArm::Rockon(Vector3 rot)
 {
 	// 1. forward ベクトルを計算
 	Vector3 Forward = -(rot - m_Position);
@@ -263,20 +239,6 @@ void Player_LeftArm::Rockon(Vector3 rot)
 	Quaternion qFinal = qBase * q90;
 
 	// 4. Roll は今回は固定 0
-	m_Rotation = Vector3{ 0.0f, yaw + 1.4f,pitch +recoil };//90度曲げるから例外的にRall yaw pitchの順に入れる
-	
-}
+	m_Rotation = Vector3{ 0.0f, yaw - 1.4f,-pitch - recoil };//90度曲げるから例外的にRall yaw pitchの順に入れる
 
-void Player_LeftArm::Conect(Object* obj)
-{
-	Connectableobject = obj;
-	//接続フラグをonにして接続時の処理を通す
-	obj->SetAdhesioing(true);
-	obj->Adhesioing();
-}
-
-void Player_LeftArm::Release()
-{
-	if (Connectableobject) Connectableobject->SetAdhesioing(false);
-	Connectableobject = nullptr;
 }

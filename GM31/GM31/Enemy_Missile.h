@@ -101,7 +101,7 @@ public:
 
 	bool Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb);
 
-	void Stepavoidance(Vector3 bulletpos);//弾丸をステップで回避したい
+	void Stepavoidance(Vector3 bulletpos ,bool);//弾丸をステップで回避したい(boolで左右を取る)
 	void MoveStep(Vector3 Movevec);//ベクトルを入れてステップ踏ませたい
 
 	Vector3 GetForward() { return Forward_vec; }

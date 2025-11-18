@@ -66,7 +66,7 @@ void Enemy_Missile::Init()
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
 
-	m_interceptionSphere = std::make_unique<Sphere>(25);
+	m_interceptionSphere = std::make_unique<Sphere>(50);//元々半径25
 
 	Head.Init();
 	Leftarm.Init();
@@ -214,12 +214,13 @@ void Enemy_Missile::Draw()
 		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 	}
 
+	//弾丸の検知範囲
 	if (Avoidance)
 	{
-		//m_interceptionSphere->Draw(transmtx, { 0.0,0.0,0.5,0.2 });
+		m_interceptionSphere->Draw(transmtx, { 0.0,0.0,0.5,0.2 });
 	}
 	else {
-		//m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+		m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 	}
 
 	//姿勢の補完をここでする
@@ -425,19 +426,24 @@ void Enemy_Missile::Move(Vector3 Target)
 {
 	if (HP <= 0) return;
 
-	Target.y = m_Position.y;
+	//あり得ない値が入っていた場合処理しない
+
 	//Vector3 MoveVec = m_Position - Target;
 	
 	//これ距離が近すぎるなら動かないようにしたい
-	Vector3 ranged = player->GetPosition() + Target;//中間地点を産出する
-	Vector3 poscop = m_Position;
-	if (ranged.x < 0) ranged.x * -1;
-	if (ranged.y < 0) ranged.y * -1;
-	if (ranged.z < 0) ranged.z * -1;
-	if (poscop.x < 0) poscop.x * -1;
-	if (poscop.y < 0) poscop.y * -1;
-	if (poscop.z < 0) poscop.z * -1;
-	float rangedALL = ranged.x - poscop.x + ranged.y - poscop.y + ranged.z - poscop.z;
+	Vector3 coppos_P = player->GetPosition() + Target;//中間地点を産出する
+	Vector3 coppos_E = m_Position;
+	if (coppos_P.x < 0) coppos_P.x *= -1;
+	if (coppos_P.y < 0) coppos_P.y *= -1;
+	if (coppos_P.z < 0) coppos_P.z *= -1;
+	//あり得ない値が入っているなら処理しない(どこかに1000以上がはいっているなら)
+	if (coppos_P.x > 1000 || coppos_P.y > 1000 || coppos_P.z > 1000) return;
+
+	if (coppos_E.x < 0) coppos_E.x *= -1;
+	if (coppos_E.y < 0) coppos_E.y *= -1;
+	if (coppos_E.z < 0) coppos_E.z *= -1;
+	//Y軸は直接移動できないからXZの2軸判定
+	float rangedALL = coppos_P.x - coppos_E.x + coppos_P.z - coppos_E.z;
 	if (rangedALL < 0) rangedALL * -1;
 
 	Vector3 MoveVec = Target - m_Position;
@@ -448,7 +454,7 @@ void Enemy_Missile::Move(Vector3 Target)
 		MoveVec = { 0,0,0 };
 	}
 
-	m_Position += MoveVec * 0.1f;
+	m_Position += MoveVec * 0.3f;
 
 	//ステップの速度が乗っているならすべる
 	if (AvoidancePowor != 0)
@@ -642,7 +648,7 @@ bool Enemy_Missile::Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb)
 	return false;
 }
 
-void Enemy_Missile::Stepavoidance(Vector3 bulletpos)
+void Enemy_Missile::Stepavoidance(Vector3 bulletpos ,bool StepVec)
 {
 	if (FIRE_BEAM || AvoidancePowor != 0) return;//ビーム照射中か既にステップ踏んでるなら何もしない
 	//敵の弾の位置から向きを割り出す
@@ -672,7 +678,8 @@ void Enemy_Missile::Stepavoidance(Vector3 bulletpos)
 	Vector3 AvoidanceRight_vec = { transmtx._11, transmtx._12, transmtx._13 };
 	AvoidanceRight_vec.Normalize();
 	//一旦普通のステップにしておく
-	AvoidanceVec = AvoidanceRight_vec;
+	if(StepVec)	AvoidanceVec = AvoidanceRight_vec;
+	else 	AvoidanceVec = -AvoidanceRight_vec;
 	AvoidancePowor = 5.0f;
 }
 

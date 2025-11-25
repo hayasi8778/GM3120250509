@@ -12,7 +12,7 @@ void Enemy_Missile::Init()
 {
 	//属性
 	Attribute = ENEMY;
-
+	MyType = CHARACTER;
 	//m_mesh.Load(
 	//	"assets/model/Gun/Gun_Testmodel2.fbx",				// モデル名
 	//		"assets/model/Gun/");						// テクスチャのパス

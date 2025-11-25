@@ -12,7 +12,7 @@ void M_Gun::Init()
 {
 	//属性
 	Attribute = JOINABLE;
-
+	MyType = GUN;
 	//両腕に取り付け可能なオブジェクト
 	Connectable[2] = true;
 	Connectable[3] = true;

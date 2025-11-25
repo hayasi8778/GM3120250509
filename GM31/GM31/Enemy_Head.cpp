@@ -4,7 +4,7 @@ void Enemy_Head::Init()
 {
 	//属性
 	Attribute = PLAYER;
-
+	MyType = CHARACTER;
 	//プレイヤーなので接触フラグは最初からon
 	adhesioing = true;
 

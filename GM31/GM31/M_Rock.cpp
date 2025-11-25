@@ -4,9 +4,9 @@
 
 void M_Rock::Init()
 {
-	//‘®«
+	//‘®«(Ú‘±‰Â”\“ŠË•¨)
 	Attribute = JOINABLE;
-
+	MyType = PROJECTILE;
 	// ƒ‚ƒfƒ‹‚Ì‰Šú‰»
 	m_mesh.Load(
 		"assets/model/car000.x",				// ƒ‚ƒfƒ‹–¼

@@ -7,7 +7,6 @@ inline float Dot(const Vector3& a, const Vector3& b) {
 }
 
 float GetRange(Vector3 vecA, Vector3 vecB) {
-	//‚©‚í‚µ‚â‚·‚¢•û‚ÉˆÚ“®‚µ‚Ä‚©‚í‚·
 	Vector3 coppos_A = vecA;
 	Vector3 coppos_B = vecB;
 	if (coppos_A.x < 0) coppos_A.x *= -1;

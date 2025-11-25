@@ -10,17 +10,27 @@
 //--- 定数定義
 enum ObjectAttribute //オブジェクトの役割
 {
-	DEFAULT, //定義していない場合は基本動かしたくない
+	DEFAULT_ATTRIBUTE, //定義していない場合は基本動かしたくない
 	PLAYER, 
 	ENEMY,
 	JOINABLE, //接合可能なオブジェクト
 	UNJOINABLE //接合不可なオブジェクト
 };
 
+//オブジェクトの識別用の
+enum ObjectType 
+{
+	DEFAULT_TYPE,	//未定義
+	CHARACTER,	//キャラクター(基本接続不可)
+	GUN,		//銃(このオブジェクトから弾を打つ)
+	PROJECTILE	//投射物(このオブジェクト自体を投げつけて攻撃する)
+};
+
 class Object {
 protected:
 	//オブジェクトの種類
-	int Attribute = DEFAULT;
+	int Attribute = DEFAULT_ATTRIBUTE;
+	int MyType = DEFAULT_TYPE;
 	//どの部位に接続可能なオブジェクトか 
 	//						頭   胴体    左腕   右腕   左足   右足
 	bool Connectable[6] = { false,false ,false ,false ,false ,false };

@@ -19,9 +19,9 @@ private:
 	Vector3 velocty;//加速値
 	M_Player* player = nullptr;
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
-	float Width;
-	float Height;
-	float Depth;
+	float Width = 0;
+	float Height = 0;
+	float Depth = 0;
 public:
 	void Init() override;
 	void Update(uint64_t deltatime) override;

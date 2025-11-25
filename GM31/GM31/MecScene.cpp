@@ -22,10 +22,9 @@ void MecScene::init()
 
 	// シェーダーの初期化
 	m_Sceneshader.Create(
-	//	"shader/vertexLightingVS.hlsl",				// 頂点シェーダー
-	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 			"shader/unlitTextureVS.hlsl",			// 頂点シェーダー
 			"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
+			//"shader/NoizePS.hlsl");			// ピクセルシェーダー
 
 	// シェーダーの初期化
 	m_Monochromeshader.Create(
@@ -38,9 +37,9 @@ void MecScene::init()
 		"shader/rgbSpritPS.hlsl");			// ピクセルシェーダー(モノクロ)
 
 	// シェーダーの初期化
-	m_Shadowshader.Create(
-		"shader/ShadowVS.hlsl",			// 頂点シェーダー
-		"shader/shadowPS.hlsl");			// ピクセルシェーダー(丸影)
+	m_Noizeshader.Create(
+		"shader/unlitTextureVS.hlsl",			// 頂点シェーダー
+		"shader/NoizePS.hlsl");			// ピクセルシェーダー
 
 	// スカイドームの初期化
 	m_skydome = std::make_unique<Skydome>();
@@ -94,12 +93,12 @@ void MecScene::init()
 	}
 
 	//銃を取り付けておく
-	AdhesioingObjects[2] = m_objects[0].get();
-	AdhesioingObjects[3] = m_objects[1].get();
+	//AdhesioingObjects[2] = m_objects[0].get();
+	//AdhesioingObjects[3] = m_objects[1].get();
 	m_player.Conect(2, m_objects[0].get());
 	m_player.Conect(3, m_objects[1].get());
 	//接続の初期化
-	for (int i = 0; i < ADHESIOINGMAX; i++) 
+	/*for (int i = 0; i < ADHESIOINGMAX; i++) 
 	{
 		if (AdhesioingObjects[i]) 
 		{
@@ -107,7 +106,7 @@ void MecScene::init()
 			AdhesioingObjects[i]->SetPosition(m_player.ConectPos(i));
 			AdhesioingObjects[i]->Adhesioing();
 		}
-	}
+	}*/
 	
 
 	//敵
@@ -130,7 +129,18 @@ void MecScene::init()
 	};
 
 	//ロックオンカーソル
-	m_image = std::make_unique<CSprite>(20, 20, "assets/texture/Rockon.png", uv);
+	m_Rockon = std::make_unique<CSprite>(20, 20, "assets/texture/Rockon.png", uv);
+	//画面補正
+	// マテリアル生成
+	MATERIAL	mtrl_Screen;
+	mtrl_Screen.Ambient = Color(0, 0, 0, 0);
+	mtrl_Screen.Diffuse = Color(1, 1, 1, 1.0f);//ここが色なのでこれをいじる
+	mtrl_Screen.Emission = Color(0, 0, 0, 0);
+	mtrl_Screen.Specular = Color(0, 0, 0, 0);
+	mtrl_Screen.Shiness = 0;
+	mtrl_Screen.TextureEnable = TRUE;
+	m_Screen = std::make_unique<CSprite>(20, 20, "assets/texture/ScreenEfect.png", uv,
+		mtrl_Screen, "shader/unlitTextureVS.hlsl", "shader/NoizePS.hlsl");
 	//プレイヤーHP
 	HP_Player_G = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_green.png", uv);
 	HP_Player_R = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_red.png", uv);
@@ -168,6 +178,7 @@ void MecScene::update(uint64_t deltatime)
 
 	//m_camera.SetLookat(m_boxSRTs[0].pos);
 	m_camera.SetLookat(m_player.GetPosition());
+	m_camera.Update_time(deltatime);
 	Vector3 campos = { 0,0,0 };
 	switch (UseCamera)
 	{
@@ -193,6 +204,8 @@ void MecScene::update(uint64_t deltatime)
 
 	//アップデート後の更新
 	m_player.LateUpdate(deltatime);
+	//被弾中に画面ノイズ掛ける
+	//if (m_player.GetInvincibility()) m_camera.LateUpdate();
 
 	for (int i = 0; i < m_objects.size(); i++)
 	{
@@ -211,6 +224,8 @@ void MecScene::update(uint64_t deltatime)
 
 	//当たり判定の処理
 	Collision_Hit();
+
+	Test += 0.001f;
 }
 
 void MecScene::draw(uint64_t deltatime) 
@@ -243,12 +258,17 @@ void MecScene::draw(uint64_t deltatime)
 		}
 	}
 
-	Shadernum = Enemy.GetEnemy()->GetShaderNum();
+
+	if (Enemy.GetEnemy()->GetShaderNum() !=0) Shadernum = Enemy.GetEnemy()->GetShaderNum();
+
+	//被弾中に画面ノイズ掛ける
+	if (m_player.GetInvincibility()) Shadernum = 4;
 
 	switch (Shadernum) //シェーダーの番号で使うしぇーだーを決定する
 	{
 	case 0:
 		m_Sceneshader.SetGPU();//通常描画
+		//m_Noizeshader.SetGPU();//通常描画
 
 		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
 
@@ -268,13 +288,19 @@ void MecScene::draw(uint64_t deltatime)
 		m_rgbSpritshader.SetGPU();//色収差
 		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
 		m_field->Draw(); //フィールド描画
-
+		break;
 	case 3://色収差
 		m_Sceneshader.SetGPU();//通常描画
 
 		m_field->Draw(); //フィールド描画
 		m_rgbSpritshader.SetGPU();//色収差
 		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
+		break;
+	case 4://ノイズ
+		m_Noizeshader.SetGPU();//通常描画
+		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
+		m_field->Draw(); //フィールド描画
+		break;
 	default:
 		m_Sceneshader.SetGPU();//例外が入っても通常の描画にしておく
 		break;
@@ -353,6 +379,7 @@ void MecScene::draw(uint64_t deltatime)
 	RockonDraw();
 
 	UIDraw();
+
 }
 
 void::MecScene::dispose() 
@@ -776,6 +803,8 @@ void MecScene::Collision_Hit()//弾とオブジェクトの当たり判定
 		{
 			m_player.HitDamage(Enemy.GetEnemy()->Damage_Bullet());
 			Enemy.GetEnemy()->SetCollision_Bullet(i, col);
+			//カメラ揺れを入れる
+			m_camera.SetVibration(10.0f, 300);
 		}
 	}
 
@@ -866,7 +895,7 @@ void MecScene::RockonDraw()
 	camRot = Vector3{ pitch, yaw, 0.0f };
 
 	//m_image->Draw(Vector3{ 1,1,1 }, camRot, m_enemys[0]->GetPosition() + (camForward * 10.0));
-	m_image->Draw(Vector3{ 1,1,1 }, camRot, RockonEnemy->GetPosition() + (camForward * 10.0));
+	m_Rockon->Draw(Vector3{ 1,1,1 }, camRot, RockonEnemy->GetPosition() + (camForward * 10.0));
 }
 
 void MecScene::UIDraw()
@@ -875,6 +904,7 @@ void MecScene::UIDraw()
 	// 事前に #include <cmath> などが必要
 // UIの中央位置（スクリーン座標からワールド座標へ）
 	Vector3 centerPos = m_camera.ScreenToWorld(850, 100, 0.5);//Test,200,0.5
+	//Vector3 centerPos = m_camera.ScreenToWorld(0, 0, 0.5);//Test,200,0.5
 
 	// カメラからUIへの方向ベクトル
 	Vector3 camForward = (m_camera.GetPosition() - centerPos);
@@ -910,9 +940,42 @@ void MecScene::UIDraw()
 	Vector3 offset_First = rightVec * (HP_Enemy_G->GetWidth() * currentWidth_First * 0.5f);
 	offset_First += camForward * 0.01f;
 
+	//ここでカメラのビルボード計算する
+	// バーの中心位置からカメラへの方向ベクトル
+	Vector3 camRange_HP_R = (m_camera.GetPosition() - (leftBasePos + offset_First));
+	camRange_HP_R.Normalize();
+
+	// 回転計算
+	yaw = atan2f(camRange_HP_R.x, camRange_HP_R.z);
+	pitch = atan2f(-camRange_HP_R.y,
+		sqrtf(camRange_HP_R.x * camRange_HP_R.x + camRange_HP_R.z * camRange_HP_R.z));
+
+	Vector3 camRot_HP_R = { pitch, yaw, 0.0f };
+
+
+	//カメラへの向き取ってビルボード作る
+	Vector3 camRange_HP_G = (m_camera.GetPosition() - (leftBasePos + offset));
+	camRange_HP_G.Normalize();
+
+	// 回転計算
+	yaw = atan2f(camRange_HP_G.x, camRange_HP_G.z);
+	pitch = atan2f(-camRange_HP_G.y,
+		sqrtf(camRange_HP_G.x * camRange_HP_G.x + camRange_HP_G.z * camRange_HP_G.z));
+
+	Vector3 camRot_HP_G = { pitch, yaw, 0.0f };
+
+	//座標補正
+	//Vector3 halfOffset_R = rightVec * (currentWidth_First * 0.5f);
+	Vector3 halfOffset_R = rightVec * (currentWidth_First * 0.5f) - camRange_HP_R * 0.1;
+	Vector3 halfOffset_G = rightVec * (currentWidth * 0.5f);
+
+	// 左端を worldLeftPos とする
+	Vector3 worldLeftPos = leftBasePos;
+
 	// 左端位置からオフセットを加えて描画
-	HP_Enemy_R->Draw(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRotUI, leftBasePos - offset_First);
-	HP_Enemy_G->Draw(Vector3{ currentWidth, 0.007f, 0.03f }, camRotUI, leftBasePos - offset);
+	//camRotUIよりcamRotの方が精度高いので修正
+	HP_Enemy_R->Draw(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot_HP_R, worldLeftPos + halfOffset_R - offset_First);
+	HP_Enemy_G->Draw(Vector3{ currentWidth, 0.007f, 0.03f }, camRot_HP_G, worldLeftPos + halfOffset_G - offset);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//プレイヤーのHP表示
@@ -920,13 +983,6 @@ void MecScene::UIDraw()
 	imageScalex = 0.04f / m_player.GetMaxHP();
 	currentWidth = imageScalex * m_player.GetHP();
 	currentWidth_First = imageScalex * m_player.GetMaxHP();
-
-	// カメラの右方向ベクトル（ワールド空間）
-	rightVec = Vector3::TransformNormal(
-		Vector3::Right,
-		Matrix4x4::CreateFromYawPitchRoll(camRotUI.y, camRotUI.x, camRotUI.z)
-	);
-	rightVec.Normalize();
 
 	// 左端固定にするため、中央位置から左に半分戻す
 	leftBasePos = centerPos - rightVec * (0.04f * 0.5f); // 0.04fは最大幅
@@ -941,9 +997,13 @@ void MecScene::UIDraw()
 	offset_First += camForward * 0.01f;
 
 	// 左端位置からオフセットを加えて描画
-	HP_Player_R->Draw(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRotUI, leftBasePos - offset_First);
-	HP_Player_G->Draw(Vector3{ currentWidth, 0.007f, 0.03f }, camRotUI, leftBasePos - offset);
+		//camRotUIよりcamRotの方が精度高いので修正
+	HP_Player_R->Draw(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot, leftBasePos - offset_First);
+	HP_Player_G->Draw(Vector3{ currentWidth, 0.007f, 0.03f }, camRot, leftBasePos - offset);
+
 	
+	//画面青色のエフェクト掛けてコクピットっぽい写りにしたい
+	//m_Screen->Draw(Vector3{ 0.1,0.1,0.1 }, camRot, m_camera.GetPosition() - camForward * 1);
 }
 
 void MecScene::CameraFlip()

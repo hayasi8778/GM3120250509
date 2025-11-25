@@ -55,7 +55,7 @@ public:
 	
 	void PlayerMovetes();
 private:
-	float Test = 1000;
+	float Test = 0;
 
 	//重力
 	float gravity = -9.8f;
@@ -64,7 +64,7 @@ private:
 	CShader			m_Sceneshader;	// 通常のシェーダ
 	CShader			m_Monochromeshader;	// シェーダ(モノクロ)
 	CShader			m_rgbSpritshader;	// シェーダ(色収差)
-	CShader			m_Shadowshader;		//シェーダー(丸影)
+	CShader			m_Noizeshader;		//シェーダー(ノイズ)
 
 	// 箱の大きさ
 	static constexpr float CUBE_SIZE = 10.0f;
@@ -123,12 +123,15 @@ private:
 	//接合中のオブジェクト(未接続のときにnullポインタで返すようにする)	全部位につけれるように用意しておく
 	const int ADHESIOINGMAX = 5;
 	//銃弾の当たり判定をどうするか決めるまでは銃の保存に使う
-	Object* AdhesioingObjects[5] = { nullptr ,nullptr ,nullptr ,nullptr ,nullptr };
+	//Object* AdhesioingObjects[5] = { nullptr ,nullptr ,nullptr ,nullptr ,nullptr };
 	//ロックオン中の敵
 	Enemy_Missile* RockonEnemy = nullptr;
 
 	//ロックオンカーソル
-	std::unique_ptr<CSprite> m_image;
+	std::unique_ptr<CSprite> m_Rockon;
+
+	//画面全体に青のフィルム掛けて画面っぽくする
+	std::unique_ptr<CSprite> m_Screen;
 
 	std::unique_ptr<CSprite> HP_Player_G;//HPの緑の部分
 	std::unique_ptr<CSprite> HP_Player_R;//HPの赤の部分

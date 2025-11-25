@@ -25,6 +25,22 @@ void Camera::Update()
 
 }
 
+void Camera::Update_time(uint64_t deltatime)
+{
+	//U“®‚µ‚Ä‚¢‚È‚¢‚È‚ç“®‚©‚³‚È‚¢
+	if (m_vibration_time == 0) return;
+	
+	float time = static_cast<float>(deltatime) / 1000;
+	m_vibration_time -= time;
+	if (m_vibration_time < 0) {
+		//U“®‚ğ–³Œø‰»
+		m_vibration = 0;
+		m_vibration_time = 0;
+	}
+	RandomGen rand;
+	m_lookat.x += rand.UniformFloat(-m_vibration, m_vibration);
+}
+
 void Camera::LateUpdate()
 {
 	RandomGen rand;

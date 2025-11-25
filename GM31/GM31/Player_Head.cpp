@@ -145,7 +145,7 @@ void Player_Head::Adhesioing()
 
 void Player_Head::Action(Vector3 vec)
 {
-	if (Connectableobject)Connectableobject->Action(Vector3(0.0f,0.0f,0.0f));
+	if (Connectableobject)Connectableobject->Action(vec);
 }
 
 void Player_Head::Reset() 

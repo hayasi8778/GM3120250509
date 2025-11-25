@@ -25,6 +25,7 @@ class CSprite
 public:
 	CSprite(int width, int height, std::string texfilename,Vector2 uv[4]);
 	CSprite(int width, int height, std::string texfilename,Vector2 uv[4],MATERIAL mtr);
+	CSprite(int width, int height, std::string texfilename, Vector2 uv[4], MATERIAL mtr, std::string vs, std::string ps);
 	virtual ~CSprite() {
 	}
 

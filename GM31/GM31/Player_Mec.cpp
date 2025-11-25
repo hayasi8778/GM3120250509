@@ -80,6 +80,7 @@ void M_Player::Init()
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
 
+
 }
 
 void M_Player::Update(uint64_t deltatime)
@@ -235,13 +236,14 @@ void M_Player::Draw()
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 	m_Position = poscop;
 
-	if (col) {
+	//当たり判定のボックス表示
+	/*if (col) {
 		m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
 	}
 	else 
 	{
 		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
-	}
+	}*/
 	
 }
 
@@ -258,7 +260,6 @@ void M_Player::Adhesioing()
 void M_Player::Action(Vector3 vec)
 {
 	/*Burst = true;
-
 	FullBurst();*/
 
 	DoublePistol++;

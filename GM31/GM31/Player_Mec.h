@@ -23,6 +23,9 @@ private:
 	Vector3 Up_vec;
 	Vector3 Forward_vec;
 
+	//ÅI“I‚É‚Í‚±‚±‚É‚Ü‚Æ‚ß‚éŒ`‚É‚µ‚½‚¢
+	Bullet m_bullets[5];
+
 	int MaxHP = 100;
 	int HP = MaxHP;//‘Ì—Í
 	float Invincibility_time = 0;//–³“GŠÔ
@@ -87,6 +90,9 @@ public:
 	rotcop.x += 1.55; rotcop.y += 1.55; 
 	return rotcop;}
 	bool GetShot() { return Shot; }
+
+	//–³“GŠÔ’†‚©‚Ç‚¤‚©‚Ì”»’è
+	bool GetInvincibility() { if (Invincibility_time != 0) { return true; } return false; }
 
 	void SetRotation_PL(Vector3);
 

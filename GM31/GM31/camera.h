@@ -13,12 +13,17 @@ protected:
 	Matrix4x4	m_viewmtx{};			// ビュー行列
 	Matrix4x4   m_projmtx{};			// プロジェクション行列
 
+	float m_vibration = 0;//カメラの揺れの強さ
+	float m_vibration_time = 0;//カメラを揺らす時間(ミリ秒)
+
 public:
 	Camera() = default;
 
 	void Init();
 	void Dispose();
 	void Update();
+	//カメラ揺れを取るために時間経過図れるアップデート用意しておく
+	void Update_time(uint64_t deltatime);
 	void LateUpdate();
 	void Draw();
 	void SetPosition(const Vector3& position) { m_position = position; }
@@ -30,6 +35,11 @@ public:
 	Matrix4x4 GetProjMatrix() const { return m_projmtx; }
 
 	Vector3 ScreenToWorld(float screenX, float screenY, float screenZ) const;
+
+	//カメラ揺れの大きさと揺れ時間実装させるためのやつ
+	void SetVibration(float size, float time) { 
+		m_vibration = size; 
+		m_vibration_time = time; }
 };
 
 // / 自由視点カメラ

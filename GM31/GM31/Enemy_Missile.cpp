@@ -217,10 +217,10 @@ void Enemy_Missile::Draw()
 	//弾丸の検知範囲
 	if (Avoidance)
 	{
-		m_interceptionSphere->Draw(transmtx, { 0.0,0.0,0.5,0.2 });
+		//m_interceptionSphere->Draw(transmtx, { 0.0,0.0,0.5,0.2 });
 	}
 	else {
-		m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+		//m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 	}
 
 	//姿勢の補完をここでする
@@ -488,11 +488,14 @@ void Enemy_Missile::Timer(uint64_t deltatime)
 {
 	if (HP <= 0) return;
 
+	//経過時間を記録
+	float time = static_cast<float>(deltatime) / 1000;
+
 	//タイマー系統
 	//衝突判定と無敵時間の処理
 	if (collision_hit)
 	{
-		Invincibility_time += static_cast<float>(deltatime) / 1000;
+		Invincibility_time += time;
 
 		if (Invincibility_time > 1000)
 		{
@@ -506,7 +509,7 @@ void Enemy_Missile::Timer(uint64_t deltatime)
 	//ステップ硬直の判定
 	if (Avoidance)
 	{
-		Avoidance_Cooltime += static_cast<float>(deltatime) / 1000;
+		Avoidance_Cooltime += time;
 
 		if (Avoidance_Cooltime > 500)
 		{
@@ -516,6 +519,19 @@ void Enemy_Missile::Timer(uint64_t deltatime)
 		}
 
 	}
+
+	//発射間隔の整理
+	if (!FIRE) {
+		cooltime += time;
+		//経過時間が射撃間隔を上回ったなら射撃する
+		if (cooltime > FireRate)
+		{
+			cooltime = 0;
+			FIRE = true;
+
+		}
+	}
+	
 }
 
 void Enemy_Missile::Shot_Rule(uint64_t deltatime)
@@ -607,15 +623,10 @@ void Enemy_Missile::Shot(uint64_t deltatime)
 
 	if (FIRE)//弾丸を増やす
 	{
-		cooltime += time_D;
-		//経過時間が射撃間隔を上回ったなら射撃する
-		if (cooltime > FireRate)
-		{
-			cooltime = 0;
-
-			CreateBullet();
-		}
+		CreateBullet();
+		FIRE = false;
 	}
+	
 
 	//ビーム撃ってないなら常にプレイヤーの方へ向く
 	Vector3 TargetForward = (m_Position - player->GetPosition());

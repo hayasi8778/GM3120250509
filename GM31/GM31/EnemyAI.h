@@ -11,13 +11,15 @@ struct EnemyThinking
 private:
 	Vector3* PlayerPosition;//プレイヤーの座標
 	M_Player* Player;//プレイヤー()
+	Vector3 CurentPos_P;//プレイヤーの1フレーム前の座標
+
 	Enemy_Missile Enemy;//敵
 	M_Gun* GunObject[8] = { nullptr ,nullptr ,nullptr ,nullptr ,nullptr,nullptr ,nullptr ,nullptr };
 	int TotalGun = 0;
 	int EnemyState;//敵の状態を取得しておいておく
 	int PlayerState;//プレイヤーの状態
 	//プレイヤーの動きの苛烈さに対して敵の動きのレベル上げたいのでプレイヤーの動きで加算して敵の動きの上限作る
-	int Boost = 0;
+	int Strength = 0;
 
 	Vector3 PositionLog[300]; //5秒間(60fpsで計測)のプレイヤーと敵の距離を記録
 	int LogSubscript = 0; //座標ログの添え字
@@ -41,6 +43,7 @@ public:
 	void RuleUpdate(uint64_t);//ルールベースのAI
 	void ThinkUpdate(uint64_t);//プレイヤーの動きに対して強化されるAI
 	void ThinkMove(uint64_t);
+	void ThinkShot(uint64_t);
 
 };
 

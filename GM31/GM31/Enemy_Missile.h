@@ -98,6 +98,7 @@ public:
 		if (FIRE)	FIRE = false;
 		else	FIRE = true;
 	}
+	bool GetFIRE() { return FIRE; }
 
 	bool Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb);
 

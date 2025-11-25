@@ -6,14 +6,35 @@ inline float Dot(const Vector3& a, const Vector3& b) {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+float GetRange(Vector3 vecA, Vector3 vecB) {
+	//かわしやすい方に移動してかわす
+	Vector3 coppos_A = vecA;
+	Vector3 coppos_B = vecB;
+	if (coppos_A.x < 0) coppos_A.x *= -1;
+	if (coppos_A.y < 0) coppos_A.y *= -1;
+	if (coppos_A.z < 0) coppos_A.z *= -1;
+
+	if (coppos_B.x < 0) coppos_B.x *= -1;
+	if (coppos_B.y < 0) coppos_B.y *= -1;
+	if (coppos_B.z < 0) coppos_B.z *= -1;
+	Vector3 ranged = { coppos_A.x - coppos_B.x , coppos_A.y - coppos_B.y , coppos_A.z - coppos_B.z };
+	if (ranged.x < 0) ranged.x *= -1;
+	if (ranged.y < 0) ranged.y *= -1;
+	if (ranged.z < 0) ranged.z *= -1;
+	float rangedALL = ranged.x + ranged.y + ranged.z;
+
+	return rangedALL;
+}
+
 void EnemyThinking::DebugUI()
 {
 	ImGui::Begin("ThinkChanger");
 
 	ImGui::Text("Enemy");
 	ImGui::Checkbox(std::string("Think").c_str(), &Think);
+	ImGui::Text("Strength: %d", Strength);
 
-	// カメラの位置を極座標からデカルト座標に変換
+
 	ImGui::End();
 }
 
@@ -29,6 +50,8 @@ void EnemyThinking::Init(M_Player* pl)
 	Vector3 right = Player->GetRight();
 	Vector3 up = Player->GetUp();
 	Vector3 forward = Player->GetForward();
+
+	CurentPos_P = Player->GetPosition();
 
 	//敵の方向いてないっぽいから一旦敵の方向く可能性あるかも
 	Vector3 pos = Player->GetPosition() - Enemy.GetPosition();
@@ -118,12 +141,20 @@ void EnemyThinking::RuleUpdate(uint64_t deltatime)
 
 void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 {
-	if (Player->GetShot())Boost += 20;
+	if (Player->GetShot())Strength += 200;
 	
 	Enemy.Update(deltatime);
 	ThinkMove(deltatime);
+	ThinkShot(deltatime);
 	Enemy.Timer(deltatime);
 
+	//プレイヤーが動いていた場合
+	if (GetRange(CurentPos_P, Player->GetPosition()) > 1) {
+		Strength++;//強さの数値を加算
+	}
+
+	//プレイヤーの過去座標として記録
+	CurentPos_P = Player->GetPosition();
 
 	//当たり判定処理
 	for (int i = 0; i < TotalGun; i++) //銃を親オブジェクトとした弾と敵の当たり判定
@@ -241,10 +272,10 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 		if (localpos.x > 0) //ローカル座標に合わせて左右の判定をする
 		{
 			
-			if (Boost > 30 && range >30)
+			if (Strength > 300 && range >30)
 			{
 
-				Boost -= 30;
+				Strength -= 300;
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, false);
 			}
@@ -252,10 +283,10 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 		}
 		else 
 		{
-			if (Boost > 30 && range > 30)
+			if (Strength > 300 && range > 30)
 			{
 
-				Boost -= 30;
+				Strength -= 300;
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, true);
 			}
@@ -275,4 +306,14 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 	//}
 
 	
+}
+
+void EnemyThinking::ThinkShot(uint64_t dt)
+{
+	if (Strength > 40 && Enemy.GetFIRE()) {
+		Strength -= 40;
+
+		Enemy.Shot(dt);
+
+	}
 }

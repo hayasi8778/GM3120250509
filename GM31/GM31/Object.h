@@ -5,6 +5,12 @@
 #include "system/CStaticMeshRenderer.h"
 #include	"system/collision.h"
 
+//ほぼ全部が参照する基底クラスになるからdot処理ここに入れる
+// inline/constexpr にしてコンパイラ最適化を効かせる
+inline float Dot(const Vector3& a, const Vector3& b) {
+	return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
 //ゲームに出すオブジェクト用の親クラス
 
 //--- 定数定義

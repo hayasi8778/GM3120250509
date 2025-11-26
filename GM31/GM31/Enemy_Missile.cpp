@@ -326,17 +326,15 @@ void Enemy_Missile::CreateBullet()
 	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
 	srt.pos = m_Position;			// 位置
 
-	//新しい弾を作る
-	std::unique_ptr<E_Missile> pb = std::make_unique<E_Missile>();
+	
 
 	Matrix4x4 world = srt.GetMatrix();
 	Vector3 forward = world.Forward();
 	forward.Normalize();
 	forward *= 3.0f;
 
-	pb->SetForward(forward);
-	pb->SetPlayar(player);
-
+	
+	e_missiles[Bulletnum].Reset();
 	e_missiles[Bulletnum].SetForward(forward);
 	e_missiles[Bulletnum].SetPlayar(player);
 
@@ -349,12 +347,17 @@ void Enemy_Missile::CreateBullet()
 	//指定したボーンがないならオブジェクトの中心座標から球を打つ
 	if (bulletpos == Vector3::Zero) bulletpos = m_Position;
 
-	pb->SetScale(Vector3(1, 1, 1));
-	pb->SetRotation(m_Rotation);
-	pb->SetPosition(bulletpos);
+	//新しい弾を作る
+	//std::unique_ptr<E_Missile> pb = std::make_unique<E_Missile>();
+	//pb->SetForward(forward);
+	//pb->SetPlayar(player);
+	//pb->SetScale(Vector3(1, 1, 1));
+	//pb->SetRotation(m_Rotation);
+	//pb->SetPosition(bulletpos);
 
 	e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
-	e_missiles[Bulletnum].SetRotation(m_Rotation);
+	//playerをセットした時点で角度はセットしているのでここはいらない
+	//e_missiles[Bulletnum].SetRotation(m_Rotation);
 	e_missiles[Bulletnum].SetPosition(bulletpos);
 	e_missiles[Bulletnum].SetShot(true);
 	e_missiles[Bulletnum].priod = 1000;
@@ -640,6 +643,14 @@ void Enemy_Missile::Shot(uint64_t deltatime)
 
 	// 4. Roll は今回は固定 0
 	m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
+
+	
+}
+
+//一斉射撃を撃つための変数
+void Enemy_Missile::FullBurst(uint64_t deltatime)
+{
+
 }
 
 bool Enemy_Missile::Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb)

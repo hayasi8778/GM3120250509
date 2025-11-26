@@ -790,7 +790,7 @@ void MecScene::Collision_Hit()//弾とオブジェクトの当たり判定
 		return;
 	}
 
-	for (int i = 0; i < 5; i++)//この敵の弾がプレイヤーにあたっているか
+	for (int i = 0; i < Enemy.GetEnemy()->GetBulletMaxnum(); i++)//この敵の弾がプレイヤーにあたっているか
 	{
 		/*bool col = GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_enemys[0]->GetOBB_Bullet(i));*/
 

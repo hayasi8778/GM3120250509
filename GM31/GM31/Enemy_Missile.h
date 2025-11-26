@@ -30,11 +30,11 @@ private:
 	const int ATK_Bullet = 20;
 	const int ATK_Beam = 1;
 
-	const int BulletMaxnum = 5;
+	const int BulletMaxnum = 25;
 
 	int Bulletnum = 0;
 
-	E_Missile e_missiles[5];
+	E_Missile e_missiles[25];
 
 	E_Beam e_beam;
 
@@ -93,6 +93,7 @@ public:
 	void Timer(uint64_t);
 	void Shot_Rule(uint64_t);
 	void Shot(uint64_t);
+	void FullBurst(uint64_t);
 	//ŽËŒ‚ƒtƒ‰ƒO‚Ì”½“]
 	void ReturnFire() {
 		if (FIRE)	FIRE = false;

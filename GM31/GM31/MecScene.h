@@ -35,6 +35,10 @@ public:
 	void dispose() override;
 	int ChangeScene() override;
 
+	//フェード
+	void Fade_IN(uint64_t deltatime);
+	void Fade_OUT(uint64_t deltatime);
+
 	void PlayerMove();
 	void PlayerAdhesion(); //オブジェクトの接合
 	void PlayerShot();
@@ -57,6 +61,8 @@ public:
 private:
 	float Test = 0;
 
+	float Fade_Color = 1.0f;//フェードの色
+	float Fade_Time = 5000;//フェードにかかる時間
 	//重力
 	float gravity = -9.8f;
 

@@ -1,6 +1,6 @@
 #include	"system/IScene.h"
 #include	"scenemanager.h"
-//#include    "ImageDisplayScene.h"
+#include    "ImageDisplayScene.h"
 //#include    "RubikCubeScene.h"
 //#include    "Shape3DScene.h"
 //#include    "CollisionOBBScene.h"

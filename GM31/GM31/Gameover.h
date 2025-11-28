@@ -15,8 +15,18 @@ public:
 	int ChangeScene() override;
 	void test();
 
+	
+
 private:
 	Camera m_camera;
 	bool SceneFlag = false;
 	std::unique_ptr<CSprite> Result;//リザルト画面
+
+	void Fade_IN(uint64_t deltatime);
+	void Fade_OUT(uint64_t deltatime);
+	float Fade_Color = 1.0f;//フェードの色
+	float Fade_Time = 5000;//フェードにかかる時間
+
+	std::unique_ptr<CSprite> m_Fade;//フェードに使う画像
+
 };

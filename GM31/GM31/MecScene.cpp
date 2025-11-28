@@ -134,12 +134,12 @@ void MecScene::init()
 	// マテリアル生成
 	MATERIAL	mtrl_Screen;
 	mtrl_Screen.Ambient = Color(0, 0, 0, 0);
-	mtrl_Screen.Diffuse = Color(1, 1, 1, 1.0f);//ここが色なのでこれをいじる
+	mtrl_Screen.Diffuse = Color(1, 1, 1, 0.5f);//ここが色なのでこれをいじる
 	mtrl_Screen.Emission = Color(0, 0, 0, 0);
 	mtrl_Screen.Specular = Color(0, 0, 0, 0);
 	mtrl_Screen.Shiness = 0;
 	mtrl_Screen.TextureEnable = TRUE;
-	m_Screen = std::make_unique<CSprite>(20, 20, "assets/texture/ScreenEfect.png", uv,
+	m_Screen = std::make_unique<CSprite>(200, 200, "assets/texture/ScreenEfect.png", uv,
 		mtrl_Screen, "shader/unlitTextureVS.hlsl", "shader/NoizePS.hlsl");
 	//プレイヤーHP
 	HP_Player_G = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_green.png", uv);
@@ -153,19 +153,29 @@ void MecScene::init()
 void MecScene::update(uint64_t deltatime)
 {
 
+	//フェード
+	if (Fade_Time != 0) { Fade_IN(deltatime);}
 
 	m_boxSRTs[0].pos = m_objects[0]->GetPosition();
 
 	//座標入れる
 	//m_boxSRTs_col[0].pos
 	
-	if (UseCamera == UseCameraRockOn) PlayerMovetes();
-	else PlayerMove();
-	
-	//接続の処理(重いから無効化しておく)
-	PlayerAdhesion();
 
-	PlayerShot();
+	if (Fade_Time == 0) {
+		if (UseCamera == UseCameraRockOn) PlayerMovetes();
+		else PlayerMove();
+
+
+		//接続の処理(重いから無効化しておく)
+		PlayerAdhesion();
+		PlayerShot();
+	}
+
+	
+
+
+
 
 	m_player.Update(deltatime);
 
@@ -177,7 +187,8 @@ void MecScene::update(uint64_t deltatime)
 	Enemy.Update(deltatime);
 
 	//m_camera.SetLookat(m_boxSRTs[0].pos);
-	m_camera.SetLookat(m_player.GetPosition());
+	//m_camera.SetLookat(m_player.GetPosition());
+	m_camera.SetLookat(Enemy.GetEnemy()->GetPosition());
 	m_camera.Update_time(deltatime);
 	Vector3 campos = { 0,0,0 };
 	switch (UseCamera)
@@ -393,6 +404,7 @@ int MecScene::ChangeScene()
 	{
 		m_player.Reset();
 		Enemy.Reset();
+		Fade_Time = 5000;//フェードかかるように
 		//m_enemys[1]->SetPosition({ 5,7,5 });
 		return 4;
 	}
@@ -400,16 +412,62 @@ int MecScene::ChangeScene()
 	//敵全滅させたらシーン切り替え
 	if (Enemy.GetEnemy()->GetHP() > 0)
 	{
+		
 		return 0;//体力残ってるならシーン切り替えない
 	}
 	//シーンのリセット
 	m_player.Reset();
 	Enemy.Reset();
+	Fade_Time = 5000;//フェードリセット
 	//m_enemys[1]->SetPosition({ 25,7,5 });
 	return 2;
 
 	return 0;
 	
+}
+
+void MecScene::Fade_IN(uint64_t deltatime)
+{
+	float time_D = static_cast<float>(deltatime) / 1000;
+
+	Fade_Time -= time_D;
+	if (Fade_Time < 0) {
+		Fade_Time = 0;
+		Fade_Color = 0;
+	}
+	else  Fade_Color = float(Fade_Time / 5000.0f);
+
+	//materialに適応して読み込む
+	MATERIAL	mtrl_Screen;
+	mtrl_Screen.Ambient = Color(0, 0, 0, 0);
+	mtrl_Screen.Diffuse = Color(1, 1, 1, Fade_Color);//ここが色なのでこれをいじる
+	mtrl_Screen.Emission = Color(0, 0, 0, 0);
+	mtrl_Screen.Specular = Color(0, 0, 0, 0);
+	mtrl_Screen.Shiness = 0;
+	mtrl_Screen.TextureEnable = TRUE;
+
+	m_Screen->SetMaterial(mtrl_Screen);
+}
+
+void MecScene::Fade_OUT(uint64_t deltatime)
+{
+	float time_D = static_cast<float>(deltatime) / 1000;
+
+	Fade_Time += time_D;
+	if (Fade_Time > 5000.0f) Fade_Time = 5000.0f;
+
+	Fade_Color = 1.0f - (Fade_Time / 5000.0f);
+
+	//materialに適応して読み込む
+	MATERIAL	mtrl_Screen;
+	mtrl_Screen.Ambient = Color(0, 0, 0, 0);
+	mtrl_Screen.Diffuse = Color(1, 1, 1, Fade_Color);//ここが色なのでこれをいじる
+	mtrl_Screen.Emission = Color(0, 0, 0, 0);
+	mtrl_Screen.Specular = Color(0, 0, 0, 0);
+	mtrl_Screen.Shiness = 0;
+	mtrl_Screen.TextureEnable = TRUE;
+
+	m_Screen->SetMaterial(mtrl_Screen);
 }
 
 void MecScene::PlayerMove()
@@ -794,6 +852,7 @@ void MecScene::Collision_Hit()//弾とオブジェクトの当たり判定
 	{
 		/*bool col = GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_enemys[0]->GetOBB_Bullet(i));*/
 
+		if (m_player.GetInvincibility()) continue; //プレイヤーの無敵時間中なら判定しない
 		if (Enemy.GetEnemy()->GetBulletcol(i))continue;//検査する弾丸が使われていないなら検査しない
 
 		bool col = m_player.Collision_PL(Enemy.GetEnemy()->GetOBB_Bullet(i));
@@ -804,7 +863,7 @@ void MecScene::Collision_Hit()//弾とオブジェクトの当たり判定
 			m_player.HitDamage(Enemy.GetEnemy()->Damage_Bullet());
 			Enemy.GetEnemy()->SetCollision_Bullet(i, col);
 			//カメラ揺れを入れる
-			m_camera.SetVibration(10.0f, 300);
+			m_camera.SetVibration(10.0f, 1000);
 		}
 	}
 
@@ -895,7 +954,7 @@ void MecScene::RockonDraw()
 	camRot = Vector3{ pitch, yaw, 0.0f };
 
 	//m_image->Draw(Vector3{ 1,1,1 }, camRot, m_enemys[0]->GetPosition() + (camForward * 10.0));
-	m_Rockon->Draw(Vector3{ 1,1,1 }, camRot, RockonEnemy->GetPosition() + (camForward * 10.0));
+	m_Rockon->Draw3D(Vector3{ 1,1,1 }, camRot, RockonEnemy->GetPosition() + (camForward * 10.0));
 }
 
 void MecScene::UIDraw()
@@ -974,8 +1033,8 @@ void MecScene::UIDraw()
 
 	// 左端位置からオフセットを加えて描画
 	//camRotUIよりcamRotの方が精度高いので修正
-	HP_Enemy_R->Draw(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot_HP_R, worldLeftPos + halfOffset_R - offset_First);
-	HP_Enemy_G->Draw(Vector3{ currentWidth, 0.007f, 0.03f }, camRot_HP_G, worldLeftPos + halfOffset_G - offset);
+	HP_Enemy_R->Draw3D(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot_HP_R, worldLeftPos + halfOffset_R - offset_First);
+	HP_Enemy_G->Draw3D(Vector3{ currentWidth, 0.007f, 0.03f }, camRot_HP_G, worldLeftPos + halfOffset_G - offset);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//プレイヤーのHP表示
@@ -998,12 +1057,12 @@ void MecScene::UIDraw()
 
 	// 左端位置からオフセットを加えて描画
 		//camRotUIよりcamRotの方が精度高いので修正
-	HP_Player_R->Draw(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot, leftBasePos - offset_First);
-	HP_Player_G->Draw(Vector3{ currentWidth, 0.007f, 0.03f }, camRot, leftBasePos - offset);
+	HP_Player_R->Draw3D(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot, leftBasePos - offset_First);
+	HP_Player_G->Draw3D(Vector3{ currentWidth, 0.007f, 0.03f }, camRot, leftBasePos - offset);
 
-	
+	//HP_Player_R->Draw(Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(100, 100, 0));
 	//画面青色のエフェクト掛けてコクピットっぽい写りにしたい
-	//m_Screen->Draw(Vector3{ 0.1,0.1,0.1 }, camRot, m_camera.GetPosition() - camForward * 1);
+	m_Screen->Draw(Vector3{ 7,5,1}, Vector3(0, 0, 0), Vector3(650, 340, 0));
 }
 
 void MecScene::CameraFlip()

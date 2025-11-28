@@ -87,7 +87,7 @@ public:
 	Vector3 ConectPos(int i);
 	//“–‚½‚è”»’è‚Ì‚½‚ß‚É•`‰æ‚ÌŠp“xî•ñ•Ô‚·ŠÖ”‚ğì‚Á‚Ä‚¨‚­
 	Vector3 GetRotation_col() { Vector3 rotcop = m_Rotation; 
-	rotcop.x += 1.55; rotcop.y += 1.55; 
+	rotcop.x += 1.55f; rotcop.y += 1.55f; 
 	return rotcop;}
 	bool GetShot() { return Shot; }
 

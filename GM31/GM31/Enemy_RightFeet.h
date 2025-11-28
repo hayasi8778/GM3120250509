@@ -11,9 +11,9 @@ private:
 	Vector3 Forward_vec;
 
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
-	float Width;
-	float Height;
-	float Depth;
+	float Width = 0;
+	float Height = 0;
+	float Depth = 0;
 
 	bool col = false; //当たり判定取るためのやつ
 public:

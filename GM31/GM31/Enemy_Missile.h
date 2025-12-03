@@ -11,6 +11,12 @@
 #include "Enemy_LeftFeet.h"
 #include "Enemy_RightFeet.h"
 
+enum FIREMODE {
+	DEFAULT,
+	CURVE,		//曲がる弾丸
+	TRACKING	//追尾弾
+};
+
 class Enemy_Missile : public Object
 {
 private:
@@ -44,12 +50,18 @@ private:
 	float cooltime = 0;
 	//発射間隔
 	float FireRate = 1000.0f;
+	float FireRate_FullBurst = 100.0f;
+	int Burstnum = 20;
+	bool BurstFlag = false;
 
+	bool Pranter_PE = true; //trueで対戦相手はPlayer、falseでEnemy
 	M_Player* player = nullptr;//プレイヤー
+	Enemy_Missile* Partner;//タイトルシーンでの相手役
 
 	bool FIRE = true;//弾の発射フラグ
 	bool FIRE_BEAM = false;//ビームの照射フラグ
 	float beam_time = 0;//ビームの照射
+	bool Shot_Flag = false;
 
 	float Invincibility_time = 0;//無敵時間
 	bool collision_hit = false;
@@ -85,8 +97,11 @@ public:
 	void Reset();
 	int GetShaderNum() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
+	Vector3 GetBulletpos(int i) { if (i < BulletMaxnum) { return e_missiles[i].GetPosition(); }return e_missiles[0].GetPosition(); }
 	GM31::GE::Collision::BoundingSphere GetShere();
 	void CreateBullet();
+	void CreateBullet_FullBurst();
+	void CreateBullet_FullBurst_Tes();
 
 	void Move();
 	void Move(Vector3);
@@ -112,10 +127,15 @@ public:
 
 	int GetHP() { return HP; }
 	int GetMaxHP() { return MaxHP; }
+	int GetBulletMaxnum() { return BulletMaxnum; }
 	void SetPlayer(M_Player* pl);
+	void SetPatner(Enemy_Missile* par) { Partner = par; Pranter_PE = false; }//タイトル画面用のやつ
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int bulletnum);
 	bool GetBulletcol(int bulletnum) { return e_missiles[bulletnum].GetCollsion(); }
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Beam();
+	bool GetBurstFlag() { return BurstFlag; }
+	void SetBurstFlag(bool fg) { BurstFlag = fg; }
+	bool GetShotFlag() { return Shot_Flag; }
 
 	Vector3 GetCenter() { return m_Position - Forward_vec * 1.5f; }//当たり判定の中心
 

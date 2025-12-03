@@ -62,8 +62,8 @@ void SceneManager::Init()
 	m_scenes["Gameover"] = std::make_unique<Gameover>();
 	m_scenes["Gameover"]->init();
 
-	m_currentSceneName = "MecScene";
-	
+	m_currentSceneName = "TitleScene";
+	//m_currentSceneName = "MecScene";
 }
 
 void SceneManager::Draw(uint64_t deltatime)

@@ -199,14 +199,25 @@ void MecScene::update(uint64_t deltatime)
 		m_camera.SetPosition(campos);
 		break;
 	case UseCameraRockOn://敵をロックオンするカメラ
-		// 1. forward ベクトルを計算
-		//Vector3 camForward = (m_player.GetPosition() - m_enemys[0]->GetPosition());
-		Vector3 camForward = (m_player.GetPosition() - RockonEnemy->GetPosition());
-		campos = Vector3{ m_player.GetPosition() + (camForward) };
-		campos.y += 20;
+		//Vector3 camForward = (m_player.GetPosition() - RockonEnemy->GetPosition());
+		//campos = Vector3{ m_player.GetPosition() + (camForward) };
+		//campos.y = 30;
+		//m_camera.SetPosition(campos);
+		
+		//
+		Vector3 camForward = m_player.GetPosition() - RockonEnemy->GetPosition();
+
+		float sumAbs = fabs(camForward.x) + fabs(camForward.y) + fabs(camForward.z);
+		float maxSum = 150.0f;
+
+		// 距離が大きいほどスケールが小さくなる（滑らかに抑える）
+		float scale = maxSum / (sumAbs + maxSum);
+		camForward *= scale;
+
+		Vector3 campos = m_player.GetPosition() + camForward;
+		campos.y = 30;
 		m_camera.SetPosition(campos);
-		//プレイヤー角度も変更
-		//m_player.SetRotation_PL({ 0,camRot.y,0 });
+
 		break;
 	}
 
@@ -404,7 +415,7 @@ int MecScene::ChangeScene()
 	{
 		m_player.Reset();
 		Enemy.Reset();
-		Fade_Time = 5000;//フェードかかるように
+		Fade_Time = 1000;//フェードかかるように
 		//m_enemys[1]->SetPosition({ 5,7,5 });
 		return 4;
 	}
@@ -435,7 +446,7 @@ void MecScene::Fade_IN(uint64_t deltatime)
 		Fade_Time = 0;
 		Fade_Color = 0;
 	}
-	else  Fade_Color = float(Fade_Time / 5000.0f);
+	else  Fade_Color = float(Fade_Time / 1000.0f);
 
 	//materialに適応して読み込む
 	MATERIAL	mtrl_Screen;
@@ -454,9 +465,9 @@ void MecScene::Fade_OUT(uint64_t deltatime)
 	float time_D = static_cast<float>(deltatime) / 1000;
 
 	Fade_Time += time_D;
-	if (Fade_Time > 5000.0f) Fade_Time = 5000.0f;
+	if (Fade_Time > 1000.0f) Fade_Time = 1000.0f;
 
-	Fade_Color = 1.0f - (Fade_Time / 5000.0f);
+	Fade_Color = 1.0f - (Fade_Time / 1000.0f);
 
 	//materialに適応して読み込む
 	MATERIAL	mtrl_Screen;

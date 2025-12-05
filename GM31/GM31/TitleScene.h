@@ -3,6 +3,7 @@
 #include "system/CSprite.h"
 #include "camera.h"
 #include "Enemy_Title.h"
+#include "Field.h"
 
 class TitleScene : public IScene
 {
@@ -21,6 +22,7 @@ private:
 	bool SceneFlag = false;
 	std::unique_ptr<CSprite> Title;//タイトル画面の一枚絵
 	EnemyThinking_Title Enemy_Title;
+	std::unique_ptr<Field> m_field;						// フィールド
 
 	void Fade_IN(uint64_t deltatime);
 	void Fade_OUT(uint64_t deltatime);

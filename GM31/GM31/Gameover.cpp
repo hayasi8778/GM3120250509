@@ -58,7 +58,7 @@ void Gameover::dispose()
 
 int Gameover::ChangeScene()
 {
-	if (SceneFlag && Fade_Time == 5000) {
+	if (SceneFlag && Fade_Time == 1000) {
 		SceneFlag = false;
 		return 3;
 	}
@@ -75,7 +75,7 @@ void Gameover::Fade_IN(uint64_t deltatime)
 		Fade_Time = 0;
 		Fade_Color = 0;
 	}
-	else  Fade_Color = float(Fade_Time / 5000.0f);
+	else  Fade_Color = float(Fade_Time / 1000.0f);
 
 	//material‚É“K‰‚µ‚Ä“Ç‚İ‚Ş
 	MATERIAL	mtrl_Screen;
@@ -94,9 +94,9 @@ void Gameover::Fade_OUT(uint64_t deltatime)
 	float time_D = static_cast<float>(deltatime) / 1000;
 
 	Fade_Time += time_D;
-	if (Fade_Time > 5000.0f) Fade_Time = 5000.0f;
+	if (Fade_Time > 1000.0f) Fade_Time = 1000.0f;
 
-	Fade_Color = (Fade_Time / 5000.0f);
+	Fade_Color = (Fade_Time / 1000.0f);
 
 	//material‚É“K‰‚µ‚Ä“Ç‚İ‚Ş
 	MATERIAL	mtrl_Screen;

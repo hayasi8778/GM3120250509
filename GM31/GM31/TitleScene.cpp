@@ -29,6 +29,8 @@ void TitleScene::init()
 		mtrl_Screen);
 
 	Enemy_Title.Init();
+	m_field = std::make_unique<Field>();
+	m_field->Init();
 }
 
 void TitleScene::update(uint64_t deltatime)
@@ -50,7 +52,7 @@ void TitleScene::update(uint64_t deltatime)
 void TitleScene::draw(uint64_t deltatime)
 {
 	m_camera.Draw();
-
+	m_field->Draw();
 	Vector3 rot = { 0,3,3.13 };
 	Vector3 pos = { 0,10,0.2f };
 	//Title->Draw3D(Vector3{ 9, 5, 1 }, rot, pos);
@@ -62,7 +64,7 @@ void TitleScene::draw(uint64_t deltatime)
 
 void TitleScene::dispose()
 {
-
+	m_field->Dispose();
 }
 
 int TitleScene::ChangeScene()

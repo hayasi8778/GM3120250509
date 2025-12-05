@@ -62,7 +62,7 @@ private:
 	float Test = 0;
 
 	float Fade_Color = 1.0f;//フェードの色
-	float Fade_Time = 5000;//フェードにかかる時間
+	float Fade_Time = 1000;//フェードにかかる時間
 	//重力
 	float gravity = -9.8f;
 

@@ -342,3 +342,9 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 
 	
 }
+
+void EnemyThinking::LevelControl()
+{
+	//ƒŒƒxƒ‹‚Ì’²®(ƒŒƒxƒ‹‚Í‰º‚ª‚ç‚È‚¢‚à‚Ì‚Æ‚µ‚Äˆµ‚¤)
+	if (Strength / 1000 > Level) Level = Strength / 1000;
+}

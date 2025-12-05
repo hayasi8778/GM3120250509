@@ -51,6 +51,7 @@ public:
 	void ThinkMove(uint64_t);
 	void ThinkShot(uint64_t);
 
+	void LevelControl();
 };
 
 

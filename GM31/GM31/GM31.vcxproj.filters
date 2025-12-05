@@ -363,6 +363,9 @@
     <ClInclude Include="Random.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Enemy_Title.h">
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system\imgui\imgui.cpp">
@@ -601,6 +604,9 @@
     </ClCompile>
     <ClCompile Include="Enemy_RightFeet.cpp">
       <Filter>ソース ファイル\Objects\Enemy\EnemyParts</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_Title.cpp">
+      <Filter>ソース ファイル\Objects\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -192,7 +192,7 @@ void CSprite::Draw(Vector3 scale,Vector3 rotation,Vector3 pos)
 
 	worldmtx = srt.GetMatrix();
 
-	//Renderer::SetWorldViewProjection2D();	// 2D用のビュー行列をセット
+	Renderer::SetWorldViewProjection2D();	// 2D用のビュー行列をセット
 
 	Renderer::SetWorldMatrix(&worldmtx);	// GPUにセット
 
@@ -215,6 +215,43 @@ void CSprite::Draw(Vector3 scale,Vector3 rotation,Vector3 pos)
 		0,							// 最初のインデックスバッファの位置
 		0);
 
+}
+
+void CSprite::Draw3D(Vector3 scale, Vector3 rotation, Vector3 pos)
+{
+	// SRT情報作成
+	SRT	srt;
+
+	srt.scale = scale;
+	srt.rot = rotation;
+	srt.pos = pos;
+
+	Matrix4x4 worldmtx;
+
+	worldmtx = srt.GetMatrix();
+
+	//Renderer::SetWorldViewProjection2D();	// 2D用のビュー行列をセット
+
+	Renderer::SetWorldMatrix(&worldmtx);	// GPUにセット
+
+	// 描画の処理
+	ID3D11DeviceContext* devicecontext;
+	devicecontext = Renderer::GetDeviceContext();
+
+	// トポロジーをセット（旧プリミティブタイプ）
+	devicecontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	m_Shader.SetGPU();
+	m_VertexBuffer.SetGPU();
+	m_IndexBuffer.SetGPU();
+
+	m_Material.SetGPU();
+	m_Texture.SetGPU();
+
+	devicecontext->DrawIndexed(
+		4,							// 描画するインデックス数（四角形なんで４）
+		0,							// 最初のインデックスバッファの位置
+		0);
 }
 
 void CSprite::Dispose() 

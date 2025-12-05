@@ -159,6 +159,7 @@
     <ClInclude Include="Enemy_LeftFeet.h" />
     <ClInclude Include="Enemy_RightArm.h" />
     <ClInclude Include="Enemy_RightFeet.h" />
+    <ClInclude Include="Enemy_Title.h" />
     <ClInclude Include="E_Beam.h" />
     <ClInclude Include="Buller.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -303,6 +304,7 @@
     </ClCompile>
     <ClCompile Include="Enemy_RightArm.cpp" />
     <ClCompile Include="Enemy_RightFeet.cpp" />
+    <ClCompile Include="Enemy_Title.cpp" />
     <ClCompile Include="E_Beam.cpp" />
     <ClCompile Include="E_Beam02.cpp" />
     <ClCompile Include="E_Missile.cpp">

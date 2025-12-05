@@ -93,6 +93,7 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	//Timer(deltatime);//時間経過処理
 
 	if (BurstFlag) FullBurst(deltatime);
+	if(FIRE_BEAM) Beam(deltatime);
 
 	//弾の更新
 	for (int i = 0; i < BulletMaxnum; i++)
@@ -724,30 +725,30 @@ void Enemy_Missile::Shot_Rule(uint64_t deltatime)
 
 	beam_time += time_B;
 
-	if (FIRE_BEAM)
+	if (FIRE_BEAM)//Updateにビーム撃つ部分移植したので消す
 	{
-		if (beam_time > 500) //ちょっと溜めてからビーム撃つ
-		{
-			if (beamsize.x < Maxbeamsize.x)beamsize.x += 0.15f;
-			if (beamsize.y < Maxbeamsize.y)beamsize.y += 0.15f;
-			if (beamsize.z < Maxbeamsize.z)beamsize.z += 0.25f;
-			Vector3 beampos = m_Position - (Forward_vec * 5.0f);
-			e_beam.SetPosition(beampos);
-			e_beam.SetRotation(m_Rotation);
-			e_beam.SetScale(beamsize);
+		//if (beam_time > 500) //ちょっと溜めてからビーム撃つ
+		//{
+		//	if (beamsize.x < Maxbeamsize.x)beamsize.x += 0.15f;
+		//	if (beamsize.y < Maxbeamsize.y)beamsize.y += 0.15f;
+		//	if (beamsize.z < Maxbeamsize.z)beamsize.z += 0.25f;
+		//	Vector3 beampos = m_Position - (Forward_vec * 5.0f);
+		//	e_beam.SetPosition(beampos);
+		//	e_beam.SetRotation(m_Rotation);
+		//	e_beam.SetScale(beamsize);
 
-			e_beam.Update(deltatime);
-		}
+		//	e_beam.Update(deltatime);
+		//}
 
 
-		if (beam_time > 3000)
-		{
-			FIRE_BEAM = false;
+		//if (beam_time > 3000)
+		//{
+		//	FIRE_BEAM = false;
 
-			beam_time = 0;
+		//	beam_time = 0;
 
-			//Stepavoidance();//ステップのテスト
-		}
+		//	//Stepavoidance();//ステップのテスト
+		//}
 	}
 	else
 	{
@@ -847,6 +848,32 @@ void Enemy_Missile::FullBurst(uint64_t deltatime)
 		
 	}
 
+}
+
+void Enemy_Missile::Beam(uint64_t deltatime)
+{
+	if (beam_time > 500) //ちょっと溜めてからビーム撃つ
+	{
+		if (beamsize.x < Maxbeamsize.x)beamsize.x += 0.15f;
+		if (beamsize.y < Maxbeamsize.y)beamsize.y += 0.15f;
+		if (beamsize.z < Maxbeamsize.z)beamsize.z += 0.25f;
+		Vector3 beampos = m_Position - (Forward_vec * 5.0f);
+		e_beam.SetPosition(beampos);
+		e_beam.SetRotation(m_Rotation);
+		e_beam.SetScale(beamsize);
+
+		e_beam.Update(deltatime);
+	}
+
+
+	if (beam_time > 3000)
+	{
+		FIRE_BEAM = false;
+
+		beam_time = 0;
+
+		//Stepavoidance();//ステップのテスト
+	}
 }
 
 bool Enemy_Missile::Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb)

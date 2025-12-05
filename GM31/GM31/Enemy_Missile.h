@@ -109,6 +109,7 @@ public:
 	void Shot_Rule(uint64_t);
 	void Shot(uint64_t);
 	void FullBurst(uint64_t);
+	void Beam(uint64_t);
 	//ŽËŒ‚ƒtƒ‰ƒO‚Ì”½“]
 	void ReturnFire() {
 		if (FIRE)	FIRE = false;

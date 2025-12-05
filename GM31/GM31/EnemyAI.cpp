@@ -1,29 +1,24 @@
 #include "EnemyAI.h"
 #include <iostream>
 
-// inline/constexpr にしてコンパイラ最適化を効かせる
-inline float Dot(const Vector3& a, const Vector3& b) {
-	return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-float GetRange(Vector3 vecA, Vector3 vecB) {
-	Vector3 coppos_A = vecA;
-	Vector3 coppos_B = vecB;
-	if (coppos_A.x < 0) coppos_A.x *= -1;
-	if (coppos_A.y < 0) coppos_A.y *= -1;
-	if (coppos_A.z < 0) coppos_A.z *= -1;
-
-	if (coppos_B.x < 0) coppos_B.x *= -1;
-	if (coppos_B.y < 0) coppos_B.y *= -1;
-	if (coppos_B.z < 0) coppos_B.z *= -1;
-	Vector3 ranged = { coppos_A.x - coppos_B.x , coppos_A.y - coppos_B.y , coppos_A.z - coppos_B.z };
-	if (ranged.x < 0) ranged.x *= -1;
-	if (ranged.y < 0) ranged.y *= -1;
-	if (ranged.z < 0) ranged.z *= -1;
-	float rangedALL = ranged.x + ranged.y + ranged.z;
-
-	return rangedALL;
-}
+//float GetRange(Vector3 vecA, Vector3 vecB) {
+//	Vector3 coppos_A = vecA;
+//	Vector3 coppos_B = vecB;
+//	if (coppos_A.x < 0) coppos_A.x *= -1;
+//	if (coppos_A.y < 0) coppos_A.y *= -1;
+//	if (coppos_A.z < 0) coppos_A.z *= -1;
+//
+//	if (coppos_B.x < 0) coppos_B.x *= -1;
+//	if (coppos_B.y < 0) coppos_B.y *= -1;
+//	if (coppos_B.z < 0) coppos_B.z *= -1;
+//	Vector3 ranged = { coppos_A.x - coppos_B.x , coppos_A.y - coppos_B.y , coppos_A.z - coppos_B.z };
+//	if (ranged.x < 0) ranged.x *= -1;
+//	if (ranged.y < 0) ranged.y *= -1;
+//	if (ranged.z < 0) ranged.z *= -1;
+//	float rangedALL = ranged.x + ranged.y + ranged.z;
+//
+//	return rangedALL;
+//}
 
 void EnemyThinking::DebugUI()
 {
@@ -32,7 +27,12 @@ void EnemyThinking::DebugUI()
 	ImGui::Text("Enemy");
 	ImGui::Checkbox(std::string("Think").c_str(), &Think);
 	ImGui::Text("Strength: %d", Strength);
-
+	if (ImGui::Button("AddStrongth+1000")) 
+	{
+		Strength += 1000;
+	}
+	ImGui::SliderInt("ShotString", &ShotStrength, 0, 500);
+	ImGui::Text("Level: % d", Level);
 
 	ImGui::End();
 }
@@ -58,9 +58,10 @@ void EnemyThinking::Init(M_Player* pl)
 	localpos.x = Dot(pos, Player->GetRight());
 	localpos.y = Dot(pos, Player->GetUp());
 	localpos.z = Dot(pos, Player->GetForward());
+	FirstRange = localpos;
 	//初期座標を入れておく
 	for (int i = 0; i < 300; i++) {
-		PositionLog[i] = localpos;
+		PositionLog[i] = FirstRange;
 	}
 
 	//GUI関連
@@ -90,8 +91,14 @@ void EnemyThinking::Draw()
 
 void EnemyThinking::Reset() 
 {
+	//距離関係を初期値にリセットしておく
+	for (int i = 0; i < 300; i++) {
+		PositionLog[i] = FirstRange;
+	}
+
 	Enemy.Reset();
 	Enemy.SetPosition({ 0,10,50 });
+	Strength = 0;
 }
 
 void EnemyThinking::Action(Vector3 vec)
@@ -140,7 +147,12 @@ void EnemyThinking::RuleUpdate(uint64_t deltatime)
 
 void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 {
-	if (Player->GetShot())Strength += 200;
+	//経過時間を記録
+	float time = static_cast<float>(deltatime) / 1000;
+	if (shotcool == 500) { if (Player->GetShot()) { Strength += ShotStrength;  shotcool -= time; } }
+	else { shotcool -= time; 
+	if (shotcool < 0)shotcool = 500;
+	}
 	
 	Enemy.Update(deltatime);
 	ThinkMove(deltatime);
@@ -149,7 +161,7 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 
 	//プレイヤーが動いていた場合
 	if (GetRange(CurentPos_P, Player->GetPosition()) > 1) {
-		Strength++;//強さの数値を加算
+		Strength += MoveStrength;//強さの数値を加算
 	}
 
 	//プレイヤーの過去座標として記録
@@ -309,10 +321,24 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 
 void EnemyThinking::ThinkShot(uint64_t dt)
 {
+	//射撃は大技→通常射撃の順で行う
+	if (Strength > 1000 && Enemy.GetFIRE() && !Enemy.GetBurstFlag()) {
+		//Strength -= 40;
+		Strength -= 1000;
+
+		Enemy.SetBurstFlag(true);
+
+		//Enemy.Shot(dt);
+
+	}
+
 	if (Strength > 40 && Enemy.GetFIRE()) {
 		Strength -= 40;
+		//Strength -= 1000;
 
 		Enemy.Shot(dt);
 
 	}
+
+	
 }

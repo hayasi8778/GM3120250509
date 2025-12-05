@@ -470,7 +470,7 @@ void Enemy_Missile::CreateBullet_FullBurst_Tes()
 	//float maxYaw = XMConvertToRadians(35.0f);   // 左右最大15度
 	//float maxPitch = XMConvertToRadians(-45.0f);   // 上方向最大45度
 	float maxYaw = 0.6108f;   // 左右最大15度
-	float maxPitch = -0.7853f;   // 上方向最大45度
+	float maxPitch = -0.7853;   // 上方向最大45度
 	//0.6108
 	//-0.7853
 

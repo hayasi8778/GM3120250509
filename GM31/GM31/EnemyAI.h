@@ -20,14 +20,20 @@ private:
 	int PlayerState;//プレイヤーの状態
 	//プレイヤーの動きの苛烈さに対して敵の動きのレベル上げたいのでプレイヤーの動きで加算して敵の動きの上限作る
 	int Strength = 0;
+	int Level = 0;//敵の強さを行動で増減する数値と安易に増減しないレベルで管理する
+	//行動で増える量
+	int ShotStrength = 200;
+	int MoveStrength = 1;
 
 	Vector3 PositionLog[300]; //5秒間(60fpsで計測)のプレイヤーと敵の距離を記録
+	Vector3 FirstRange = { 0.0f,0.0f,0.0f };//初手の距離を記録しておく
 	int LogSubscript = 0; //座標ログの添え字
 	float TimeLog = 0;//時間経過を取得
 	float cooltime = 0;//1/60秒ごとに判定を挟むための変数
+	float shotcool = 500;//射撃連打すると難易度爆上がりするのを抑制するための変数
 	bool Think = true;//思考ベースのAIを使うか
 
-	int Level = 0;//AIを切り替える用に変数用意しておく
+	//int Level = 0;//AIを切り替える用に変数用意しておく
 public:
 	void DebugUI();//GUI
 	void Init(M_Player* pl);

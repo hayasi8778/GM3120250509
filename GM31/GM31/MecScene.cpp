@@ -141,12 +141,17 @@ void MecScene::init()
 	mtrl_Screen.TextureEnable = TRUE;
 	m_Screen = std::make_unique<CSprite>(200, 200, "assets/texture/ScreenEfect.png", uv,
 		mtrl_Screen, "shader/unlitTextureVS.hlsl", "shader/NoizePS.hlsl");
+	//操作方法出す
+	m_Tutorial = std::make_unique<CSprite>(200, 200, "assets/texture/Tutorial.png", uv);
+	
 	//プレイヤーHP
 	HP_Player_G = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_green.png", uv);
 	HP_Player_R = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_red.png", uv);
 	//エネミーHP
 	HP_Enemy_G = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_green.png", uv);
 	HP_Enemy_R = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_red.png", uv);
+
+
 
 }
 
@@ -213,11 +218,14 @@ void MecScene::update(uint64_t deltatime)
 		// 距離が大きいほどスケールが小さくなる（滑らかに抑える）
 		float scale = maxSum / (sumAbs + maxSum);
 		camForward *= scale;
-
-		Vector3 campos = m_player.GetPosition() + camForward;
+		float Special = 1.0f;
+		if (Enemy.GetSpecial()) Special = 1.5f;
+		Vector3 campos = m_player.GetPosition() + camForward *Special;
 		campos.y = 30;
 		m_camera.SetPosition(campos);
 
+		//被弾時でないかつ銃を撃ったら反動がある
+		if (!m_player.GetInvincibility() && m_player.GetShot()) m_camera.SetVibration(1.0f, 100.0f);
 		break;
 	}
 
@@ -429,7 +437,7 @@ int MecScene::ChangeScene()
 	//シーンのリセット
 	m_player.Reset();
 	Enemy.Reset();
-	Fade_Time = 5000;//フェードリセット
+	Fade_Time = 1000;//フェードリセット
 	//m_enemys[1]->SetPosition({ 25,7,5 });
 	return 2;
 
@@ -1070,6 +1078,8 @@ void MecScene::UIDraw()
 		//camRotUIよりcamRotの方が精度高いので修正
 	HP_Player_R->Draw3D(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot, leftBasePos - offset_First);
 	HP_Player_G->Draw3D(Vector3{ currentWidth, 0.007f, 0.03f }, camRot, leftBasePos - offset);
+
+	m_Tutorial->Draw(Vector3{ 3,1,1 }, { 0,0,0 }, { 300,670,0 });
 
 	//HP_Player_R->Draw(Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(100, 100, 0));
 	//画面青色のエフェクト掛けてコクピットっぽい写りにしたい

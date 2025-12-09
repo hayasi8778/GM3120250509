@@ -16,6 +16,8 @@ protected:
 	float m_vibration = 0;//カメラの揺れの強さ
 	float m_vibration_time = 0;//カメラを揺らす時間(ミリ秒)
 
+	Vector3 moveposition = Vector3(0.0f, 0.0f, 0.0f);//カメラの移動目標
+
 public:
 	Camera() = default;
 
@@ -38,6 +40,7 @@ public:
 
 	//カメラ揺れの大きさと揺れ時間実装させるためのやつ
 	void SetVibration(float size, float time) { 
+		if (m_vibration_time != 0) return;
 		m_vibration = size; 
 		m_vibration_time = time; }
 };

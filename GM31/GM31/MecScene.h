@@ -139,6 +139,8 @@ private:
 	//‰æ–Ê‘S‘Ì‚ÉÂ‚ÌƒtƒBƒ‹ƒ€Š|‚¯‚Ä‰æ–Ê‚Á‚Û‚­‚·‚é
 	std::unique_ptr<CSprite> m_Screen;
 
+	std::unique_ptr<CSprite> m_Tutorial;
+
 	std::unique_ptr<CSprite> HP_Player_G;//HP‚Ì—Î‚Ì•”•ª
 	std::unique_ptr<CSprite> HP_Player_R;//HP‚ÌÔ‚Ì•”•ª
 

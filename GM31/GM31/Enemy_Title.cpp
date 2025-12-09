@@ -32,6 +32,9 @@ void EnemyThinking_Title::Init()
 	Enemy2.SetPatner(&Enemy1);
 	Enemy2.SetPosition({ 20.0f,10.0f,0.0f });
 
+	Enemy1.SetShotState(2);
+	Enemy2.SetShotState(3);
+
 	Vector3 right = Enemy2.GetRight();
 	Vector3 up = Enemy2.GetUp();
 	Vector3 forward = Enemy2.GetForward();
@@ -153,11 +156,11 @@ void EnemyThinking_Title::ThinkMove(uint64_t deltatime)
 void EnemyThinking_Title::ThinkShot(uint64_t dt)
 {
 	//ŽËŒ‚‚Í‘å‹Z¨’ÊíŽËŒ‚‚Ì‡‚Ås‚¤
-	if (Strength_Enemy1 > 1000 && Enemy1.GetFIRE() && !Enemy1.GetBurstFlag()) {
+	if (Strength_Enemy1 > 1000 && Enemy1.GetFIRE() && !Enemy1.GetSpecialFlag()) {
 		//Strength -= 40;
 		Strength_Enemy1 -= 900;
 
-		Enemy1.SetBurstFlag(true);
+		Enemy1.SetSpecialFlag(true);
 
 		//Enemy.Shot(dt);
 
@@ -173,11 +176,11 @@ void EnemyThinking_Title::ThinkShot(uint64_t dt)
 
 	//Enemy2
 	//ŽËŒ‚‚Í‘å‹Z¨’ÊíŽËŒ‚‚Ì‡‚Ås‚¤
-	if (Strength_Enemy2 > 1000 && Enemy2.GetFIRE() && !Enemy2.GetBurstFlag()) {
+	if (Strength_Enemy2 > 1000 && Enemy2.GetFIRE() && !Enemy2.GetSpecialFlag()) {
 		//Strength -= 40;
 		Strength_Enemy2 -= 900;
 
-		Enemy2.SetBurstFlag(true);
+		Enemy2.SetSpecialFlag(true);
 
 		//Enemy.Shot(dt);
 

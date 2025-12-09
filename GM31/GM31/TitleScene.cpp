@@ -15,7 +15,8 @@ void TitleScene::init()
 		Vector2(1.0f / 1.0f, 1.0f / 1.0f)
 	};
 
-	Title = std::make_unique<CSprite>(200, 200, "assets/texture/Title_2.jpg", uv);
+	Title = std::make_unique<CSprite>(200, 200, "assets/texture/Title.png", uv);
+	Start = std::make_unique<CSprite>(200, 200, "assets/texture/Start.png", uv);
 
 	// É}ÉeÉäÉAÉãê∂ê¨
 	MATERIAL	mtrl_Screen;
@@ -31,6 +32,8 @@ void TitleScene::init()
 	Enemy_Title.Init();
 	m_field = std::make_unique<Field>();
 	m_field->Init();
+	m_skydome = std::make_unique<Skydome>();
+	m_skydome->Init();
 }
 
 void TitleScene::update(uint64_t deltatime)
@@ -53,11 +56,13 @@ void TitleScene::draw(uint64_t deltatime)
 {
 	m_camera.Draw();
 	m_field->Draw();
+	m_skydome->Draw();
 	Vector3 rot = { 0,3,3.13 };
 	Vector3 pos = { 0,10,0.2f };
-	//Title->Draw3D(Vector3{ 9, 5, 1 }, rot, pos);
-	//Title->Draw(Vector3{ 7,5,1 }, Vector3(0, 0, 0), Vector3(650, 340, 0));
 	Enemy_Title.Draw();
+	//Title->Draw3D(Vector3{ 9, 5, 1 }, rot, pos);
+	Title->Draw(Vector3{ 5,3,1 }, Vector3(0, 0, 0), Vector3(650, 100, 0));
+	Start->Draw(Vector3{ 3,2,1 }, Vector3(0, 0, 0), Vector3(650, 600, 0));
 
 	m_Fade->Draw(Vector3{ 7,5,1 }, Vector3(0, 0, 0), Vector3(650, 340, 0));
 }

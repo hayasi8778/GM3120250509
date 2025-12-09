@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "Enemy_Title.h"
 #include "Field.h"
+#include "Skydome.h"
 
 class TitleScene : public IScene
 {
@@ -21,8 +22,10 @@ private:
 	Camera m_camera;
 	bool SceneFlag = false;
 	std::unique_ptr<CSprite> Title;//タイトル画面の一枚絵
+	std::unique_ptr<CSprite> Start;//タイトル画面の一枚絵
 	EnemyThinking_Title Enemy_Title;
 	std::unique_ptr<Field> m_field;						// フィールド
+	std::unique_ptr<Skydome> m_skydome;							// スカイドーム
 
 	void Fade_IN(uint64_t deltatime);
 	void Fade_OUT(uint64_t deltatime);

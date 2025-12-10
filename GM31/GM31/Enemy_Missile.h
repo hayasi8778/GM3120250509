@@ -17,6 +17,25 @@ enum FIREMODE {
 	TRACKING	//追尾弾
 };
 
+//最大でも20ぐらいまでしかステート増えないので1バイトで作る
+enum class ShotState : uint8_t {
+	Idle,
+	Easy,
+	Normal,
+	Hard,
+	Hell,
+	Lunatic
+};
+
+enum class MoveState : uint8_t {
+	Idle,
+	Easy,
+	Normal,
+	Hard,
+	Hell,
+	Lunatic
+};
+
 class Enemy_Missile : public Object
 {
 private:
@@ -36,6 +55,9 @@ private:
 	const int ATK_Bullet = 20;
 	const int ATK_Beam = 1;
 
+	int Level = 0;
+	ShotState shotstate = ShotState::Idle;
+
 	const int BulletMaxnum = 25;
 
 	int Bulletnum = 0;
@@ -52,7 +74,7 @@ private:
 	float FireRate = 1000.0f;
 	float FireRate_FullBurst = 100.0f;
 	int Burstnum = 20;
-	bool BurstFlag = false;
+	bool SpecialFlag = false;
 
 	bool Pranter_PE = true; //trueで対戦相手はPlayer、falseでEnemy
 	M_Player* player = nullptr;//プレイヤー
@@ -108,7 +130,9 @@ public:
 	void Timer(uint64_t);
 	void Shot_Rule(uint64_t);
 	void Shot(uint64_t);
-	void FullBurst(uint64_t);
+	void SpecialAttack(uint64_t);
+	void FullBurstLv1(uint64_t);
+	void FullBurstLv2(uint64_t);
 	void Beam(uint64_t);
 	//射撃フラグの反転
 	void ReturnFire() {
@@ -134,9 +158,16 @@ public:
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int bulletnum);
 	bool GetBulletcol(int bulletnum) { return e_missiles[bulletnum].GetCollsion(); }
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Beam();
-	bool GetBurstFlag() { return BurstFlag; }
-	void SetBurstFlag(bool fg) { BurstFlag = fg; }
+	
+	
+	bool GetSpecialFlag() { return SpecialFlag; }
+	void SetSpecialFlag(bool fg) { SpecialFlag = fg; }
 	bool GetShotFlag() { return Shot_Flag; }
+	void SetLevel(int lev) { Level = lev; }
+	int GetLevel() { return Level; }
+	void SetShotState(int lev);
+	int GetShotState();
+
 
 	Vector3 GetCenter() { return m_Position - Forward_vec * 1.5f; }//当たり判定の中心
 

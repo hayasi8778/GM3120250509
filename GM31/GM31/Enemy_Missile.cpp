@@ -92,8 +92,7 @@ void Enemy_Missile::Update(uint64_t deltatime)
 
 	//Timer(deltatime);//時間経過処理
 
-	if (BurstFlag) FullBurst(deltatime);
-	if(FIRE_BEAM) Beam(deltatime);
+	SpecialAttack(deltatime);
 
 	//弾の更新
 	for (int i = 0; i < BulletMaxnum; i++)
@@ -828,8 +827,38 @@ void Enemy_Missile::Shot(uint64_t deltatime)
 	
 }
 
+void Enemy_Missile::SpecialAttack(uint64_t deltatime)
+{
+	//ビームだけ照射中にレベル切り替わったときに取り残されないようにする
+	if (beam_time != 0 && SpecialFlag) Beam(deltatime);
+	else {
+		switch (shotstate) {
+		case ShotState::Idle:
+			//if (FIRE_BEAM) Beam(deltatime);
+			if (SpecialFlag) Beam(deltatime);
+			break;
+		case ShotState::Easy:
+			if (SpecialFlag) Beam(deltatime);
+			break;
+		case ShotState::Normal:
+			if (SpecialFlag) FullBurstLv1(deltatime);
+			break;
+		case ShotState::Hard:
+			if (SpecialFlag) FullBurstLv2(deltatime);
+			break;
+		default:
+			SpecialFlag = false;
+			break;
+		}
+	}
+	
+
+	
+	
+}
+
 //一斉射撃を撃つための変数
-void Enemy_Missile::FullBurst(uint64_t deltatime)
+void Enemy_Missile::FullBurstLv1(uint64_t deltatime)
 {
 	//銃弾の発生
 	float time_D = static_cast<float>(deltatime) / 1000;
@@ -837,12 +866,11 @@ void Enemy_Missile::FullBurst(uint64_t deltatime)
 	if (cooltime > FireRate_FullBurst) {
 		cooltime = 0;
 		if (Burstnum > 0) {
-			//CreateBullet_FullBurst();//左右に散らす弾
-			CreateBullet_FullBurst_Tes();//上方向に散らす弾
+			CreateBullet_FullBurst();//左右に散らす弾
 			Burstnum--;
 		}
 		else { 
-			BurstFlag = false;
+			SpecialFlag = false;
 			Burstnum = 20;
 		}
 		
@@ -850,8 +878,32 @@ void Enemy_Missile::FullBurst(uint64_t deltatime)
 
 }
 
+void Enemy_Missile::FullBurstLv2(uint64_t deltatime)
+{
+	//銃弾の発生
+	float time_D = static_cast<float>(deltatime) / 1000;
+	cooltime += time_D;
+	if (cooltime > FireRate_FullBurst) {
+		cooltime = 0;
+		if (Burstnum > 0) {
+			CreateBullet_FullBurst_Tes();//上方向に散らす弾
+			Burstnum--;
+		}
+		else {
+			SpecialFlag = false;
+			Burstnum = 20;
+		}
+
+	}
+}
+
 void Enemy_Missile::Beam(uint64_t deltatime)
 {
+
+	float time_B = static_cast<float>(deltatime) / 1000;
+
+	beam_time += time_B;
+
 	if (beam_time > 500) //ちょっと溜めてからビーム撃つ
 	{
 		if (beamsize.x < Maxbeamsize.x)beamsize.x += 0.15f;
@@ -863,6 +915,8 @@ void Enemy_Missile::Beam(uint64_t deltatime)
 		e_beam.SetScale(beamsize);
 
 		e_beam.Update(deltatime);
+
+		FIRE_BEAM = true;
 	}
 
 
@@ -872,6 +926,16 @@ void Enemy_Missile::Beam(uint64_t deltatime)
 
 		beam_time = 0;
 
+		SpecialFlag = false;
+
+		//ビームをリセットする
+		beamsize = { 0,0,0 };
+		Vector3 beampos = m_Position - (Forward_vec * 5.0f);
+		e_beam.SetPosition(beampos);
+		e_beam.SetRotation(m_Rotation);
+		e_beam.SetScale(beamsize);
+
+		e_beam.Update(deltatime);
 		//Stepavoidance();//ステップのテスト
 	}
 }
@@ -958,6 +1022,45 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_Missile::GetOBB_Beam()
 		Depth);					// 奥行
 
 	return obb;
+}
+
+void Enemy_Missile::SetShotState(int lev)
+{
+	switch (lev) {
+	case 0:
+		shotstate = ShotState::Idle;
+		break;
+	case 1:
+		shotstate = ShotState::Easy;
+		break;
+	case 2:
+		shotstate = ShotState::Normal;
+		break;
+	case 3:
+		shotstate = ShotState::Hard;
+		break;
+	case 4:
+		shotstate = ShotState::Hell;
+		break;
+	case 5:
+		shotstate = ShotState::Lunatic;
+		break;
+	default:
+		shotstate = ShotState::Idle;
+		break;
+	}
+}
+
+int Enemy_Missile::GetShotState()
+{
+	if (shotstate == ShotState::Idle) return 0;
+	if (shotstate == ShotState::Easy) return 1;
+	if (shotstate == ShotState::Normal) return 2;
+	if (shotstate == ShotState::Hard) return 3;
+	if (shotstate == ShotState::Hell) return 4;
+	if (shotstate == ShotState::Lunatic) return 5;
+
+	return 0;
 }
 
 void Enemy_Missile::SetCollision(bool col)

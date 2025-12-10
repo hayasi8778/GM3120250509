@@ -29,10 +29,23 @@ void EnemyThinking::DebugUI()
 	ImGui::Text("Strength: %d", Strength);
 	if (ImGui::Button("AddStrongth+1000")) 
 	{
-		Strength += 1000;
+		ShotStrength += 500;
+		MoveStrength += 500;
 	}
-	ImGui::SliderInt("ShotString", &ShotStrength, 0, 500);
-	ImGui::Text("Level: % d", Level);
+	ImGui::SliderInt("ShotIncrease", &ShotIncrease, 0, 500);
+	
+	ImGui::Text("ShotLevel: % d", ShotLevel);
+	if (ImGui::Button("ShotLebelUp")) {
+		if (ShotLevel < 7)ShotLevel++;
+		Enemy.SetShotState(ShotLevel);
+	}
+	if (ImGui::Button("ShotLebelDown")) {
+		if (ShotLevel > 0)ShotLevel--;
+		Enemy.SetShotState(ShotLevel);
+	}
+
+	ImGui::Text("ShotStrength: %d", ShotStrength);
+	ImGui::Text("MoveStrength: %d", MoveStrength);
 
 	ImGui::End();
 }
@@ -99,6 +112,8 @@ void EnemyThinking::Reset()
 	Enemy.Reset();
 	Enemy.SetPosition({ 0,10,50 });
 	Strength = 0;
+	ShotStrength = 0;
+	MoveStrength = 0;
 }
 
 void EnemyThinking::Action(Vector3 vec)
@@ -149,7 +164,11 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 {
 	//経過時間を記録
 	float time = static_cast<float>(deltatime) / 1000;
-	if (shotcool == 500) { if (Player->GetShot()) { Strength += ShotStrength;  shotcool -= time; } }
+	//射撃を取得してきて加算
+	if (shotcool == 500) { if (Player->GetShot()) { 
+		//Strength += ShotIncrease;  
+		ShotStrength += ShotIncrease;
+		shotcool -= time; } }
 	else { shotcool -= time; 
 	if (shotcool < 0)shotcool = 500;
 	}
@@ -158,10 +177,12 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 	ThinkMove(deltatime);
 	ThinkShot(deltatime);
 	Enemy.Timer(deltatime);
+	LevelControl();
 
 	//プレイヤーが動いていた場合
 	if (GetRange(CurentPos_P, Player->GetPosition()) > 1) {
-		Strength += MoveStrength;//強さの数値を加算
+		//Strength += MoveIncrease;//強さの数値を加算
+		MoveStrength += MoveIncrease;
 	}
 
 	//プレイヤーの過去座標として記録
@@ -181,6 +202,9 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 			}
 		}
 	}
+
+	//最後にStrengthの処理を通す
+	Strength = ShotStrength + MoveStrength;
 }
 
 void EnemyThinking::ThinkMove(uint64_t deltatime)
@@ -283,10 +307,10 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 		if (localpos.x > 0) //ローカル座標に合わせて左右の判定をする
 		{
 			
-			if (Strength > 300 && range >30)
+			if (ShotStrength > 300 && range >30)
 			{
 
-				Strength -= 300;
+				ShotStrength -= 300;
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, false);
 			}
@@ -294,10 +318,18 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 		}
 		else 
 		{
-			if (Strength > 300 && range > 30)
+			/*if (Strength > 300 && range > 30)
 			{
 
 				Strength -= 300;
+				Enemy.SetAvoidance(true);
+				Enemy.Stepavoidance(minposition, true);
+			}*/
+			//射撃部分の判定のみを取って計算
+			if (ShotStrength > 300 && range > 30)
+			{
+
+				ShotStrength -= 250;
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, true);
 			}
@@ -322,20 +354,29 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 void EnemyThinking::ThinkShot(uint64_t dt)
 {
 	//射撃は大技→通常射撃の順で行う
-	if (Strength > 1000 && Enemy.GetFIRE() && !Enemy.GetBurstFlag()) {
-		//Strength -= 40;
-		Strength -= 1000;
+	if (Strength > 1000 && Enemy.GetFIRE() && !Enemy.GetSpecialFlag()) {
+		//Strength -= 1000;
+		//ShotとMoveの割合で合計1000引く
+		float test = float(ShotStrength) / float(Strength);
+		test = float(MoveStrength / Strength);
 
-		Enemy.SetBurstFlag(true);
+		ShotStrength -= float(ShotStrength) / float(Strength) * 1000;
+		MoveStrength -= float(MoveStrength) / float(Strength) * 1000;
+
+		Enemy.SetSpecialFlag(true);
 
 		//Enemy.Shot(dt);
 
 	}
 
-	if (Strength > 40 && Enemy.GetFIRE()) {
-		Strength -= 40;
-		//Strength -= 1000;
-
+	if (Strength > 40 && Enemy.GetFIRE() && !Enemy.GetSpecialFlag()) {
+		//Strength -= 40;
+		if (MoveStrength > 40) MoveStrength -= 40;
+		else {
+			ShotStrength -= float(ShotStrength) / float(Strength) * 40;
+			MoveStrength -= float(MoveStrength) / float(Strength) * 40;
+		}
+		
 		Enemy.Shot(dt);
 
 	}
@@ -346,5 +387,6 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 void EnemyThinking::LevelControl()
 {
 	//レベルの調整(レベルは下がらないものとして扱う)
-	if (Strength / 1000 > Level) Level = Strength / 1000;
+	if (ShotStrength > 600 && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+	if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel);}
 }

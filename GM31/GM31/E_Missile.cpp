@@ -45,9 +45,9 @@ void E_Missile::Init()
 
 	m_Position.y = -20;
 
-	m_Scale.x = 2.0f;
-	m_Scale.y = 2.0f;
-	m_Scale.z = 2.0f;
+	m_Scale.x = 1.5f;
+	m_Scale.y = 1.5f;
+	m_Scale.z = 1.5f;
 
 	//’e‚Ì“–‚½‚è”»’è
 	aiVector3D minpos;

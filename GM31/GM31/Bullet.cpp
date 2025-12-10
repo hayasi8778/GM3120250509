@@ -19,7 +19,22 @@ void Bullet::Init()
 		"assets/model/starwars/laser.x",		// モデル名
 		"assets/model/starwars/");				// テクスチャのパス;
 
-
+	// 画像のUV座標
+	Vector2 uv[4] = {
+		Vector2(0, 0),
+		Vector2(1.0f / 1.0f, 0),
+		Vector2(0, 1.0f / 1.0f),
+		Vector2(1.0f / 1.0f, 1.0f / 1.0f)
+	};
+	// マテリアル生成
+	MATERIAL	mtrl_Screen;
+	mtrl_Screen.Ambient = Color(0, 0, 0, 0);
+	mtrl_Screen.Diffuse = Color(1, 1, 1, 1.0f);//ここが色なのでこれをいじる
+	mtrl_Screen.Emission = Color(0, 0, 0, 0);
+	mtrl_Screen.Specular = Color(0, 0, 0, 0);
+	mtrl_Screen.Shiness = 0;
+	mtrl_Screen.TextureEnable = TRUE;
+	m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/Shadow.png", uv, mtrl_Screen);
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
@@ -210,6 +225,8 @@ void Bullet::Draw()
 	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 	//向き気にしなくてもいいからSRTで描画
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
+	//影を落とす
+	if (shot)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
 };
 
 void Bullet::Dispose()

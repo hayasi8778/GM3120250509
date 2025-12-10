@@ -366,7 +366,7 @@ void Enemy_Missile::CreateBullet()
 	//pb->SetRotation(m_Rotation);
 	//pb->SetPosition(bulletpos);
 
-	e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
+	//e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
 	//playerをセットした時点で角度はセットしているのでここはいらない
 	//e_missiles[Bulletnum].SetRotation(m_Rotation);
 	e_missiles[Bulletnum].SetPosition(bulletpos);
@@ -426,7 +426,7 @@ void Enemy_Missile::CreateBullet_FullBurst()
 	e_missiles[Bulletnum].SetRotation(Vector3(pitch, yaw, 0.0f));
 
 
-	e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
+	//e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
 	e_missiles[Bulletnum].SetCount(0);//補正無し
 	//e_missiles[Bulletnum].SetRotation(m_Rotation);
 	e_missiles[Bulletnum].SetPosition(bulletpos);
@@ -507,7 +507,7 @@ void Enemy_Missile::CreateBullet_FullBurst_Tes()
 	float pitch = atan2f(-dir.y, sqrtf(dir.x * dir.x + dir.z * dir.z));
 	e_missiles[Bulletnum].SetRotation(Vector3(pitch, yaw, 0.0f));
 
-	e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
+	//e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
 	e_missiles[Bulletnum].SetCount(0);//補正無し
 	//e_missiles[Bulletnum].SetRotation(m_Rotation);
 	e_missiles[Bulletnum].SetPosition(m_Position);

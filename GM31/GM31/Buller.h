@@ -1,6 +1,8 @@
 #pragma once
 #include "Object.h"
 
+#include "system/CSprite.h"
+
 class Bullet : public Object
 {
 private:
@@ -32,6 +34,8 @@ private:
 	float Height;
 	float Depth;
 
+	//G‚É”Âƒ|ƒŠ‚Å‰e‚ğo‚·
+	std::unique_ptr<CSprite> m_Shadow;
 	
 public:
 	Bullet();

@@ -18,6 +18,23 @@ void E_Missile::Init()
 		"assets/model/starwars/laser.x",		// モデル名
 		"assets/model/starwars/");				// テクスチャのパス;
 
+	// 画像のUV座標
+	Vector2 uv[4] = {
+		Vector2(0, 0),
+		Vector2(1.0f / 1.0f, 0),
+		Vector2(0, 1.0f / 1.0f),
+		Vector2(1.0f / 1.0f, 1.0f / 1.0f)
+	};
+	// マテリアル生成
+	MATERIAL	mtrl_Screen;
+	mtrl_Screen.Ambient = Color(0, 0, 0, 0);
+	mtrl_Screen.Diffuse = Color(1, 1, 1, 0.5f);//ここが色なのでこれをいじる
+	mtrl_Screen.Emission = Color(0, 0, 0, 0);
+	mtrl_Screen.Specular = Color(0, 0, 0, 0);
+	mtrl_Screen.Shiness = 0;
+	mtrl_Screen.TextureEnable = TRUE;
+	m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/Shadow.png", uv , mtrl_Screen);
+
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
 
@@ -27,6 +44,10 @@ void E_Missile::Init()
 	//	"shader/vertexLightingPS.hlsl");			// ピクセルシェーダー
 
 	m_Position.y = -20;
+
+	m_Scale.x = 2.0f;
+	m_Scale.y = 2.0f;
+	m_Scale.z = 2.0f;
 
 	//弾の当たり判定
 	aiVector3D minpos;
@@ -41,6 +62,8 @@ void E_Missile::Init()
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
 
 	Boooooooom = std::make_unique<Sphere>(5);
+
+
 
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -116,6 +139,9 @@ void E_Missile::Draw()
 	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
+
+	//影を落とす
+	if(shot)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, {m_Position.x,1,m_Position.z});
 }
 
 void E_Missile::Dispose()
@@ -367,6 +393,7 @@ void E_Missile::Update_Shot2(uint64_t deltatime)
 	if (Alive_time < 0) {
 		//shot = false;
 		collsion = true;
+		shot = false;
 	}
 
 	//通常と違う追尾性持っているならここを通る

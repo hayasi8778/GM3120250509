@@ -2,6 +2,8 @@
 #include "Object.h"
 #include "Player_Mec.h"
 
+#include "system/CSprite.h"
+
 class E_Missile : public Object
 {
 private:
@@ -37,6 +39,9 @@ private:
 	float Width = 0;
 	float Height = 0;
 	float Depth = 0;
+
+	//G‚É”Âƒ|ƒŠ‚Å‰e‚ğo‚·
+	std::unique_ptr<CSprite> m_Shadow;
 public:
 	E_Missile();
 	~E_Missile();

@@ -780,34 +780,11 @@ void MecScene::PlayerShot()
 		m_player.Action(Vector3{ 0,0,0 });
 		//m_player.SetTarget(m_enemys[0]->GetPosition_P());
 		m_player.SetTarget(RockonEnemy->GetPosition_P());
+	}
 
-		/*for (int i = 0; i < ADHESIOINGMAX; i++) 
-		{
-			if (AdhesioingObjects[i]) 
-			{
-				switch (i)
-				{
-				case 0:
-					AdhesioingObjects[i]->Action(RockonEnemy->GetCenter());
-					break;
-				case 1:
-					AdhesioingObjects[i]->Action(RockonEnemy->GetCenter());
-					break;
-				case 2:
-					if (m_player.GetDoublePistol() != 1)AdhesioingObjects[i]->Action(RockonEnemy->GetCenter());
-					break;
-				case 3:
-					if (m_player.GetDoublePistol() != 0)AdhesioingObjects[i]->Action(RockonEnemy->GetCenter());
-					break;
-				case 4:
-					AdhesioingObjects[i]->Action(RockonEnemy->GetCenter());
-					break;
-				default:
-					break;
-				}
-				
-			}
-		}*/
+	// ’e”­ŽË
+	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_U)) {
+		m_player.SetBurst(true);
 	}
 
 	// “G‚ÌŽËŒ‚ƒtƒ‰ƒO–³Œø‰»

@@ -49,6 +49,11 @@ void M_Player::Init()
 
 	//	DebugUI::RedistDebugFunction(DebugPlayerMoveParameter);
 
+	for (int i = 0; i < MaxBullets; i++)
+	{
+		m_bullets[i].Init();
+	}
+
 	//ƒXƒP[ƒ‹’²®
 	SetScale({ 1.0f,1.0f,1.0f });
 
@@ -89,10 +94,12 @@ void M_Player::Update(uint64_t deltatime)
 	//m_Rotation.y += 0.1;
 	//m_Rotation.z += 0.1;
 
+	float timeD = static_cast<float>(deltatime) / 1000;
+
 	//Õ“Ë”»’è‚Æ–³“GŠÔ‚Ìˆ—
 	if (col)
 	{
-		Invincibility_time += static_cast<float>(deltatime) / 1000;
+		Invincibility_time += timeD;
 
 		if (Invincibility_time > 1000)
 		{
@@ -118,6 +125,12 @@ void M_Player::Update(uint64_t deltatime)
 		SetRotation_PL({ 0.0f,yaw, 0.0f });
 	}
 
+	if (Burst) SpecialAttack(deltatime);
+
+	for (int i = 0; i < MaxBullets; i++)
+	{
+		m_bullets[i].Update(deltatime);
+	}
 	
 
 	head.Update(deltatime);
@@ -216,9 +229,9 @@ void M_Player::Draw()
 	//g_rotation = m_Rotation;
 	//g_scale = m_Scale;
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < MaxBullets; i++)
 	{
-		//m_bullet[i].Draw();
+		m_bullets[i].Draw();
 	}
 
 	// ’e‚Ì‰ñ“]Šp“x‚©‚ç‰ñ“]s—ñ‚ğì¬
@@ -338,6 +351,48 @@ Vector3 M_Player::GetRight()
 Vector3 M_Player::GetUp()
 {
 	return Up_vec;
+}
+
+void M_Player::SpecialAttack(uint64_t deltatime) 
+{
+	//Burst = false;
+	float time = static_cast<float>(deltatime) / 1000;
+	BurstCoolTime += time;
+	if (BurstCoolTime > 5000) {
+		Burst = false;
+		BurstCoolTime = 0;
+		bulletcur = 0;
+	}
+
+	if (bulletcur == MaxBullets)  return;//bulletcur = 0;
+
+	BurstCount += time;
+	if (BurstCount > 100) {
+		BurstCount = 0;
+	}
+	else return;
+
+	// SRTî•ñì¬
+	SRT srt;
+	srt.scale = m_Scale;			// Šgk
+	srt.rot = m_Rotation;			// p¨	srt.pos = m_Position;
+	srt.pos = m_Position;			// ˆÊ’u
+
+	//pb->SetForward(forward);
+	//m_bullets[bulletcur].SetForward(Up_vec);
+	m_bullets[bulletcur].Setinduction(2000.0f, Up_vec);
+	m_bullets[bulletcur].SetTarget(Target);
+
+	//pb->SetScale(Vector3(1, 1, 1));
+	//pb->SetRotation(m_Rotation);
+	//pb->SetPosition(bulletpos);
+
+	//m_bullets[bulletnum].SetScale(Vector3(1, 1, 1));
+	//m_bullets[bulletcur].SetScale(Vector3(0.5, 0.5, 0.5));
+	m_bullets[bulletcur].SetRotation(m_Rotation);
+	m_bullets[bulletcur].SetPosition(m_Position);
+
+	bulletcur++;
 }
 
 void M_Player::SetTarget(Vector3* vec)//‘ÎÛ‚ÌÀ•W‚ğ•Û‘¶‚µ‚Â‚Â‚»‚Ì•ûŒü‚ğŒü‚­

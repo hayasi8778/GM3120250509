@@ -24,15 +24,19 @@ private:
 	Vector3 Forward_vec;
 
 	//最終的にはここにまとめる形にしたい
-	Bullet m_bullets[5];
+	const int MaxBullets = 20;
+	Bullet m_bullets[20];
+	bool Burst = false;
+	float BurstCoolTime = 0;
+	float BurstCount = 0;
+	int bulletcur = 0;
 
 	int MaxHP = 100;
 	int HP = MaxHP;//体力
 	float Invincibility_time = 0;//無敵時間
 
 	Vector3* Target = nullptr;
-	bool Burst = false;
-	int bulletcur = 0;
+	
 	float time = 0;//経過時間を加算して計測する
 	bool Shot = false; //射撃したフレームにonになる関数
 
@@ -76,13 +80,18 @@ public:
 	Vector3 GetRight();
 	Vector3 GetUp();
 
+	void Debug_Player();//デバック用GUI一式
+
+	void SpecialAttack(uint64_t);
+
 	int GetHP() { return HP; }
 	int GetMaxHP() { return MaxHP; }
 	void SetTarget(Vector3* tar);
 	Vector3* GetTarget() { return Target; }
 	void SetCol(bool collision) { if (collision) { col = collision; } };
 	void HitDamage(int damage) { if (col) HP -= damage; }
-	void Debug_Player();//デバック用GUI一式
+	void SetBurst(bool br) { Burst = br; }
+
 	Vector3 ConectPos();
 	Vector3 ConectPos(int i);
 	//当たり判定のために描画時の角度情報返す関数を作っておく

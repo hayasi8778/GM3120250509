@@ -1,6 +1,8 @@
 #include "Buller.h"
 #include <random>
 
+#include "Random.h"
+
 Bullet::Bullet()
 {
 	Init();
@@ -92,19 +94,18 @@ void Bullet::Update(uint64_t deltatime)
 		{
 			priod -= time_D;
 
-			m_Position += forward * 0.4f;
+			m_Position += forward * 0.8f;
 		}
 		else
 		{
 			if (Missile) 
 			{
 				Missile = false;
-				std::mt19937 rad{ std::random_device{}() };
-				std::uniform_real_distribution<float> posdist{ -10.0f, 10.0f };
+				RandomGen rand;
 
 				Targetpos = *Target_P;
-				Targetpos.x += posdist(rad);
-				Targetpos.z += posdist(rad);
+				Targetpos.x += rand.UniformFloat(-25.0f, 25.0f);;
+				Targetpos.z += rand.UniformFloat(-25.0f, 25.0f);;
 			}
 			Vector3 acceleration = Vector3{ 0,0,0 };
 			//‹A‚è

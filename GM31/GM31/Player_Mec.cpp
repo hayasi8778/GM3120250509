@@ -312,6 +312,23 @@ GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
 	return obb;
 }
 
+GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB_Bullet(int num)
+{
+	if (num < MaxBullets)
+	{
+		return  m_bullets[num].GetOBB();
+	}
+
+	GM31::GE::Collision::BoundingBoxOBB colbox;
+
+	return colbox;
+}
+
+void M_Player::SetCollision_Bullet(int num, bool col)
+{
+	m_bullets[num].SetCol(col);
+}
+
 void M_Player::Reset() 
 {
 	HP = MaxHP;

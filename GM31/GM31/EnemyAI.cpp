@@ -188,20 +188,7 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 	//プレイヤーの過去座標として記録
 	CurentPos_P = Player->GetPosition();
 
-	//当たり判定処理
-	for (int i = 0; i < TotalGun; i++) //銃を親オブジェクトとした弾と敵の当たり判定
-	{
-		if (!GunObject[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
-		if (auto gun = GunObject[i])
-		{
-			for (int i = 0; i < 5; i++)
-			{
-				bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), gun->GetOBB_Bullet(i));
-				Enemy.SetCollision(col);
-				if (col) gun->SetCollision_Bullet(i, col);
-			}
-		}
-	}
+	Collision();
 
 	//最後にStrengthの処理を通す
 	Strength = ShotStrength + MoveStrength;
@@ -390,4 +377,28 @@ void EnemyThinking::LevelControl()
 	//レベルの調整(レベルは下がらないものとして扱う)
 	if (MoveStrength > 600 && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
 	if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel);}
+}
+
+void EnemyThinking::Collision()
+{
+	//当たり判定処理
+	for (int i = 0; i < TotalGun; i++) //銃を親オブジェクトとした弾と敵の当たり判定
+	{
+		if (!GunObject[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
+		if (auto gun = GunObject[i])
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), gun->GetOBB_Bullet(i));
+				Enemy.SetCollision(col);
+				if (col) gun->SetCollision_Bullet(i, col);
+			}
+		}
+	}
+
+	for (int i = 0; i < 20; i++) {
+		bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), Player->GetOBB_Bullet(i));
+		Enemy.SetCollision(col);
+		if (col) Player->SetCollision_Bullet(i, col);
+	}
 }

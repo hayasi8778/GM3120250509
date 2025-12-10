@@ -74,6 +74,8 @@ public:
 	void Adhesioing() override;
 	void Action(Vector3 vec) override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
+	GM31::GE::Collision::BoundingBoxOBB GetOBB_Bullet(int num);
+	void SetCollision_Bullet(int, bool);
 	void Reset();
 	int GetShaderNum() override;
 	Vector3 GetForward();

@@ -21,8 +21,8 @@ private:
 	int PlayerState;//プレイヤーの状態
 	//プレイヤーの動きの苛烈さに対して敵の動きのレベル上げたいのでプレイヤーの動きで加算して敵の動きの上限作る
 	int Strength = 0;
-	int ShotStrength = 0;
-	int MoveStrength = 0;
+	int ShotStrength = 1;
+	int MoveStrength = 1;
 	int ShotLevel = 0;//敵の強さを行動で増減する数値と安易に増減しないレベルで管理する
 	int MoveLevel = 0;//敵の強さを行動で増減する数値と安易に増減しないレベルで管理する
 	//行動で増える量
@@ -57,6 +57,7 @@ public:
 	void ThinkMove(uint64_t);
 	void ThinkShot(uint64_t);
 	void LevelControl();
+	void Collision();
 
 	bool GetSpecial() { return Enemy.GetSpecialFlag(); }
 };

@@ -165,7 +165,7 @@ void M_Gun::Action(Vector3 vec)
 	srt.pos = m_Position;			// ˆÊ’u
 
 	//V‚µ‚¢’e‚ğì‚é
-	std::unique_ptr<Bullet> pb = std::make_unique<Bullet>();
+	//std::unique_ptr<Bullet> pb = std::make_unique<Bullet>();
 
 	Matrix4x4 world = srt.GetMatrix();
 	//Vector3 forward = world.Forward();

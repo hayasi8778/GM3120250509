@@ -214,7 +214,8 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 
 	TimeLog += static_cast<float>(deltatime) / 1000;
 
-	if (TimeLog > cooltime + (1000 / 60.0f)) {
+	//ログの更新
+	/*if (TimeLog > cooltime + (1000 / 60.0f)) {
 		Vector3 localpos;
 		localpos.x = Dot(pos_PL - pos_EN, Player->GetRight());
 		localpos.y = Dot(pos_PL - pos_EN, Player->GetUp());
@@ -223,7 +224,7 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 
 		cooltime = TimeLog;
 		LogSubscript++;
-	}
+	}*/
 
 	//5秒経過
 	if (TimeLog > 5000)
@@ -245,7 +246,7 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 
 	//プレイヤーのローカル座標系の座標をワールド座標系へ復元
 	pos = Player->GetPosition() + Player->GetRight() * pos.x + Player->GetUp() * pos.y + Player->GetForward() * pos.z;
-	Vector3 Targetpos = pos - Player->GetPosition();//
+	Vector3 Targetpos = pos - Player->GetPosition();//positionLogに保存された場所に移動する
 
 	//当たり判定処理
 	Vector3 minposition = { 0,0,0 };
@@ -387,6 +388,6 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 void EnemyThinking::LevelControl()
 {
 	//レベルの調整(レベルは下がらないものとして扱う)
-	if (ShotStrength > 600 && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+	if (MoveStrength > 600 && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
 	if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel);}
 }

@@ -959,7 +959,8 @@ bool Enemy_Missile::Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb)
 
 void Enemy_Missile::Stepavoidance(Vector3 bulletpos ,bool StepVec)
 {
-	if (FIRE_BEAM || AvoidancePowor != 0) return;//ビーム照射中か既にステップ踏んでるなら何もしない
+	//if (FIRE_BEAM || AvoidancePowor != 0) return;//ビーム照射中か既にステップ踏んでるなら何もしない
+	if (FIRE_BEAM) return;//ビーム照射中か既にステップ踏んでるなら何もしない
 	//敵の弾の位置から向きを割り出す
 	Vector3 TargetForward = (m_Position - bulletpos);
 

@@ -219,7 +219,7 @@ void Enemy_Missile::Draw()
 	}
 	else
 	{
-		m_shapecube_col->Draw(transmtx, { 1.0f,1.0f,1.0f,0.5f });
+		//m_shapecube_col->Draw(transmtx, { 1.0f,1.0f,1.0f,0.5f });
 	}
 
 	//’eŠÛ‚ÌŒŸ’m”ÍˆÍ

@@ -11,6 +11,7 @@
 #include "Enemy_LeftFeet.h"
 #include "Enemy_RightFeet.h"
 
+
 enum FIREMODE {
 	DEFAULT,
 	CURVE,		//‹È‚ª‚é’eŠÛ

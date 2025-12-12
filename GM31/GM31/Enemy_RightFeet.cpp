@@ -126,7 +126,7 @@ void Enemy_RightFeet::Draw()
 	}
 	else
 	{
-		m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
+		//m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.5 });
 	}
 
 

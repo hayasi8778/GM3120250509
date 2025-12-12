@@ -145,11 +145,11 @@ void MecScene::init()
 	m_Tutorial = std::make_unique<CSprite>(200, 200, "assets/texture/Tutorial.png", uv);
 	
 	//プレイヤーHP
-	HP_Player_G = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_green.png", uv);
-	HP_Player_R = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_red.png", uv);
+	HP_Player_G = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_green.png", uv);
+	HP_Player_R = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_red.png", uv);
 	//エネミーHP
-	HP_Enemy_G = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_green.png", uv);
-	HP_Enemy_R = std::make_unique<CSprite>(20, 20, "assets/model/Mec/MecArm/Tex_red.png", uv);
+	HP_Enemy_G = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_green.png", uv);
+	HP_Enemy_R = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_red.png", uv);
 
 
 
@@ -195,7 +195,7 @@ void MecScene::update(uint64_t deltatime)
 	//m_camera.SetLookat(m_player.GetPosition());
 	m_camera.SetLookat(Enemy.GetEnemy()->GetPosition());
 	m_camera.Update_time(deltatime);
-	Vector3 campos = { 0,0,0 };
+	m_camera.Update();
 	switch (UseCamera)
 	{
 	case UseCameraNormal:
@@ -220,9 +220,15 @@ void MecScene::update(uint64_t deltatime)
 		camForward *= scale;
 		float Special = 1.0f;
 		if (Enemy.GetSpecial()) Special = 1.5f;
-		Vector3 campos = m_player.GetPosition() + camForward *Special;
+		campos = m_player.GetPosition() + camForward *Special;
 		campos.y = 30;
-		m_camera.SetPosition(campos);
+		
+		/*if (m_camera.GetMovePosition() == Vector3(0.0f, 0.0f, 0.0f)) {
+			m_camera.SetPosition(campos);
+		}*/
+		//カメラに本来のカメラ座標を記録させる
+		m_camera.Setcampos(campos);
+
 
 		//被弾時でないかつ銃を撃ったら反動がある
 		if (!m_player.GetInvincibility() && m_player.GetShot()) m_camera.SetVibration(1.0f, 100.0f);
@@ -1029,8 +1035,11 @@ void MecScene::UIDraw()
 
 	// 左端位置からオフセットを加えて描画
 	//camRotUIよりcamRotの方が精度高いので修正
-	HP_Enemy_R->Draw3D(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot_HP_R, worldLeftPos + halfOffset_R - offset_First);
-	HP_Enemy_G->Draw3D(Vector3{ currentWidth, 0.007f, 0.03f }, camRot_HP_G, worldLeftPos + halfOffset_G - offset);
+	//HP_Enemy_R->Draw3D(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot_HP_R, worldLeftPos + halfOffset_R - offset_First);
+	//HP_Enemy_G->Draw3D(Vector3{ currentWidth, 0.007f, 0.03f }, camRot_HP_G, worldLeftPos + halfOffset_G - offset);
+	HP_Enemy_R->Draw(Vector3{ 1.7f, 0.25f, 1.0f }, Vector3(0.0f, 0.0f, 0.0f), Vector3(1000.0f, 100.0f, 0.1f));
+	HP_Enemy_G->Draw(Vector3{ 1.7f * float(RockonEnemy->GetHP()) / float(RockonEnemy->GetMaxHP()), 0.25f, 1.0f }, Vector3(0.0f, 0.0f, 0.0f),
+		Vector3(1180.0f - 180.0f * float(RockonEnemy->GetHP()) / float(RockonEnemy->GetMaxHP()), 100.0f, 0.0f));
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//プレイヤーのHP表示
@@ -1053,8 +1062,10 @@ void MecScene::UIDraw()
 
 	// 左端位置からオフセットを加えて描画
 		//camRotUIよりcamRotの方が精度高いので修正
-	HP_Player_R->Draw3D(Vector3{ currentWidth_First, 0.007f, 0.03f }, camRot, leftBasePos - offset_First);
-	HP_Player_G->Draw3D(Vector3{ currentWidth, 0.007f, 0.03f }, camRot, leftBasePos - offset);
+	HP_Player_R-> Draw(Vector3{ 1.7f, 0.25f, 1.0f }, Vector3(0.0f, 0.0f, 0.0f), Vector3(300.0f, 100.0f, 0.1f));
+	//HP_Player_G->Draw(Vector3{ 1.7f, 0.25f, 1.0f }, Vector3(0.0f, 0.0f, 0.0f), Vector3(300.0f, 100.0f, 0.0f));
+	HP_Player_G->Draw(Vector3{ 1.7f * float(m_player.GetHP())/float(m_player.GetMaxHP()), 0.25f, 1.0f}, Vector3(0.0f, 0.0f, 0.0f), 
+		Vector3(120.0f  + 180.0f* float(m_player.GetHP()) / float(m_player.GetMaxHP()), 100.0f, 0.0f));
 
 	m_Tutorial->Draw(Vector3{ 3,1,1 }, { 0,0,0 }, { 300,670,0 });
 
@@ -1162,13 +1173,38 @@ void MecScene::PlayerMovetes()
 	Vector3 localDir = { 0, 0, 0 };
 	auto& DI = CDirectInput::GetInstance();
 
-	if (DI.CheckKeyBuffer(DIK_W)) localDir += { 0, 0, 1 };  // 前
-	if (DI.CheckKeyBuffer(DIK_S)) localDir += { 0, 0, -1 };  // 後
-	if (DI.CheckKeyBuffer(DIK_A)) localDir += {-1, 0, 0 };  // 左
-	if (DI.CheckKeyBuffer(DIK_D)) localDir += { 1, 0, 0 };  // 右
+	if (DI.CheckKeyBuffer(DIK_W)) { localDir += { 0, 0, 1 };
+	Vector3 camposition = campos + m_player.GetForward() * 20;
+	m_camera.SetMovePosition(camposition);
+	}  // 前
+	if (DI.CheckKeyBuffer(DIK_S)) {
+		localDir += { 0, 0, -1 };
+		Vector3 camposition = campos - m_player.GetForward() * 20;
+		m_camera.SetMovePosition(camposition);
+	}  // 後
+	if (DI.CheckKeyBuffer(DIK_A)) { 
+		localDir += {-1, 0, 0 };
+		Vector3 camposition = campos + m_player.GetRight() * 20;
+		m_camera.SetMovePosition(camposition);
+	}  // 左
+	if (DI.CheckKeyBuffer(DIK_D)) { 
+		localDir += { 1, 0, 0 }; 
+		Vector3 camposition = campos - m_player.GetRight() * 20;
+		m_camera.SetMovePosition(camposition);
+	}// 右
 
-	if (localDir.LengthSquared() > 1e-6f)
-		localDir.Normalize();  // 斜め移動時も速度一定
+	if (localDir.LengthSquared() > 1e-6f) localDir.Normalize();  // 斜め移動時も速度一定
+
+	//カメラのがたがた補正する
+	if (localDir.LengthSquared() > 0)
+	{
+		localDir.Normalize();
+		m_camera.SetMovePosition(campos + localDir * 20.0f);
+	}
+	else
+	{
+		m_camera.SetMovePosition(campos);
+	}
 
 	
 

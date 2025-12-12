@@ -101,6 +101,7 @@ private:
 	Camera m_camera;									// 固定カメラ
 	Vector3 camRot = Vector3{ 0,0,0 };					//カメラの向き
 	FreeCamera m_cameraF;								//デバック用の自由カメラ
+	Vector3 campos = { 0,0,0 };
 
 	std::unique_ptr<Skydome> m_skydome;							// スカイドーム
 

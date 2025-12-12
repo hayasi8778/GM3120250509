@@ -5,6 +5,8 @@
 #include	"application.h"
 #include	"system/CPolar3D.h"
 
+#include	"Range.h"
+
 class Camera {
 protected:
 	Vector3	m_position = Vector3(0.0f, 0.0f, 0.0f);	// カメラ位置
@@ -17,6 +19,7 @@ protected:
 	float m_vibration_time = 0;//カメラを揺らす時間(ミリ秒)
 
 	Vector3 moveposition = Vector3(0.0f, 0.0f, 0.0f);//カメラの移動目標
+	Vector3 campos = Vector3(0.0f, 0.0f, 0.0f);//本来のカメラ位置
 
 public:
 	Camera() = default;
@@ -32,11 +35,16 @@ public:
 	Vector3 GetPosition() { return m_position; }
 	void SetLookat(const Vector3& position) { m_lookat = position; }
 	Vector3 GetLookat() { return m_lookat; }
+	void SetMovePosition(Vector3 vec) { moveposition = vec; }
+	Vector3 GetMovePosition() { return moveposition; }
+	void Setcampos(Vector3 vec) { campos = vec; }
 
 	Matrix4x4 GetViewMatrix() const { return m_viewmtx; }
 	Matrix4x4 GetProjMatrix() const { return m_projmtx; }
 
 	Vector3 ScreenToWorld(float screenX, float screenY, float screenZ) const;
+
+
 
 	//カメラ揺れの大きさと揺れ時間実装させるためのやつ
 	void SetVibration(float size, float time) { 

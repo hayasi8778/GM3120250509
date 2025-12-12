@@ -78,6 +78,7 @@ void Bullet::Update(uint64_t deltatime)
 
 			m_Position = { 0,-100,0 };
 		}
+		return;
 	}
 
 	if (!shot) return;
@@ -125,7 +126,7 @@ void Bullet::Update(uint64_t deltatime)
 			if (priod < 0)
 			{
 				shot = true;
-				if (!collsion)m_Position = { 0,-10,0 };
+				if (!collsion)m_Position = { 0,-200,0 };
 				Missile = true;
 			}
 
@@ -227,7 +228,7 @@ void Bullet::Draw()
 	//å¸Ç´ãCÇ…ÇµÇ»Ç≠ÇƒÇ‡Ç¢Ç¢Ç©ÇÁSRTÇ≈ï`âÊ
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
 	//âeÇóéÇ∆Ç∑
-	if (shot)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
+	if (shot && !collsion && m_Position.y >-10)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
 };
 
 void Bullet::Dispose()
@@ -247,7 +248,13 @@ void Bullet::Action(Vector3 vec)
 
 void Bullet::Reset()
 {
+	m_Position = { 0,-200,0 };
+	shot = false;
 
+
+	//íeä€ÇÃå¬ê´ÇñﬂÇ∑
+	Missile = true;
+	priod = 0;
 };
 
 int Bullet::GetShaderNum()

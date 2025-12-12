@@ -2,7 +2,10 @@
 #include "Object.h"
 #include "Player_Mec.h"
 
+#include "blobshadow.h"
+
 #include "system/CSprite.h"
+
 
 class E_Missile : public Object
 {
@@ -42,6 +45,7 @@ private:
 
 	//G‚É”Âƒ|ƒŠ‚Å‰e‚ğo‚·
 	std::unique_ptr<CSprite> m_Shadow;
+	//std::unique_ptr<BlobShadow> m_BlobShadow;
 public:
 	E_Missile();
 	~E_Missile();

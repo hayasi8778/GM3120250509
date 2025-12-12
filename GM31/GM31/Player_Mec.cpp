@@ -139,23 +139,40 @@ void M_Player::Update(uint64_t deltatime)
 	leftfeet.Update(deltatime);
 	rightfeet.Update(deltatime);
 
-	// 方向ベクトル作成
-	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
-	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
-	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+	//// 方向ベクトル作成
+	//Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	//Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	//Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
 
-	// 合成
-	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+	//// 合成
+	//Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
-	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
-	// 方向ベクトル 抽出
-	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
-	Right_vec.Normalize();
-	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
-	Up_vec.Normalize();
-	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
-	Forward_vec.Normalize();
+	//// 方向ベクトル 抽出
+	//Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	//Right_vec.Normalize();
+	//Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	//Up_vec.Normalize();
+	//Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	//Forward_vec.Normalize();
+
+	Matrix4x4 rotX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
+
+	// 反転したいならここで反転
+	Matrix4x4 rot = rotX * rotY * rotZ;
+
+	// 方向ベクトルは回転行列からのみ抽出
+	Right_vec = { rot._11, rot._12, rot._13 };
+	Up_vec = { rot._21, rot._22, rot._23 };
+	Forward_vec = { rot._31, rot._32, rot._33 };
+
+	// 必要ならここで反転
+	Forward_vec *= -1.0f;  // ← モデルが反転しているならこれでOK
+	Right_vec *= -1.0f;
+
 
 	SRT srt;
 	srt.scale = m_Scale;			// 拡縮
@@ -340,6 +357,16 @@ void M_Player::Reset()
 	rightarm.Reset();
 	leftfeet.Reset();
 	rightfeet.Reset();
+
+	//特殊攻撃関連の初期化
+	for (int i = 0; i < MaxBullets; i++)
+	{
+		m_bullets[i].Reset();
+	}
+	Burst = false;
+	BurstCoolTime = 0;
+	BurstCount = 0;
+	bulletcur = 0;
 }
 
 int M_Player::GetShaderNum()

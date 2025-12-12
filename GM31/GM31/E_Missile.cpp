@@ -28,12 +28,16 @@ void E_Missile::Init()
 	// マテリアル生成
 	MATERIAL	mtrl_Screen;
 	mtrl_Screen.Ambient = Color(0, 0, 0, 0);
-	mtrl_Screen.Diffuse = Color(1, 1, 1, 0.5f);//ここが色なのでこれをいじる
+	mtrl_Screen.Diffuse = Color(1, 1, 1, 0.3f);//ここが色なのでこれをいじる
 	mtrl_Screen.Emission = Color(0, 0, 0, 0);
 	mtrl_Screen.Specular = Color(0, 0, 0, 0);
 	mtrl_Screen.Shiness = 0;
 	mtrl_Screen.TextureEnable = TRUE;
-	m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/Shadow.png", uv , mtrl_Screen);
+	//m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/Shadow.png", uv , mtrl_Screen);
+	m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/effect000.jpg", uv, mtrl_Screen);
+
+	/*m_BlobShadow = std::make_unique<BlobShadow>();
+	m_BlobShadow->Init("assets/texture/effect000.jpg");*/
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
@@ -140,8 +144,14 @@ void E_Missile::Draw()
 
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
 
+
+	Renderer::SetBlendState(BS_SUBTRACTION);   ///< 減算合成
 	//影を落とす
-	if(shot)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, {m_Position.x,1,m_Position.z});
+	if (shot)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
+	//if (shot) m_BlobShadow->Draw(5.0f, 0.1f, m_Position.x, m_Position.z);
+
+	// 元に戻す
+	Renderer::SetBlendState(BS_ALPHABLEND);
 }
 
 void E_Missile::Dispose()

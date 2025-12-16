@@ -119,7 +119,7 @@ void Enemy_LeftArm::Draw()
 	srt.pos = m_Position;			// ˆÊ’u
 
 	srt.pos += Right_vec * 1.5;
-	//srt.rot.z += Armrot;
+	srt.rot.z += Armrot;
 
 	Matrix4x4 worldmtx;
 

@@ -52,11 +52,12 @@ void EnemyThinking_Title::Init()
 		PositionLog[i] = localpos;
 	}
 
+#ifdef _DEBUG
 	//GUIŠÖ˜A
 	DebugUI::RedistDebugFunction([this]() {
 		DebugUI();
 		});
-
+#endif
 
 
 }

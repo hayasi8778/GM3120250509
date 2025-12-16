@@ -44,6 +44,8 @@ void EnemyThinking::DebugUI()
 		Enemy.SetShotState(ShotLevel);
 	}
 
+	ImGui::Text("MoveLevel: % d", MoveLevel);
+
 	ImGui::Text("ShotStrength: %d", ShotStrength);
 	ImGui::Text("MoveStrength: %d", MoveStrength);
 
@@ -56,7 +58,8 @@ void EnemyThinking::Init(M_Player* pl)
 	Enemy.Init();
 	Enemy.SetPlayer(Player);
 
-
+	Vector3 playerpos = Player->GetPosition();
+	playerpos.z -= 20;
 
 	Player->SetTarget(Enemy.GetPosition_P());
 	Vector3 right = Player->GetRight();
@@ -66,7 +69,8 @@ void EnemyThinking::Init(M_Player* pl)
 	CurentPos_P = Player->GetPosition();
 
 	//敵の方向いてないっぽいから一旦敵の方向く可能性あるかも
-	Vector3 pos = Player->GetPosition() - Enemy.GetPosition();
+	//Vector3 pos = Player->GetPosition() - Enemy.GetPosition();
+	Vector3 pos = Enemy.GetPosition() - playerpos;
 	Vector3 localpos;
 	localpos.x = Dot(pos, Player->GetRight());
 	localpos.y = Dot(pos, Player->GetUp());
@@ -76,12 +80,13 @@ void EnemyThinking::Init(M_Player* pl)
 	for (int i = 0; i < 300; i++) {
 		PositionLog[i] = FirstRange;
 	}
-
+	
+	#ifdef _DEBUG
 	//GUI関連
 	DebugUI::RedistDebugFunction([this]() {
 		DebugUI();
 		});
-
+	#endif
 	
 
 }
@@ -114,6 +119,8 @@ void EnemyThinking::Reset()
 	Strength = 0;
 	ShotStrength = 0;
 	MoveStrength = 0;
+	ShotLevel = 0;
+	MoveLevel = 0;
 }
 
 void EnemyThinking::Action(Vector3 vec)
@@ -164,7 +171,7 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 {
 	//経過時間を記録
 	float time = static_cast<float>(deltatime) / 1000;
-	//射撃を取得してきて加算
+	//射撃を取得してきて加算(連打でレベルが上がるのでクールタイムを加味する)
 	if (shotcool == 500) { if (Player->GetShot()) { 
 		//Strength += ShotIncrease;  
 		ShotStrength += ShotIncrease;
@@ -202,16 +209,16 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 	TimeLog += static_cast<float>(deltatime) / 1000;
 
 	//ログの更新
-	/*if (TimeLog > cooltime + (1000 / 60.0f)) {
+	if (TimeLog > cooltime + (1000 / 60.0f)) {
 		Vector3 localpos;
-		localpos.x = Dot(pos_PL - pos_EN, Player->GetRight());
-		localpos.y = Dot(pos_PL - pos_EN, Player->GetUp());
-		localpos.z = Dot(pos_PL - pos_EN, Player->GetForward());
+		localpos.x = Dot(pos_EN - pos_PL, Player->GetRight());
+		localpos.y = Dot(pos_EN - pos_PL, Player->GetUp());
+		localpos.z = Dot(pos_EN - pos_PL, Player->GetForward());
 		PositionLog[LogSubscript] = localpos;
 
 		cooltime = TimeLog;
 		LogSubscript++;
-	}*/
+	}
 
 	//5秒経過
 	if (TimeLog > 5000)
@@ -375,8 +382,12 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 void EnemyThinking::LevelControl()
 {
 	//レベルの調整(レベルは下がらないものとして扱う)
-	if (MoveStrength > 600 && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+	//射撃部分
+	if ((MoveStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
 	if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel);}
+
+	//移動部分のレベル調整
+	//if()
 }
 
 void EnemyThinking::Collision()

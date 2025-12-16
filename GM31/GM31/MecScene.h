@@ -147,4 +147,7 @@ private:
 
 	std::unique_ptr<CSprite> HP_Enemy_G;//HPの緑の部分
 	std::unique_ptr<CSprite> HP_Enemy_R;//HPの赤の部分
+
+	std::unique_ptr<CSprite> m_Special;//特殊攻撃のクールタイムを可視化する
+	float Specialcool = 5000;//特殊攻撃のクールタイム
 };

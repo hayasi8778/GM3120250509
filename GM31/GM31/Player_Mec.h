@@ -30,6 +30,7 @@ private:
 	float BurstCoolTime = 0;
 	float BurstCount = 0;
 	int bulletcur = 0;
+	bool BurstFlag = false;
 
 	int MaxHP = 100;
 	int HP = MaxHP;//‘Ì—Í
@@ -92,7 +93,8 @@ public:
 	Vector3* GetTarget() { return Target; }
 	void SetCol(bool collision) { if (collision) { col = collision; } };
 	void HitDamage(int damage) { if (col) HP -= damage; }
-	void SetBurst(bool br) { Burst = br; }
+	void SetBurst(bool br) { if(!Burst)BurstFlag = true;  Burst = br;   }
+	bool GetBurst() { return BurstFlag; }
 
 	Vector3 ConectPos();
 	Vector3 ConectPos(int i);

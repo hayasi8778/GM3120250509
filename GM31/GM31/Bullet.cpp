@@ -36,7 +36,8 @@ void Bullet::Init()
 	mtrl_Screen.Specular = Color(0, 0, 0, 0);
 	mtrl_Screen.Shiness = 0;
 	mtrl_Screen.TextureEnable = TRUE;
-	m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/Shadow.png", uv, mtrl_Screen);
+	//m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/Shadow.png", uv, mtrl_Screen);
+	m_Shadow = std::make_unique<CSprite>(5, 5, "assets/texture/effect000.jpg", uv, mtrl_Screen);
 
 	//ƒŒƒ“ƒ_ƒ‰‰Šú‰»
 	m_meshrenderer.Init(m_mesh);
@@ -227,8 +228,13 @@ void Bullet::Draw()
 	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 	//Œü‚«‹C‚É‚µ‚È‚­‚Ä‚à‚¢‚¢‚©‚çSRT‚Å•`‰æ
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
+	Renderer::SetBlendState(BS_SUBTRACTION);   ///< Œ¸ŽZ‡¬
 	//‰e‚ð—Ž‚Æ‚·
-	if (shot && !collsion && m_Position.y >-10)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
+	if (shot && !collsion && m_Position.y > -10)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
+
+	// Œ³‚É–ß‚·
+	Renderer::SetBlendState(BS_ALPHABLEND);
+	
 };
 
 void Bullet::Dispose()

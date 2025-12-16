@@ -199,6 +199,7 @@ void M_Player::Update(uint64_t deltatime)
 void M_Player::LateUpdate(uint64_t deltatime) 
 {
 	Shot = false;//ËŒ‚ƒtƒ‰ƒOØ‚é
+	BurstFlag = false;
 	head.LateUpdate(deltatime);
 	leftarm.LateUpdate(deltatime);
 	rightarm.LateUpdate(deltatime);

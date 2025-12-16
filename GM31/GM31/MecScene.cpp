@@ -151,7 +151,7 @@ void MecScene::init()
 	HP_Enemy_G = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_green.png", uv);
 	HP_Enemy_R = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_red.png", uv);
 
-
+	m_Special = std::make_unique<CSprite>(200, 200, "assets/texture/UI_Yellow.png", uv);
 
 }
 
@@ -160,6 +160,13 @@ void MecScene::update(uint64_t deltatime)
 
 	//フェード
 	if (Fade_Time != 0) { Fade_IN(deltatime);}
+
+	//経過時間を記録
+	float time = static_cast<float>(deltatime) / 1000;
+	if (Specialcool != 5000) {
+		Specialcool += time;
+		if (Specialcool > 5000) Specialcool = 5000;
+	}
 
 	m_boxSRTs[0].pos = m_objects[0]->GetPosition();
 
@@ -237,6 +244,10 @@ void MecScene::update(uint64_t deltatime)
 
 	//ロックオンの更新
 	RockonUpdate();
+
+	//フラグ取得関連
+	//特殊攻撃撃ったらクールタイムに入る
+	if (m_player.GetBurst()) Specialcool = 0;
 
 	//アップデート後の更新
 	m_player.LateUpdate(deltatime);
@@ -430,6 +441,7 @@ int MecScene::ChangeScene()
 		m_player.Reset();
 		Enemy.Reset();
 		Fade_Time = 1000;//フェードかかるように
+		m_camera.SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 		//m_enemys[1]->SetPosition({ 5,7,5 });
 		return 4;
 	}
@@ -444,6 +456,7 @@ int MecScene::ChangeScene()
 	m_player.Reset();
 	Enemy.Reset();
 	Fade_Time = 1000;//フェードリセット
+	m_camera.SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 	//m_enemys[1]->SetPosition({ 25,7,5 });
 	return 2;
 
@@ -1066,6 +1079,9 @@ void MecScene::UIDraw()
 	//HP_Player_G->Draw(Vector3{ 1.7f, 0.25f, 1.0f }, Vector3(0.0f, 0.0f, 0.0f), Vector3(300.0f, 100.0f, 0.0f));
 	HP_Player_G->Draw(Vector3{ 1.7f * float(m_player.GetHP())/float(m_player.GetMaxHP()), 0.25f, 1.0f}, Vector3(0.0f, 0.0f, 0.0f), 
 		Vector3(120.0f  + 180.0f* float(m_player.GetHP()) / float(m_player.GetMaxHP()), 100.0f, 0.0f));
+
+	m_Special->Draw(Vector3{ 1.7f * (Specialcool / 5000), 0.17f, 1.0f }, Vector3(0.0f, 0.0f, 0.0f),
+		Vector3(120.0f + 180.0f * Specialcool / 5000, 150.0f, 0.0f));
 
 	m_Tutorial->Draw(Vector3{ 3,1,1 }, { 0,0,0 }, { 300,670,0 });
 

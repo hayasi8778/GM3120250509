@@ -19,7 +19,8 @@ class Emitter
 
 	std::vector<PARTICLE> m_particles;		// パーティクル群
 
-	Vector3 m_pos{};						// 位置
+	Vector3* m_pos{};						// 位置
+
 	Vector3 m_direction;					// 方向
 
 	Matrix4x4 m_directionMtx;				// パーティクルの射出方向を表す行列（位置と方向）
@@ -41,7 +42,7 @@ class Emitter
 public:
 	// 開始
 	void Start(
-		Vector3 pos,				// エミッターの位置			
+		Vector3* pos,				// エミッターの位置			
 		unsigned int num,			// 1フレームで表示させたい数
 		float radius,				// 円錐の半径
 		float height,				// 円錐の高さ
@@ -55,4 +56,10 @@ public:
 
 	const std::vector<PARTICLE>& GetParticles();
 
+	void UpdateDirection(float azimuth, float elevation);
+
+	//パーティクルの拡散方向を動的に制御する関数(フォワードベクトル、横補正角、縦補正角を入れる)
+	void UpdateDirection(const Vector3& forward, float yawOffsetDeg,float pitchOffsetDeg);
+
+	//void SphereDrawerDraw(float, Color, float, float, float);
 };

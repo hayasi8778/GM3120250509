@@ -1,6 +1,7 @@
 #pragma once
 
 #include	"CommonTypes.h"
+#include	"transform.h"
 
 void ConeDrawerInit(bool);
 

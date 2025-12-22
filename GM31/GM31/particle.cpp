@@ -1,9 +1,11 @@
 #include	<random>
+#include	<DirectXMath.h>
 #include	"particle.h"
 #include	"system/CPolar3D.h"
 
+
 void Emitter::Start(
-	Vector3 pos,				// エミッタの位置
+	Vector3* pos,				// エミッタの位置
 	unsigned int num,			// 発生させるパーティクルの数
 	float radius,				// 円錐の半径
 	float height,				// 円錐の高さ
@@ -56,7 +58,7 @@ void Emitter::Start(
 	int cnt = 0;
 	for (unsigned int cnt = 0; cnt < num;cnt++) {
 		m_particles[cnt].isAlive = true;
-		m_particles[cnt].pos = m_pos;
+		m_particles[cnt].pos = *m_pos;
 		m_particles[cnt].velocity = Vector3::Transform(points[cnt], m_directionMtx);
 		m_particles[cnt].life = distr(gen);
 	}
@@ -112,8 +114,9 @@ void Emitter::Update() {
 			}
 			if (findindex == -1) break;
 
-			m_particles[findindex].pos = m_pos;          // 実際は円錐内など
-			m_particles[findindex].velocity = Vector3::Transform(point, m_directionMtx);
+			m_particles[findindex].pos = *m_pos;          // 実際は円錐内など
+			//m_particles[findindex].velocity = Vector3::Transform(point, m_directionMtx);
+			m_particles[findindex].velocity = Vector3::TransformNormal(point, m_directionMtx);
 			m_particles[findindex].life = distr(gen);
 			m_particles[findindex].isAlive = true;
 		}
@@ -125,3 +128,92 @@ void Emitter::Update() {
 const std::vector<PARTICLE>& Emitter::GetParticles() {
 	return m_particles;				// パーティクル群
 }
+
+void Emitter::UpdateDirection(float azimuth, float elevation)
+{
+	CPolor3D polar(1.0f, elevation, azimuth);
+	Vector3 forward = polar.ToCartesian();
+
+	Quaternion quat = utility::CreateTargetQuaternion(
+		Vector3(0, 1, 0),
+		forward
+	);
+
+	m_directionMtx = Matrix4x4::CreateFromQuaternion(quat);
+
+}
+
+void Emitter::UpdateDirection(const Vector3& forward, float yawOffsetDeg,float pitchOffsetDeg)
+{
+	//Vector3 dir = forward;
+	//dir.Normalize();
+
+	//// ローカルY+（円錐の軸）を、オブジェクトの forward に向ける回転
+	//Quaternion quat = utility::CreateTargetQuaternion(
+	//	Vector3(0, 1, 0), // ローカル円錐の軸
+	//	dir               // オブジェクトの forward
+	//);
+
+	//m_directionMtx = Matrix4x4::CreateFromQuaternion(quat);
+
+	// 1. forward を正規化
+	Vector3 dir = forward;
+	dir.Normalize();
+
+	// 2. 角度をラジアンに変換
+	float yawOffset = DirectX::XMConvertToRadians(yawOffsetDeg);
+	float pitchOffset = DirectX::XMConvertToRadians(pitchOffsetDeg);
+
+	// 3. forward に直交する安定した up を作る
+	Vector3 worldUp(0, 1, 0);
+
+	// forward と worldUp が平行に近い場合の対策
+	if (fabsf(worldUp.Dot(dir)) > 0.99f)
+		worldUp = Vector3(0, 0, 1);
+
+	// 4. right = worldUp × forward
+	Vector3 right = worldUp.Cross(dir);
+	right.Normalize();
+
+	// 5. up = forward × right
+	Vector3 up = dir.Cross(right);
+	up.Normalize();
+
+	// 6. yawOffset（左右）→ up 軸で回す
+	Quaternion qYaw = Quaternion::CreateFromAxisAngle(up, yawOffset);
+	dir = Vector3::Transform(dir, qYaw);
+
+	// 7. pitchOffset（上下）→ right 軸で回す
+	Quaternion qPitch = Quaternion::CreateFromAxisAngle(right, pitchOffset);
+	dir = Vector3::Transform(dir, qPitch);
+
+	dir.Normalize();
+
+	// 8. ローカル円錐の軸(Y+) → dir に向ける回転
+	Quaternion quat = utility::CreateTargetQuaternion(
+		Vector3(0, 1, 0), // ローカル円錐の軸
+		dir               // オフセット後の forward
+	);
+
+	// 9. 行列に変換
+	m_directionMtx = Matrix4x4::CreateFromQuaternion(quat) * 0.03f;//加速度を下げれるかのテスト
+
+}
+
+//void SphereDrawerDraw(float radius, Color col, float ex, float ey, float ez)
+//{
+//	Matrix4x4 mtx = Matrix4x4::CreateScale(radius);
+//
+//	mtx._41 = ex;
+//	mtx._42 = ey;
+//	mtx._43 = ez;
+//
+//	Renderer::SetWorldMatrix(&mtx);
+//	g_material.SetDiffuse(col);
+//	g_material.Update();
+//
+//	g_shader.SetGPU();
+//
+//	g_material.SetGPU();
+//	g_renderer.Draw();
+//}

@@ -4,6 +4,9 @@
 
 #include <DirectXMath.h>
 
+#include "system/SphereDrawer.h"
+#include "system/ConeDrawer.h"
+
 using namespace DirectX;
 
 Enemy_Missile::Enemy_Missile()
@@ -45,9 +48,24 @@ void Enemy_Missile::Init()
 	m_Position.z += 50;
 	m_Position.y += 10;
 
-	//m_Scale *= 3;
+	// 方向ベクトル作成
+	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
+	Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
+	Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
 
-	//m_Rotation.x += 0.3;
+	// 合成
+	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
+
+
+	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
+
+	// 方向ベクトル 抽出
+	Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
+	Right_vec.Normalize();
+	Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
+	Up_vec.Normalize();
+	Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
+	Forward_vec.Normalize();
 
 	for (int i = 0; i < BulletMaxnum; i++)
 	{
@@ -79,6 +97,22 @@ void Enemy_Missile::Init()
 	Leftfeet.Init();
 	Rightarm.Init();
 	Rightfeet.Init();
+
+	//スラスターのエフェクトエミッターで作成する
+	//エフェクトの座標を指定する
+	emitter_point = m_Position;
+	emitter_point.y -= 8;
+	std::unique_ptr<Emitter> emit = std::make_unique<Emitter>();
+	emit->Start(&emitter_point, 200, 
+		1.0f,	//円錐の半径
+		10.0f,	//円錐の高さ
+		23.0f,	//方位角	
+		23.0f,	//仰角
+		120,	//寿命
+		0.0f); //重力
+	m_emitter.push_back(std::move(emit));
+
+	emitter_pone = std::make_unique<CPolor3D>(1.0f, 1.0f, 1.0f, 10.0f);
 }
 
 
@@ -105,6 +139,18 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	Rightarm.Update(deltatime);
 	Leftfeet.Update(deltatime);
 	Rightfeet.Update(deltatime);
+
+	//パーティクルのアップデート
+	emitter_point = m_Position;
+	emitter_point.y -= 8;
+	ForwardToAngles(EmitterSideAngle, EmitterUpAngle, 0.0f, 0.0f);
+	if (m_emitter.size() > 0) {
+		//m_emitter[0]->UpdateDirection(EmitterSideAngle, EmitterUpAngle);
+		RandomGen rundom;
+		m_emitter[0]->UpdateDirection(Forward_vec, rundom.UniformFloat(0.0f,360.0f), 70.0f);
+		m_emitter[0]->Update();
+	}
+
 
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -223,6 +269,7 @@ void Enemy_Missile::Draw()
 	}
 
 	//弾丸の検知範囲
+#ifdef _DEBUG
 	if (Avoidance)
 	{
 		//m_interceptionSphere->Draw(transmtx, { 0.0,0.0,0.5,0.2 });
@@ -230,13 +277,23 @@ void Enemy_Missile::Draw()
 	else {
 		//m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 	}
-
+#endif
 	//姿勢の補完をここでする
 	/*m_Rotation.x -= 1.55;
 	m_Rotation.y -= 1.55;*/
 
+	//パーティクルの描画
+	if (m_emitter.size() > 0) {
+		const std::vector<PARTICLE>& allp = m_emitter[0]->GetParticles();
 
+		for (auto& p : allp) {
+			SphereDrawerDraw(1.0f, Color(0.8, 0.8, 0.6, 0.3f), p.pos.x, p.pos.y, p.pos.z);
+		}
+	}
 
+	//円錐でパーティクルの流れ方を作る
+	ConeDrawerDraw(emitter_pone->GetRadius(), emitter_pone->GetHight(), Color(1.0f, 1.0f, 1.0f, 1.0f),
+		m_Position.x, m_Position.y, m_Position.z, transmtx);
 }
 
 void Enemy_Missile::Dispose()
@@ -631,7 +688,8 @@ void Enemy_Missile::Move(Vector3 Target)
 		MoveVec = { 0,0,0 };
 	}
 
-	m_Position += MoveVec * 0.3f;
+	//移動部分(レベル別に速度も調節したいのでベクトルに速度を掛ける形にする)
+	m_Position += MoveVec * movespead;
 
 	//ステップの速度が乗っているならすべる
 	if (AvoidancePowor != 0)
@@ -959,7 +1017,6 @@ bool Enemy_Missile::Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb)
 
 void Enemy_Missile::Stepavoidance(Vector3 bulletpos ,bool StepVec)
 {
-	//if (FIRE_BEAM || AvoidancePowor != 0) return;//ビーム照射中か既にステップ踏んでるなら何もしない
 	if (FIRE_BEAM) return;//ビーム照射中か既にステップ踏んでるなら何もしない
 	//敵の弾の位置から向きを割り出す
 	Vector3 TargetForward = (m_Position - bulletpos);
@@ -1064,6 +1121,47 @@ int Enemy_Missile::GetShotState()
 	return 0;
 }
 
+void Enemy_Missile::SetMoveState(int lev)
+{
+	switch (lev) {
+	case 0:
+		movestate = MoveState::Idle;
+		break;
+	case 1:
+		movestate = MoveState::Easy;
+		break;
+	case 2:
+		movestate = MoveState::Normal;
+		movespead = 0.5f;
+		break;
+	case 3:
+		movestate = MoveState::Hard;
+		movespead = 0.8f;
+		break;
+	case 4:
+		movestate = MoveState::Hell;
+		break;
+	case 5:
+		movestate = MoveState::Lunatic;
+		break;
+	default:
+		movestate = MoveState::Idle;
+		break;
+	}
+}
+
+int Enemy_Missile::GetMoveState()
+{
+	if (movestate == MoveState::Idle) return 0;
+	if (movestate == MoveState::Easy) return 1;
+	if (movestate == MoveState::Normal) return 2;
+	if (movestate == MoveState::Hard) return 3;
+	if (movestate == MoveState::Hell) return 4;
+	if (movestate == MoveState::Lunatic) return 5;
+
+	return 0;
+}
+
 void Enemy_Missile::SetCollision(bool col)
 {
 	if (!col) return;
@@ -1079,5 +1177,33 @@ void Enemy_Missile::SetCollision(bool col)
 void Enemy_Missile::SetCollision_Bullet(int num, bool col)
 {
 	e_missiles[num].SetCol(col);
+}
+
+Vector3 RotateAroundAxis(const Vector3& v, const Vector3& axis, float angle)
+{
+	Quaternion q = Quaternion::CreateFromAxisAngle(axis, angle);
+	return Vector3::Transform(v, q);
+}
+
+
+void Enemy_Missile::ForwardToAngles(float& elevation, float& azimuth , float sideangle, float upangle)
+{
+	Vector3 f = Forward_vec;
+	f.Normalize();
+
+	float yawOffset = XMConvertToRadians(sideangle); // 左右
+	float pitchOffset = XMConvertToRadians(upangle);   // 上下
+
+	// 1. yaw（左右）→ Up 軸で回す
+	f = RotateAroundAxis(f, Up_vec, yawOffset);
+
+	// 2. pitch（上下）→ Right 軸で回す
+	f = RotateAroundAxis(f, Right_vec, pitchOffset);
+
+	f.Normalize();
+
+	// 最終的な角度を出力
+	azimuth = atan2f(f.z, f.x);
+	elevation = asinf(f.y);
 }
 

@@ -28,6 +28,7 @@ private:
 	//s“®‚Å‘‚¦‚é—Ê
 	int ShotIncrease = 200;
 	int MoveIncrease = 1;
+	int AvoidanceCost = 300;
 
 
 

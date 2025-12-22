@@ -302,10 +302,10 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 		if (localpos.x > 0) //ローカル座標に合わせて左右の判定をする
 		{
 			
-			if (ShotStrength > 300 && range >30)
+			if (ShotStrength > 300 /*&& range >30 */ )
 			{
 
-				ShotStrength -= 300;
+				ShotStrength -= AvoidanceCost;
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, false);
 			}
@@ -313,18 +313,11 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 		}
 		else 
 		{
-			/*if (Strength > 300 && range > 30)
-			{
-
-				Strength -= 300;
-				Enemy.SetAvoidance(true);
-				Enemy.Stepavoidance(minposition, true);
-			}*/
 			//射撃部分の判定のみを取って計算
-			if (ShotStrength > 300 && range > 30)
+			if (ShotStrength > 300 /*&& range > 30 */ )
 			{
 
-				ShotStrength -= 250;
+				ShotStrength -= AvoidanceCost;
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, true);
 			}
@@ -387,7 +380,8 @@ void EnemyThinking::LevelControl()
 	if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel);}
 
 	//移動部分のレベル調整
-	//if()
+	if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; }
+	if (ShotStrength > 800 && MoveLevel < 2) { MoveLevel = 3;  AvoidanceCost = 0; }
 }
 
 void EnemyThinking::Collision()

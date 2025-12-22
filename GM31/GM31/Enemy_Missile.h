@@ -11,6 +11,10 @@
 #include "Enemy_LeftFeet.h"
 #include "Enemy_RightFeet.h"
 
+//パーティクル
+#include "particle.h"
+#include "system/CPolar3D.h"//パーティクルを円錐状に出力するのでデバック用に円錐出す
+
 
 enum FIREMODE {
 	DEFAULT,
@@ -50,14 +54,19 @@ private:
 	Vector3 CurentBulletpos = { 0,0,0 };
 	Vector3 CurentBulletrot = { 0,0,0 };
 
+
+
+	//体力
 	const int MaxHP = 5;
 	int HP = MaxHP;
-
+	//攻撃力
 	const int ATK_Bullet = 20;
 	const int ATK_Beam = 1;
 
 	int Level = 0;
 	ShotState shotstate = ShotState::Idle;
+	MoveState movestate = MoveState::Idle;
+	float movespead = 0.3f;
 
 	const int BulletMaxnum = 25;
 
@@ -100,12 +109,22 @@ private:
 	float Height;
 	float Depth;
 
+	//パーティクル
+	std::vector<std::unique_ptr<Emitter>> m_emitter;
+	Vector3 emitter_point;
+	float EmitterSideAngle = 0;
+	float EmitterUpAngle = 0;
+	std::unique_ptr<CPolor3D> emitter_pone;
+
 	//部位
 	Enemy_Head Head;
 	Enemy_LeftArm Leftarm;
 	Enemy_RightArm Rightarm;
 	Enemy_LeftFeet Leftfeet;
 	Enemy_RightFeet Rightfeet;
+
+	
+
 public:
 	Enemy_Missile();
 	~Enemy_Missile();
@@ -168,6 +187,8 @@ public:
 	int GetLevel() { return Level; }
 	void SetShotState(int lev);
 	int GetShotState();
+	void SetMoveState(int lev);
+	int GetMoveState();
 
 
 	Vector3 GetCenter() { return m_Position - Forward_vec * 1.5f; }//当たり判定の中心
@@ -178,4 +199,10 @@ public:
 
 	int Damage_Bullet() { return ATK_Bullet; }
 	int Damage_Beam() { return ATK_Beam; }
+
+	void ForwardToAngles(
+		float& elevation,
+		float& azimuth,
+		float sideangle,
+		float upangle);
 };

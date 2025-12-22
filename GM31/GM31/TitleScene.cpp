@@ -43,6 +43,23 @@ void TitleScene::update(uint64_t deltatime)
 
 	Enemy_Title.Update(deltatime);
 
+	if (StartScaleBool)
+	{
+		StartScale += 0.005f;
+		if (StartScale > 1.15)
+		{
+			StartScaleBool = false;
+		}
+	}
+	else
+	{
+		StartScale -= 0.005f;
+		if (StartScale < 0.85f)
+		{
+			StartScaleBool = true;
+		}
+	}
+
 	if (CDirectInput::GetInstance().CheckKeyBuffer(DIK_SPACE))
 	{
 		SceneFlag = true;
@@ -62,7 +79,7 @@ void TitleScene::draw(uint64_t deltatime)
 	Enemy_Title.Draw();
 	//Title->Draw3D(Vector3{ 9, 5, 1 }, rot, pos);
 	Title->Draw(Vector3{ 5,3,1 }, Vector3(0, 0, 0), Vector3(650, 100, 0));
-	Start->Draw(Vector3{ 3,2,1 }, Vector3(0, 0, 0), Vector3(650, 600, 0));
+	Start->Draw(Vector3{ 3 * StartScale,2 * StartScale,1 }, Vector3(0, 0, 0), Vector3(650, 600, 0));
 
 	m_Fade->Draw(Vector3{ 7,5,1 }, Vector3(0, 0, 0), Vector3(650, 340, 0));
 }

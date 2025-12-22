@@ -1,4 +1,4 @@
-#include "MecScene.h"
+#include "mecScene.h"
 #include    <memory>
 #include	<iostream>
 #include	"system/collision.h"

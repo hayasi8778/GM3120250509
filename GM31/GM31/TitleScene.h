@@ -23,6 +23,8 @@ private:
 	bool SceneFlag = false;
 	std::unique_ptr<CSprite> Title;//タイトル画面の一枚絵
 	std::unique_ptr<CSprite> Start;//タイトル画面の一枚絵
+	float StartScale = 1.0f;
+	bool StartScaleBool = false;
 	EnemyThinking_Title Enemy_Title;
 	std::unique_ptr<Field> m_field;						// フィールド
 	std::unique_ptr<Skydome> m_skydome;							// スカイドーム

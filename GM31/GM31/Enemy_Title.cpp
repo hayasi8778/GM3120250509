@@ -124,7 +124,7 @@ void EnemyThinking_Title::RuleUpdate(uint64_t deltatime)
 		bool col = GM31::GE::Collision::CollisionOBB(Enemy1.GetOBB(), Enemy2.GetOBB_Bullet(i));
 		//õ“G”ÍˆÍ“à‚É’eŠÛ‚ª‚ ‚é‚©‚Ç‚¤‚©
 		bool inter = GM31::GE::Collision::CollisionSphereOBB_(Enemy1.GetShere(), Enemy2.GetOBB_Bullet(i));
-		Enemy1.SetCollision(col);
+		Enemy1.SetCollision(col, Enemy2.Damage_Bullet());
 		if (col) Enemy2.SetCollision_Bullet(i, col);
 		if (inter) {
 			Enemy1.SetAvoidance(inter);

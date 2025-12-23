@@ -112,7 +112,6 @@ void Enemy_Missile::Init()
 		0.0f); //重力
 	m_emitter.push_back(std::move(emit));
 
-	emitter_pone = std::make_unique<CPolor3D>(1.0f, 1.0f, 1.0f, 10.0f);
 }
 
 
@@ -143,11 +142,11 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	//パーティクルのアップデート
 	emitter_point = m_Position;
 	emitter_point.y -= 8;
-	ForwardToAngles(EmitterSideAngle, EmitterUpAngle, 0.0f, 0.0f);
+	//ForwardToAngles(EmitterSideAngle, EmitterUpAngle, 0.0f, 0.0f);
 	if (m_emitter.size() > 0) {
 		//m_emitter[0]->UpdateDirection(EmitterSideAngle, EmitterUpAngle);
 		RandomGen rundom;
-		m_emitter[0]->UpdateDirection(Forward_vec, rundom.UniformFloat(0.0f,360.0f), 70.0f);
+		m_emitter[0]->UpdateDirection(Forward_vec, rundom.UniformFloat(0.0f,360.0f), 30.0f);
 		m_emitter[0]->Update();
 	}
 
@@ -290,10 +289,6 @@ void Enemy_Missile::Draw()
 			SphereDrawerDraw(1.0f, Color(0.8, 0.8, 0.6, 0.3f), p.pos.x, p.pos.y, p.pos.z);
 		}
 	}
-
-	//円錐でパーティクルの流れ方を作る
-	ConeDrawerDraw(emitter_pone->GetRadius(), emitter_pone->GetHight(), Color(1.0f, 1.0f, 1.0f, 1.0f),
-		m_Position.x, m_Position.y, m_Position.z, transmtx);
 }
 
 void Enemy_Missile::Dispose()
@@ -1162,12 +1157,14 @@ int Enemy_Missile::GetMoveState()
 	return 0;
 }
 
-void Enemy_Missile::SetCollision(bool col)
+void Enemy_Missile::SetCollision(bool col, int ATK)
 {
 	if (!col) return;
 
 	if (!collision_hit) {
-		HP--;
+		HP -= ATK;
+
+		if (HP < 0) HP = 0;
 	}
 
 

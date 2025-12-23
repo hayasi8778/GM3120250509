@@ -57,7 +57,7 @@ private:
 
 
 	//‘Ì—Í
-	const int MaxHP = 5;
+	const int MaxHP = 100;
 	int HP = MaxHP;
 	//UŒ‚—Í
 	const int ATK_Bullet = 20;
@@ -114,7 +114,6 @@ private:
 	Vector3 emitter_point;
 	float EmitterSideAngle = 0;
 	float EmitterUpAngle = 0;
-	std::unique_ptr<CPolor3D> emitter_pone;
 
 	//•”ˆÊ
 	Enemy_Head Head;
@@ -193,7 +192,7 @@ public:
 
 	Vector3 GetCenter() { return m_Position - Forward_vec * 1.5f; }//“–‚½‚è”»’è‚Ì’†S
 
-	void SetCollision(bool col);
+	void SetCollision(bool col, int ATK);
 	void SetCollision_Bullet(int,bool);
 	void SetAvoidance(bool inter) { Avoidance = inter; }
 

@@ -21,7 +21,7 @@ private:
 	float Height;
 	float Depth;
 
-	const int ATK = 1;
+	const int ATK = 25;
 public:
 	M_Gun();
 	~M_Gun();

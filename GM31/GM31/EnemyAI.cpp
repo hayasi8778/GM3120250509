@@ -155,7 +155,7 @@ void EnemyThinking::RuleUpdate(uint64_t deltatime)
 				bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), gun->GetOBB_Bullet(i));
 				//索敵範囲内に弾丸があるかどうか
 				bool inter = GM31::GE::Collision::CollisionSphereOBB_(Enemy.GetShere(), gun->GetOBB_Bullet(i));
-				Enemy.SetCollision(col);
+				Enemy.SetCollision(col, gun->Damage_Bullet());
 				if (col) gun->SetCollision_Bullet(i, col);
 				if (inter) {
 					Enemy.SetAvoidance(inter);
@@ -380,8 +380,13 @@ void EnemyThinking::LevelControl()
 	if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel);}
 
 	//移動部分のレベル調整
-	if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; }
-	if (ShotStrength > 800 && MoveLevel < 2) { MoveLevel = 3;  AvoidanceCost = 0; }
+	if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+	//HPを削った場合はその時点でレベル2に行く
+	if(Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+	if (ShotStrength > 800 && MoveLevel < 2) { MoveLevel = 3;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); }
+
+	//プレイヤーが有利過ぎたらレベルに上方修正掛ける
+	//if(Player->GetHP() - Enemy.GetHP())
 }
 
 void EnemyThinking::Collision()
@@ -395,7 +400,7 @@ void EnemyThinking::Collision()
 			for (int i = 0; i < 5; i++)
 			{
 				bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), gun->GetOBB_Bullet(i));
-				Enemy.SetCollision(col);
+				Enemy.SetCollision(col, gun->Damage_Bullet());
 				if (col) gun->SetCollision_Bullet(i, col);
 			}
 		}
@@ -403,7 +408,7 @@ void EnemyThinking::Collision()
 
 	for (int i = 0; i < 20; i++) {
 		bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), Player->GetOBB_Bullet(i));
-		Enemy.SetCollision(col);
+		Enemy.SetCollision(col, 25);
 		if (col) Player->SetCollision_Bullet(i, col);
 	}
 }

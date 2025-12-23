@@ -393,18 +393,16 @@ void Enemy_Missile::CreateBullet()
 	Matrix4x4 world = srt.GetMatrix();
 	Vector3 forward = world.Forward();
 	forward.Normalize();
-	forward *= 3.0f;
+	//forward *= 3.0f;
 
 	
 	e_missiles[Bulletnum].Reset();
-	e_missiles[Bulletnum].SetForward(forward);
+	//e_missiles[Bulletnum].SetForward(forward);
+	e_missiles[Bulletnum].SetForward(Forward_vec);
 	if(Pranter_PE)
 	e_missiles[Bulletnum].SetObject(player);
 	else e_missiles[Bulletnum].SetObject(Partner);
-	//前向き行列取ってから姿勢補完する
-	//姿勢補完分
-	/*srt.rot.x += 1.55;
-	srt.rot.y += 1.55;*/
+
 	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
 
 	//指定したボーンがないならオブジェクトの中心座標から球を打つ
@@ -421,6 +419,43 @@ void Enemy_Missile::CreateBullet()
 	//e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
 	//playerをセットした時点で角度はセットしているのでここはいらない
 	//e_missiles[Bulletnum].SetRotation(m_Rotation);
+	e_missiles[Bulletnum].SetPosition(bulletpos);
+	e_missiles[Bulletnum].SetShot(true);
+	e_missiles[Bulletnum].priod = 1000;
+
+	//e_missile.push_back(std::move(pb));
+
+	Bulletnum++;
+}
+
+void Enemy_Missile::CreateBullet(Vector3 forward)
+{
+	Shot_Flag = true;//射撃フラグを付ける
+	if (Bulletnum == BulletMaxnum) Bulletnum = 0;
+
+	// SRT情報作成
+	SRT srt;
+	srt.scale = m_Scale;			// 拡縮
+	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.pos = m_Position;			// 位置
+	
+	//念のためforwardを正規化する
+	forward.Normalize();
+
+	e_missiles[Bulletnum].Reset();
+	e_missiles[Bulletnum].SetForward(forward);
+	if (Pranter_PE)
+		e_missiles[Bulletnum].SetObject(player);
+	else e_missiles[Bulletnum].SetObject(Partner);
+
+	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
+
+	//指定したボーンがないならオブジェクトの中心座標から球を打つ
+	if (bulletpos == Vector3::Zero) bulletpos = m_Position;
+
+	e_missiles[Bulletnum].SetCount(0);//補正無し
+	e_missiles[Bulletnum].SetmaxTurn(0.0f, 1000.0f);//一定時間立ったら元の追従に戻すようにしたい
+	e_missiles[Bulletnum].SetTurn(0.03f);//一定時間立ったら元の追従に戻すようにしたい
 	e_missiles[Bulletnum].SetPosition(bulletpos);
 	e_missiles[Bulletnum].SetShot(true);
 	e_missiles[Bulletnum].priod = 1000;
@@ -878,6 +913,38 @@ void Enemy_Missile::Shot(uint64_t deltatime)
 	m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
 
 	
+}
+
+void Enemy_Missile::Shot(uint64_t deltatime, Vector3 vec)
+{
+	if (HP <= 0) return;
+
+	//銃弾の発生
+	float time_D = static_cast<float>(deltatime) / 1000;
+
+	if (FIRE)//弾丸を増やす
+	{
+		//0,0,0が入ってるなら正面向いてるか動いていないと仮定して普通に狙う
+		if(vec == Vector3::Zero)CreateBullet();
+		else CreateBullet(vec);
+		FIRE = false;
+	}
+
+
+	//ビーム撃ってないなら常にプレイヤーの方へ向く
+	Vector3 TargetForward = { 0.0f,0.0f,0.0f };
+	if (Pranter_PE) TargetForward = (m_Position - player->GetPosition());
+	else TargetForward = (m_Position - Partner->GetPosition());
+
+	TargetForward.Normalize();
+
+	// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
+	float yaw = atan2f(TargetForward.x, TargetForward.z);
+	float pitch = atan2f(-TargetForward.y,
+		sqrtf(TargetForward.x * TargetForward.x + TargetForward.z * TargetForward.z));
+
+	// 4. Roll は今回は固定 0
+	m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
 }
 
 void Enemy_Missile::SpecialAttack(uint64_t deltatime)

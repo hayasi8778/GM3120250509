@@ -364,9 +364,16 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 			ShotStrength -= float(ShotStrength) / float(Strength) * 40;
 			MoveStrength -= float(MoveStrength) / float(Strength) * 40;
 		}
-		
-		Enemy.Shot(dt);
-
+		if(ShotLevel <2)Enemy.Shot(dt);
+		else {
+			Vector3 player_vec = Player->GetPosition() - CurentPos_P;
+			player_vec.Normalize();
+			Vector3 Targetvec = Enemy.GetPosition() - (Player->GetPosition() + player_vec* (Player->GetSpead() + 6.0f));
+			if(GetRange(CurentPos_P, Player->GetPosition()) > 1){
+				Enemy.Shot(dt, Targetvec);
+			}
+			Enemy.Shot(dt);
+		}
 	}
 
 	

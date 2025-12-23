@@ -141,6 +141,7 @@ public:
 	Vector3 GetBulletpos(int i) { if (i < BulletMaxnum) { return e_missiles[i].GetPosition(); }return e_missiles[0].GetPosition(); }
 	GM31::GE::Collision::BoundingSphere GetShere();
 	void CreateBullet();
+	void CreateBullet(Vector3 forward);//”­ŽË•ûŒü‚ðŒˆ‚ß‚é•¨‚ð—pˆÓ‚µ‚Ä‚¨‚­
 	void CreateBullet_FullBurst();
 	void CreateBullet_FullBurst_Tes();
 
@@ -149,6 +150,7 @@ public:
 	void Timer(uint64_t);
 	void Shot_Rule(uint64_t);
 	void Shot(uint64_t);
+	void Shot(uint64_t, Vector3 vec);
 	void SpecialAttack(uint64_t);
 	void FullBurstLv1(uint64_t);
 	void FullBurstLv2(uint64_t);

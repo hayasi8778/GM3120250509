@@ -35,6 +35,7 @@ private:
 	
 	const float DefaultMaxTurn = 0.01f; // 1フレームで回せる最大角度（ラジアン）
 	float maxTurn = 0.01f; // 1フレームで回せる最大角度（ラジアン)
+	float Turn = 0.01f; // 2段階に追尾するための関数
 	float Turn_Time = 0;	//いつまで追尾性上げたままにするか
 
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
@@ -73,6 +74,7 @@ public:
 	void SetCount(int cnt) { count = cnt; }
 
 	void SetmaxTurn(float turn, float time) { maxTurn = turn; Turn_Time = time; }
+	void SetTurn(float turn) { Turn = turn;}
 	void SetShotSpeed(float speed) { ShotSpeed = speed; }
 	void Update_Shot1(uint64_t deltatime);
 	void Update_Shot2(uint64_t deltatime);

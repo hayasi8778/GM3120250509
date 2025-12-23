@@ -179,6 +179,7 @@ void E_Missile::Reset()
 
 	//’eŠÛ‚ÌŒÂ«‚ğ–ß‚·
 	maxTurn = DefaultMaxTurn; //Å‘åŒü‚«Šp“x‚ğŒ³‚É–ß‚·
+	Turn = DefaultMaxTurn; //Å‘åŒü‚«Šp“x‚ğŒ³‚É–ß‚·
 	ShotSpeed = DefaultShotSpeed;
 }
 
@@ -412,7 +413,7 @@ void E_Missile::Update_Shot2(uint64_t deltatime)
 		Turn_Time -= time_D;
 		if (Turn_Time < 0) {
 			Turn_Time = 0;
-			maxTurn = DefaultMaxTurn;
+			maxTurn = Turn;
 		}
 	}
 

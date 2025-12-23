@@ -28,10 +28,35 @@ using namespace DirectX;
 //	return rangedALL;
 //}
 
+void Camera::CameraGUI()
+{
+	ImGui::Begin("Camera");
+
+	ImGui::Text("campos.x: %.3f", campos.x);
+	ImGui::Text("campos.y: %.3f", campos.y);
+	ImGui::Text("campos.z: %.3f", campos.z);
+	
+	ImGui::Text(" m_position.x: %.3f", m_position.x);
+	ImGui::Text(" m_position.y: %.3f", m_position.y);
+	ImGui::Text(" m_position.z: %.3f", m_position.z);
+
+	ImGui::End();
+}
+
 void Camera::Init()
 {
 	m_position = Vector3(0.0f, 10.0f, -100.0f);
 	m_lookat = Vector3(0.0f, 10.0f, 0.0f);
+
+	#ifdef _DEBUG
+	//GUI関連
+	if (UseGUI) {
+		DebugUI::RedistDebugFunction([this]() {
+			CameraGUI();
+			});
+	}
+
+	#endif
 }
 
 void Camera::Dispose()
@@ -71,6 +96,9 @@ void Camera::Update()
 		MoveVec.Normalize();
 		m_position += MoveVec * 2.0f; // スムーズに追従
 	}
+
+	//近すぎるなら直接目標座標につく
+	if (GetRange(m_position, moveposition) < 2.0f) m_position = moveposition;
 	
 }
 

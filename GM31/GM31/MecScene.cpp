@@ -13,6 +13,7 @@ float GRAVITY = 0.068;								//d—Í
 void MecScene::init() 
 {
 	// ƒJƒƒ‰(3D)‚Ì‰Šú‰»
+	m_camera.UseGUI = true;
 	m_camera.Init();
 	m_cameraF.Init();
 

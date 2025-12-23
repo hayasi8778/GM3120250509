@@ -4,6 +4,7 @@
 #include	"system/renderer.h"
 #include	"application.h"
 #include	"system/CPolar3D.h"
+#include	"system/DebugUI.h"
 
 #include	"Range.h"
 
@@ -21,8 +22,11 @@ protected:
 	Vector3 moveposition = Vector3(0.0f, 0.0f, 0.0f);//カメラの移動目標
 	Vector3 campos = Vector3(0.0f, 0.0f, 0.0f);//本来のカメラ位置
 
+	void CameraGUI();//GUI
 public:
+	float UseGUI = false;//カメラGUIの使用をフラグで管理する
 	Camera() = default;
+
 
 	void Init();
 	void Dispose();
@@ -35,8 +39,10 @@ public:
 	Vector3 GetPosition() { return m_position; }
 	void SetLookat(const Vector3& position) { m_lookat = position; }
 	Vector3 GetLookat() { return m_lookat; }
-	void SetMovePosition(Vector3 vec) { moveposition = vec; }
+	//移動先座標の決定
+	void SetMovePosition(Vector3 vec) { if(GetRange(vec,moveposition) >20.0f) moveposition = vec; }
 	Vector3 GetMovePosition() { return moveposition; }
+
 	void Setcampos(Vector3 vec) { campos = vec; }
 
 	Matrix4x4 GetViewMatrix() const { return m_viewmtx; }

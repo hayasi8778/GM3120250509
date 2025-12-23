@@ -4,7 +4,7 @@
 #include	"system/collision.h"
 #include "system/CDirectInput.h"
 
-float VALUE_MOVE_PLAYER = 0.06f;					// キー入力時の移動量
+//float VALUE_MOVE_PLAYER = 0.06f;					// キー入力時の移動量
 float VALUE_ROTATE_PLAYER = PI * 0.02f;				// キー入力時の回転量
 float VALUE_JUMP_PLAYER = 3.80;						//プレイヤーのジャンプ力
 float RATE_ROTATE_PLAYER = 0.40f;					// １フレーム当たりの回転割合
@@ -526,8 +526,8 @@ void MecScene::PlayerMove()
 			float radian;
 			radian = PI * 0.75f;
 
-			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+			Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 			// 目標角度をセット
 			m_Destrot.y = radian;
@@ -539,8 +539,8 @@ void MecScene::PlayerMove()
 			float radian;
 			radian = PI * 0.25f;
 
-			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+			Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 			// 目標角度をセット
 			m_Destrot.y = radian;
@@ -551,8 +551,8 @@ void MecScene::PlayerMove()
 			float radian;
 			radian = PI * 0.50f;
 
-			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+			Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 			// 目標角度をセット
 			m_Destrot.y = radian;
@@ -567,8 +567,8 @@ void MecScene::PlayerMove()
 			float radian;
 			radian = -PI * 0.75f;
 
-			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+			Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 			// 目標角度をセット
 			m_Destrot.y = radian;
@@ -579,8 +579,8 @@ void MecScene::PlayerMove()
 			float radian;
 			radian = -PI * 0.25f;
 
-			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+			Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 			// 目標角度をセット
 			m_Destrot.y = radian;
@@ -591,8 +591,8 @@ void MecScene::PlayerMove()
 			float radian;
 			radian = -PI * 0.50f;
 
-			Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-			Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+			Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+			Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 			// 目標角度をセット
 			m_Destrot.y = radian;
@@ -603,8 +603,8 @@ void MecScene::PlayerMove()
 		float radian;
 		radian = PI;
 
-		Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-		Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+		Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+		Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 		// 目標角度をセット
 		m_Destrot.y = PI;
@@ -614,8 +614,8 @@ void MecScene::PlayerMove()
 		float radian;
 		radian = 0.0f;
 
-		Object_Speed.x -= sinf(radian) * VALUE_MOVE_PLAYER;
-		Object_Speed.z -= cosf(radian) * VALUE_MOVE_PLAYER;
+		Object_Speed.x -= sinf(radian) * m_player.GetSpead();
+		Object_Speed.z -= cosf(radian) * m_player.GetSpead();
 
 		// 目標角度をセット
 		m_Destrot.y = 0.0f;
@@ -1266,7 +1266,7 @@ void MecScene::PlayerMovetes()
 		worldDir = -worldDir;
 
 		// 3. ステップ時は加速度UP
-		float speedScale = VALUE_MOVE_PLAYER * (step ? 5.0f : 1.0f);
+		float speedScale = m_player.GetSpead() * (step ? 5.0f : 1.0f);
 		Object_Speed += worldDir * speedScale;
 
 		// 4. 向き目標を設定（ワールド方向ベクトルから計算）

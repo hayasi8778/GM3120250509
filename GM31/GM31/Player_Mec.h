@@ -62,6 +62,8 @@ private:
 	bool LeftFeetSet = false;
 	bool RightFeetSet = false;
 
+	float Spead = 0.06f;
+
 	int DoublePistol = 3;//“ñ’šŒe‚ğŒğŒİ‚É‘Å‚Â‚½‚ß‚Ì•Ï”
 
 public:
@@ -95,6 +97,9 @@ public:
 	void HitDamage(int damage) { if (col) HP -= damage; }
 	void SetBurst(bool br) { if(!Burst)BurstFlag = true;  Burst = br;   }
 	bool GetBurst() { return BurstFlag; }
+
+	void SetSpead(float sp) { Spead = sp; }
+	float GetSpead() { return Spead; }
 
 	Vector3 ConectPos();
 	Vector3 ConectPos(int i);

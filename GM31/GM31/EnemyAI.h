@@ -14,6 +14,9 @@ private:
 	M_Player* Player;//プレイヤー()
 	Vector3 CurentPos_P;//プレイヤーの1フレーム前の座標
 
+	//テスト用変数
+	Vector3 Testvec = Vector3::Zero;
+
 	Enemy_Missile Enemy;//敵
 	M_Gun* GunObject[8] = { nullptr ,nullptr ,nullptr ,nullptr ,nullptr,nullptr ,nullptr ,nullptr };
 	int TotalGun = 0;

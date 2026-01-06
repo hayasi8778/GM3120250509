@@ -142,6 +142,7 @@ public:
 	GM31::GE::Collision::BoundingSphere GetShere();
 	void CreateBullet();
 	void CreateBullet(Vector3 forward);//”­ŽË•ûŒü‚ðŒˆ‚ß‚é•¨‚ð—pˆÓ‚µ‚Ä‚¨‚­
+	void CreateBulletLevel5(); //‚©‚È‚è‹­‚ß‚ÌŽËŒ‚
 	void CreateBullet_FullBurst();
 	void CreateBullet_FullBurst_Tes();
 
@@ -151,6 +152,7 @@ public:
 	void Shot_Rule(uint64_t);
 	void Shot(uint64_t);
 	void Shot(uint64_t, Vector3 vec);
+	void ShotLev5();
 	void SpecialAttack(uint64_t);
 	void FullBurstLv1(uint64_t);
 	void FullBurstLv2(uint64_t);

@@ -49,6 +49,14 @@ void EnemyThinking::DebugUI()
 	ImGui::Text("ShotStrength: %d", ShotStrength);
 	ImGui::Text("MoveStrength: %d", MoveStrength);
 
+	ImGui::Text("PlayerPosition.x: %.3f", Player->GetPosition().x);
+	ImGui::Text("PlayerPosition.y: %.3f", Player->GetPosition().y);
+	ImGui::Text("PlayerPosition.z: %.3f", Player->GetPosition().z);
+
+	ImGui::Text("Testvec.x: %.3f", Testvec.x);
+	ImGui::Text("Testvec.y: %.3f", Testvec.y);
+	ImGui::Text("Testvec.z: %.3f", Testvec.z);
+
 	ImGui::End();
 }
 
@@ -121,6 +129,8 @@ void EnemyThinking::Reset()
 	MoveStrength = 0;
 	ShotLevel = 0;
 	MoveLevel = 0;
+	Enemy.SetShotState(ShotLevel);
+	Enemy.SetMoveState(MoveLevel);
 }
 
 void EnemyThinking::Action(Vector3 vec)
@@ -364,13 +374,15 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 			ShotStrength -= float(ShotStrength) / float(Strength) * 40;
 			MoveStrength -= float(MoveStrength) / float(Strength) * 40;
 		}
-		if(ShotLevel <2)Enemy.Shot(dt);
+		if(ShotLevel <2)Enemy.Shot(dt);//ƒŒƒxƒ‹•Ê‚ÉŽËŒ‚‚ð•ÏX‚·‚é
 		else {
 			Vector3 player_vec = Player->GetPosition() - CurentPos_P;
 			player_vec.Normalize();
-			Vector3 Targetvec = Enemy.GetPosition() - (Player->GetPosition() + player_vec* (Player->GetSpead() + 6.0f));
+			Vector3 Targetvec = Enemy.GetPosition() - (Player->GetPosition() + player_vec* (Player->GetSpead() * GetRange(Enemy.GetPosition(), Player->GetPosition())));
+			Testvec = Targetvec;
 			if(GetRange(CurentPos_P, Player->GetPosition()) > 1){
-				Enemy.Shot(dt, Targetvec);
+				//Enemy.Shot(dt, Targetvec);
+				Enemy.ShotLev5();
 			}
 			Enemy.Shot(dt);
 		}

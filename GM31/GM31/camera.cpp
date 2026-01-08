@@ -99,6 +99,27 @@ void Camera::Update()
 
 	//近すぎるなら直接目標座標につく
 	if (GetRange(m_position, moveposition) < 2.0f) m_position = moveposition;
+
+
+	//lookatもずらす形にしたい
+	if (m_enemypos != Vector3::Zero) {
+		Vector3 LookatVec = m_enemypos - m_lookat;
+		//MoveVec.y = 0;
+
+		dist = LookatVec.Length();
+
+		if (dist > 0.01f)
+		{
+			LookatVec.Normalize();
+			m_lookat += LookatVec * 2.0f; // スムーズに追従
+		}
+
+		//近すぎるなら直接目標座標につく
+		if (GetRange(m_enemypos, m_lookat) < 2.0f) m_lookat = m_enemypos;
+
+
+	}
+	
 	
 }
 

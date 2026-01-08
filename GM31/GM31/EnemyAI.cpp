@@ -108,6 +108,9 @@ void EnemyThinking::Update(uint64_t deltatime)
 void EnemyThinking::LateUpdate(uint64_t deltatime) 
 {
 	Enemy.LateUpdate(deltatime);
+
+	//ƒJƒƒ‰—p‚ÌÅ“_‚ğ‘—‚é
+
 }
 
 void EnemyThinking::Draw() 

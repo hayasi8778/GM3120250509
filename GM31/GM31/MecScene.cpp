@@ -199,9 +199,9 @@ void MecScene::update(uint64_t deltatime)
 
 	Enemy.Update(deltatime);
 
-	//m_camera.SetLookat(m_boxSRTs[0].pos);
-	//m_camera.SetLookat(m_player.GetPosition());
-	m_camera.SetLookat(Enemy.GetEnemy()->GetPosition());
+	//m_camera.SetLookat(Enemy.GetEnemy()->GetPosition());
+	//ƒJƒƒ‰’†Ž‹“_‚ð’¼Ú“n‚·‚Ì‚Å‚Í‚È‚­“G‚ÉŒü‚¯‚Ä•ÛŠÇ‚·‚éŒ`‚É•ÏX‚·‚é
+	m_camera.SetEnemypos(Enemy.GetEnemy()->GetPosition());
 	m_camera.Update_time(deltatime);
 	m_camera.Update();
 	switch (UseCamera)

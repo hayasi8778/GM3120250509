@@ -33,6 +33,8 @@ private:
 	int MoveIncrease = 1;
 	int AvoidanceCost = 300;
 
+	//カメラを元のキャラからずらすためにカメラに送る座標を付ける
+	Vector3 LookatPos = Vector3::Zero;
 
 
 	Vector3 PositionLog[300]; //5秒間(60fpsで計測)のプレイヤーと敵の距離を記録
@@ -64,6 +66,7 @@ public:
 	void Collision();
 
 	bool GetSpecial() { return Enemy.GetSpecialFlag(); }
+	Vector3 GetLookat() { return LookatPos; }
 };
 
 

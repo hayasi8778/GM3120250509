@@ -16,6 +16,8 @@ protected:
 	Matrix4x4	m_viewmtx{};			// ビュー行列
 	Matrix4x4   m_projmtx{};			// プロジェクション行列
 
+	Vector3		m_enemypos = Vector3::Zero;			//注視点を取るための敵座標
+
 	float m_vibration = 0;//カメラの揺れの強さ
 	float m_vibration_time = 0;//カメラを揺らす時間(ミリ秒)
 
@@ -39,6 +41,8 @@ public:
 	Vector3 GetPosition() { return m_position; }
 	void SetLookat(const Vector3& position) { m_lookat = position; }
 	Vector3 GetLookat() { return m_lookat; }
+
+	void SetEnemypos(Vector3 pos) { m_enemypos = pos; }
 	//移動先座標の決定
 	void SetMovePosition(Vector3 vec) { if(GetRange(vec,moveposition) >20.0f) moveposition = vec; }
 	Vector3 GetMovePosition() { return moveposition; }

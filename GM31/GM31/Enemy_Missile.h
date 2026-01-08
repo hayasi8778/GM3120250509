@@ -103,6 +103,8 @@ private:
 	Vector3 AvoidanceVec = { 0,0,0 };//回避ベクトル
 	float AvoidancePowor = 0;//回避の速度
 
+	float JumpPowor = 0;	//ジャンプ力
+
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
 	std::unique_ptr<Sphere> m_interceptionSphere; //範囲内に入った弾を迎撃するシステム作りたい
 	float Width;
@@ -148,6 +150,7 @@ public:
 
 	void Move();
 	void Move(Vector3);
+	void MoveLev5(Vector3);
 	void Timer(uint64_t);
 	void Shot_Rule(uint64_t);
 	void Shot(uint64_t);

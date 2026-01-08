@@ -132,6 +132,15 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	{
 		e_missiles[i].Update(deltatime);
 	}
+
+	//重力
+	m_Position.y += JumpPowor;
+	m_Position.y -= 0.98;//とりあえず0.98で重力取る
+	JumpPowor -= 0.08;
+	if (JumpPowor < 0)JumpPowor = 0;
+	//地面よりも下に行かないように
+	if(m_Position.y <10)m_Position.y = 10;
+	//if (m_Position.y == 10) JumpPowor = 2.5f;
 	
 	Head.Update(deltatime);
 	Leftarm.Update(deltatime);
@@ -822,6 +831,74 @@ void Enemy_Missile::Move(Vector3 Target)
 
 		Vector3 TargetForward = {0.0f,0.0f,0.0f};
 		if(Pranter_PE) TargetForward = (m_Position - player->GetPosition());
+		else TargetForward = (m_Position - Partner->GetPosition());
+
+		TargetForward.Normalize();
+
+		// 3. Yaw（Y軸回り）と Pitch（X軸回り）を算出
+		float yaw = atan2f(TargetForward.x, TargetForward.z);
+		float pitch = atan2f(-TargetForward.y,
+			sqrtf(TargetForward.x * TargetForward.x + TargetForward.z * TargetForward.z));
+
+		// 4. Roll は今回は固定 0
+		m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
+	}
+}
+
+void Enemy_Missile::MoveLev5(Vector3 Target)
+{
+	if (HP <= 0) return;
+
+	//あり得ない値が入っていた場合処理しない
+
+	//Vector3 MoveVec = m_Position - Target;
+
+	//これ距離が近すぎるなら動かないようにしたい
+	Vector3 coppos_P = { 0.0f,0.0f,0.0f };
+	if (Pranter_PE) coppos_P = player->GetPosition() + Target;//中間地点を産出する
+	else coppos_P = Partner->GetPosition() + Target;
+
+	Vector3 coppos_E = m_Position;
+	if (coppos_P.x < 0) coppos_P.x *= -1;
+	if (coppos_P.y < 0) coppos_P.y *= -1;
+	if (coppos_P.z < 0) coppos_P.z *= -1;
+	//あり得ない値が入っているなら処理しない(どこかに1000以上がはいっているなら)
+	if (coppos_P.x > 1000 || coppos_P.y > 1000 || coppos_P.z > 1000) return;
+
+	if (coppos_E.x < 0) coppos_E.x *= -1;
+	if (coppos_E.y < 0) coppos_E.y *= -1;
+	if (coppos_E.z < 0) coppos_E.z *= -1;
+	//Y軸は直接移動できないからXZの2軸判定
+	float rangedALL = coppos_P.x - coppos_E.x + coppos_P.z - coppos_E.z;
+	if (rangedALL < 0) rangedALL * -1;
+
+	Vector3 MoveVec = Target - m_Position;
+	MoveVec.y = 0;//正規化前にy軸を切る
+	MoveVec.Normalize();
+
+	if (rangedALL < 10) {//中間地点と現在地が近いなら移動しない
+		MoveVec = { 0,0,0 };
+	}
+
+	//移動部分(レベル別に速度も調節したいのでベクトルに速度を掛ける形にする)
+	m_Position += MoveVec * movespead;
+
+	//ステップの速度が乗っているならすべる
+	if (AvoidancePowor != 0)
+	{
+		m_Position += AvoidanceVec * AvoidancePowor;
+
+		AvoidancePowor -= 0.2f;
+
+		if (AvoidancePowor < 0) AvoidancePowor = 0;
+	}
+
+	//ビーム撃ってないなら常にプレイヤーの方へ向く
+	if (!FIRE_BEAM)
+	{
+
+		Vector3 TargetForward = { 0.0f,0.0f,0.0f };
+		if (Pranter_PE) TargetForward = (m_Position - player->GetPosition());
 		else TargetForward = (m_Position - Partner->GetPosition());
 
 		TargetForward.Normalize();

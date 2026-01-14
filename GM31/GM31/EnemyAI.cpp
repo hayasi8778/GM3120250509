@@ -34,6 +34,7 @@ void EnemyThinking::DebugUI()
 	}
 	ImGui::SliderInt("ShotIncrease", &ShotIncrease, 0, 500);
 	
+	//射撃のレベルを変更できるようにして置く
 	ImGui::Text("ShotLevel: % d", ShotLevel);
 	if (ImGui::Button("ShotLebelUp")) {
 		if (ShotLevel < 7)ShotLevel++;
@@ -45,6 +46,15 @@ void EnemyThinking::DebugUI()
 	}
 
 	ImGui::Text("MoveLevel: % d", MoveLevel);
+	//移動レベルも同様
+	if (ImGui::Button("MoveLebelUp")) {
+		if (MoveLevel < 7)MoveLevel++;
+		Enemy.SetMoveState(MoveLevel);
+	}
+	if (ImGui::Button("MoveLebelDown")) {
+		if (MoveLevel > 0)MoveLevel--;
+		Enemy.SetMoveState(MoveLevel);
+	}
 
 	ImGui::Text("ShotStrength: %d", ShotStrength);
 	ImGui::Text("MoveStrength: %d", MoveStrength);
@@ -315,14 +325,17 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 		if (localpos.x > 0) //ローカル座標に合わせて左右の判定をする
 		{
 			
-			if (ShotStrength > 300 /*&& range >30 */ )
+			if (ShotStrength > 300 /*&& range >30 */)
 			{
 
 				ShotStrength -= AvoidanceCost;
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, false);
 			}
-			else Enemy.Move(Enemy.GetPosition() - Targetright * 100);
+			else {
+				if (MoveLevel < 5) Enemy.Move(Enemy.GetPosition() - Targetright * 100);
+				else Enemy.MoveLev5(Enemy.GetPosition() - Targetright * 100);
+			}
 		}
 		else 
 		{
@@ -334,12 +347,18 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 				Enemy.SetAvoidance(true);
 				Enemy.Stepavoidance(minposition, true);
 			}
-			else Enemy.Move(Enemy.GetPosition() + Targetright * 100);
+			else {
+				if (MoveLevel < 5) Enemy.Move(Enemy.GetPosition() + Targetright * 100);
+					else Enemy.MoveLev5(Enemy.GetPosition() - Targetright * 100);
+			}
 			
 		}
 		//Enemy.SetAvoidance(true);
 		//Enemy.Stepavoidance(gun->GetPosition());
-	}else Enemy.Move(Targetpos);
+	}
+	else {	if (MoveLevel < 5) Enemy.Move(Targetpos);
+			else Enemy.MoveLev5(Targetpos);
+	}
 
 	////一定以上攻撃的ならステップ踏む
 	//if (Boost > 30)
@@ -350,6 +369,11 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 	//}
 
 	
+}
+
+void EnemyThinking::ThinkEvasion(uint64_t)
+{
+
 }
 
 void EnemyThinking::ThinkShot(uint64_t dt)
@@ -398,17 +422,40 @@ void EnemyThinking::LevelControl()
 {
 	//レベルの調整(レベルは下がらないものとして扱う)
 	//射撃部分
-	if ((MoveStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
-	if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel);}
+	switch (ShotLevel) {
+	case 0:
+		if ((MoveStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+		break;
+	case 1:
+		if ((MoveStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+		break;
+	case 2:
+		if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel); }
+		break;
 
+	default:
+		break;
+	}
+	
+	
 	//移動部分のレベル調整
-	if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
-	//HPを削った場合はその時点でレベル2に行く
-	if(Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
-	if (ShotStrength > 800 && MoveLevel < 2) { MoveLevel = 3;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); }
+	switch (MoveLevel) {
+	case 0:
+		if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		//HPを削った場合はその時点でレベル2に行く
+		if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		break;
+	case 1:
+		if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		//HPを削った場合はその時点でレベル2に行く
+		if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		break;
+	case 2:
+		if (ShotStrength > 800 && MoveLevel < 2) { MoveLevel = 3;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); }
+		break;
+	}
+	
 
-	//プレイヤーが有利過ぎたらレベルに上方修正掛ける
-	//if(Player->GetHP() - Enemy.GetHP())
 }
 
 void EnemyThinking::Collision()

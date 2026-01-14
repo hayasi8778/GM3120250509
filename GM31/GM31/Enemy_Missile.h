@@ -104,12 +104,14 @@ private:
 	float AvoidancePowor = 0;//回避の速度
 
 	float JumpPowor = 0;	//ジャンプ力
+	float JumpCool = 0.0f;//ジャンプのクールタイム
+	bool JumpFlag = false;
 
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
 	std::unique_ptr<Sphere> m_interceptionSphere; //範囲内に入った弾を迎撃するシステム作りたい
-	float Width;
-	float Height;
-	float Depth;
+	float Width = 0.0f;
+	float Height = 0.0f;
+	float Depth = 0.0f;
 
 	//パーティクル
 	std::vector<std::unique_ptr<Emitter>> m_emitter;
@@ -191,6 +193,7 @@ public:
 	bool GetShotFlag() { return Shot_Flag; }
 	void SetLevel(int lev) { Level = lev; }
 	int GetLevel() { return Level; }
+	//射撃レベル調整
 	void SetShotState(int lev);
 	int GetShotState();
 	void SetMoveState(int lev);

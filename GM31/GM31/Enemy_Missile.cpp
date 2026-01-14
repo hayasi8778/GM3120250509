@@ -140,8 +140,10 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	if (JumpPowor < 0)JumpPowor = 0;
 	//地面よりも下に行かないように
 	if(m_Position.y <10)m_Position.y = 10;
-	//if (m_Position.y == 10) JumpPowor = 2.5f;
-	
+	//この部分有効化するとジャンプする
+	if (m_Position.y == 10 && JumpFlag) JumpCool += static_cast<float>(deltatime) / 1000;
+	if (JumpCool > 2000) { JumpPowor = 2.5f; JumpCool = 0.0f; }
+
 	Head.Update(deltatime);
 	Leftarm.Update(deltatime);
 	Rightarm.Update(deltatime);
@@ -476,7 +478,7 @@ void Enemy_Missile::CreateBullet(Vector3 forward)
 
 void Enemy_Missile::CreateBulletLevel5()
 {
-	//一度に複数発出すかっこいい漢字にしたい
+	//一度に複数発出すかっこいい感じにしたい
 	Shot_Flag = true;//射撃フラグを付ける
 	for (int count = 0; count < 5; count++) //一度に5発撃つ
 	{
@@ -536,7 +538,7 @@ void Enemy_Missile::CreateBulletLevel5()
 
 		//e_missiles[Bulletnum].SetScale(Vector3(1, 1, 1));
 		e_missiles[Bulletnum].SetCount(0);//補正無し
-		//e_missiles[Bulletnum].SetRotation(m_Rotation);
+
 		e_missiles[Bulletnum].SetPosition(m_Position);
 		e_missiles[Bulletnum].SetShot(true);
 		e_missiles[Bulletnum].priod = 1000;
@@ -546,9 +548,13 @@ void Enemy_Missile::CreateBulletLevel5()
 
 		RandomGen rand;
 		float Turn = 0.025f + rand.UniformFloat(-0.005f, 0.015f);
-		//float TurnTime = rand.UniformFloat(800.0f, 2200.0f);
-		float TurnTime = rand.UniformFloat(2200.0f, 4200.0f);
+		
+		//float TurnTime = rand.UniformFloat(2200.0f, 4200.0f);
+		float TurnTime = rand.UniformFloat(800.0f, 2200.0f);
+
 		e_missiles[Bulletnum].SetmaxTurn(Turn, TurnTime);//一定時間立ったら元の追従に戻すようにしたい
+		e_missiles[Bulletnum].SetTurn(0.0f);//一定時間経った後の追従
+
 		float Speed = rand.UniformFloat(0.08f, 0.12f);
 		e_missiles[Bulletnum].SetShotSpeed(Speed);
 		e_missiles[Bulletnum].ResetVector();
@@ -562,7 +568,7 @@ void Enemy_Missile::CreateBulletLevel5()
 void Enemy_Missile::CreateBullet_FullBurst()
 {
 	if (Bulletnum == BulletMaxnum) Bulletnum = 0;
-
+	
 	// SRT情報作成
 	SRT srt;
 	srt.scale = m_Scale;			// 拡縮
@@ -858,21 +864,13 @@ void Enemy_Missile::MoveLev5(Vector3 Target)
 	if (Pranter_PE) coppos_P = player->GetPosition() + Target;//中間地点を産出する
 	else coppos_P = Partner->GetPosition() + Target;
 
-	Vector3 coppos_E = m_Position;
-	if (coppos_P.x < 0) coppos_P.x *= -1;
-	if (coppos_P.y < 0) coppos_P.y *= -1;
-	if (coppos_P.z < 0) coppos_P.z *= -1;
-	//あり得ない値が入っているなら処理しない(どこかに1000以上がはいっているなら)
-	if (coppos_P.x > 1000 || coppos_P.y > 1000 || coppos_P.z > 1000) return;
 
-	if (coppos_E.x < 0) coppos_E.x *= -1;
-	if (coppos_E.y < 0) coppos_E.y *= -1;
-	if (coppos_E.z < 0) coppos_E.z *= -1;
-	//Y軸は直接移動できないからXZの2軸判定
-	float rangedALL = coppos_P.x - coppos_E.x + coppos_P.z - coppos_E.z;
-	if (rangedALL < 0) rangedALL * -1;
+	float rangedALL = GetRange(coppos_P, m_Position);
+	if (rangedALL < 0) rangedALL *= -1;
+
 
 	Vector3 MoveVec = Target - m_Position;
+
 	MoveVec.y = 0;//正規化前にy軸を切る
 	MoveVec.Normalize();
 
@@ -881,7 +879,8 @@ void Enemy_Missile::MoveLev5(Vector3 Target)
 	}
 
 	//移動部分(レベル別に速度も調節したいのでベクトルに速度を掛ける形にする)
-	m_Position += MoveVec * movespead;
+	//ここでレベル別に固定値掛けて調整する
+	m_Position += MoveVec * (movespead /* 5.0f*/);
 
 	//ステップの速度が乗っているならすべる
 	if (AvoidancePowor != 0)
@@ -1377,23 +1376,27 @@ void Enemy_Missile::SetMoveState(int lev)
 	switch (lev) {
 	case 0:
 		movestate = MoveState::Idle;
+		JumpFlag = false;
 		break;
 	case 1:
 		movestate = MoveState::Easy;
+		JumpFlag = false;
 		break;
 	case 2:
 		movestate = MoveState::Normal;
-		movespead = 0.5f;
+		JumpFlag = false;
 		break;
 	case 3:
 		movestate = MoveState::Hard;
-		movespead = 0.8f;
+		JumpFlag = true;
 		break;
 	case 4:
 		movestate = MoveState::Hell;
+		JumpFlag = true;
 		break;
 	case 5:
 		movestate = MoveState::Lunatic;
+		JumpFlag = true;
 		break;
 	default:
 		movestate = MoveState::Idle;

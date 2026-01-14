@@ -71,9 +71,12 @@ public:
 	void SetObject(Object* pl);
 	void SetCol(bool col) { collsion = col; }
 	bool GetCollsion() { return collsion; }
+	//Å‰‚Ì‰½ƒtƒŒ[ƒ€•ª•â³‚ğ‹²‚Ş‚©
 	void SetCount(int cnt) { count = cnt; }
 
+	//Å‰‚Ì—U“±‚ğ‚Ç‚ê‚¾‚¯‚ÌŠÔ‚Ç‚ê‚­‚ç‚¢—U“±‚·‚é‚©‚ğŒˆ‚ß‚éŠÖ”
 	void SetmaxTurn(float turn, float time) { maxTurn = turn; Turn_Time = time; }
+	//ˆê’èŠÔŒo‚Á‚½Œã‚Ì—U“±’l‚ğŒˆ‚ß‚é
 	void SetTurn(float turn) { Turn = turn;}
 	void SetShotSpeed(float speed) { ShotSpeed = speed; }
 	void Update_Shot1(uint64_t deltatime);

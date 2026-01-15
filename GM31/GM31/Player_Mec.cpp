@@ -94,6 +94,13 @@ void M_Player::Update(uint64_t deltatime)
 	//m_Rotation.y += 0.1;
 	//m_Rotation.z += 0.1;
 
+	//被弾しているならHPを減らす
+	if (Damage != 0) {
+		HP--;
+		Damage--;
+		if (Damage < 0)Damage = 0;
+	}
+
 	float timeD = static_cast<float>(deltatime) / 1000;
 
 	//衝突判定と無敵時間の処理
@@ -138,24 +145,6 @@ void M_Player::Update(uint64_t deltatime)
 	rightarm.Update(deltatime);
 	leftfeet.Update(deltatime);
 	rightfeet.Update(deltatime);
-
-	//// 方向ベクトル作成
-	//Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
-	//Matrix4x4 rotmtxY = Matrix4x4::CreateRotationY(m_Rotation.y);
-	//Matrix4x4 rotmtxZ = Matrix4x4::CreateRotationZ(m_Rotation.z);
-
-	//// 合成
-	//Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
-
-	//Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-
-	//// 方向ベクトル 抽出
-	//Right_vec = { transmtx._11, transmtx._12, transmtx._13 };
-	//Right_vec.Normalize();
-	//Up_vec = { transmtx._21, transmtx._22, transmtx._23 };
-	//Up_vec.Normalize();
-	//Forward_vec = { transmtx._31, transmtx._32, transmtx._33 };
-	//Forward_vec.Normalize();
 
 	Matrix4x4 rotX = Matrix4x4::CreateRotationX(m_Rotation.x);
 	Matrix4x4 rotY = Matrix4x4::CreateRotationY(m_Rotation.y);
@@ -350,6 +339,7 @@ void M_Player::SetCollision_Bullet(int num, bool col)
 void M_Player::Reset() 
 {
 	HP = MaxHP;
+	Damage = 0;
 
 	m_Position = { 0.0f, 9.0f,0.0f };
 

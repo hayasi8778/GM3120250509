@@ -59,6 +59,7 @@ private:
 	//体力
 	const int MaxHP = 100;
 	int HP = MaxHP;
+	int Damage = 0;//食らっているダメージ
 	//攻撃力
 	const int ATK_Bullet = 20;
 	const int ATK_Beam = 1;
@@ -67,6 +68,7 @@ private:
 	ShotState shotstate = ShotState::Idle;
 	MoveState movestate = MoveState::Idle;
 	float movespead = 0.3f;
+	bool Move_Flag = false; //Moveで行動済みかどうかのフラグ
 
 	const int BulletMaxnum = 25;
 
@@ -196,12 +198,14 @@ public:
 	//射撃レベル調整
 	void SetShotState(int lev);
 	int GetShotState();
+	//移動レベル調整
 	void SetMoveState(int lev);
 	int GetMoveState();
 
 
 	Vector3 GetCenter() { return m_Position - Forward_vec * 1.5f; }//当たり判定の中心
 
+	//被弾判定
 	void SetCollision(bool col, int ATK);
 	void SetCollision_Bullet(int,bool);
 	void SetAvoidance(bool inter) { Avoidance = inter; }

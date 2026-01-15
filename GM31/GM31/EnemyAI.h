@@ -33,9 +33,6 @@ private:
 	int MoveIncrease = 1;
 	int AvoidanceCost = 300;
 
-	//カメラを元のキャラからずらすためにカメラに送る座標を付ける
-	Vector3 LookatPos = Vector3::Zero;
-
 
 	Vector3 PositionLog[300]; //5秒間(60fpsで計測)のプレイヤーと敵の距離を記録
 	Vector3 FirstRange = { 0.0f,0.0f,0.0f };//初手の距離を記録しておく
@@ -61,12 +58,12 @@ public:
 	void RuleUpdate(uint64_t);//ルールベースのAI
 	void ThinkUpdate(uint64_t);//プレイヤーの動きに対して強化されるAI
 	void ThinkMove(uint64_t);
+	void ThinkEvasion(uint64_t);
 	void ThinkShot(uint64_t);
 	void LevelControl();
 	void Collision();
 
 	bool GetSpecial() { return Enemy.GetSpecialFlag(); }
-	Vector3 GetLookat() { return LookatPos; }
 };
 
 

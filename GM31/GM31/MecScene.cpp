@@ -185,10 +185,6 @@ void MecScene::update(uint64_t deltatime)
 		PlayerShot();
 	}
 
-	
-
-
-
 
 	m_player.Update(deltatime);
 

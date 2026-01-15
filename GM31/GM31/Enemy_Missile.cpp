@@ -121,6 +121,13 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	//死んでるなら移動させる
 	if (HP <= 0) { m_Position = { 0.0f,-20.0f,0.0f }; return; }
 
+	//被弾しているならHPを減らす
+	if (Damage != 0) {
+		HP--;
+		Damage--;
+		if (Damage < 0)Damage = 0;
+	}
+
 	//Move();//移動処理
 
 	//Timer(deltatime);//時間経過処理
@@ -205,6 +212,7 @@ void Enemy_Missile::Update(uint64_t deltatime)
 void Enemy_Missile::LateUpdate(uint64_t deltatime) 
 {
 	Shot_Flag = false;
+	Move_Flag = false;
 }
 
 void Enemy_Missile::Draw()
@@ -275,7 +283,7 @@ void Enemy_Missile::Draw()
 	}
 	else
 	{
-		//m_shapecube_col->Draw(transmtx, { 1.0f,1.0f,1.0f,0.5f });
+		m_shapecube_col->Draw(transmtx, { 1.0f,1.0f,1.0f,0.5f });
 	}
 
 	//弾丸の検知範囲
@@ -328,6 +336,7 @@ void Enemy_Missile::Action(Vector3 vec)
 void Enemy_Missile::Reset()
 {
 	HP = MaxHP;
+	Damage = 0;
 	FIRE_BEAM = false;
 	beam_time = 0;
 	beamsize = { 0,0,0 };
@@ -720,6 +729,7 @@ void Enemy_Missile::CreateBullet_FullBurst_Tes()
 void Enemy_Missile::Move()//めちゃ雑なルールベース
 {
 	if (HP <= 0) return;
+	if (Move_Flag) return;
 
 	//プレイヤーから距離を取るようにする
 	Vector3 P_E_Renged = { 0.0f,0.0f,0.0f };
@@ -781,15 +791,17 @@ void Enemy_Missile::Move()//めちゃ雑なルールベース
 		// 4. Roll は今回は固定 0
 		m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
 	}
+	Move_Flag = true;
 }
 
 void Enemy_Missile::Move(Vector3 Target)
 {
 	if (HP <= 0) return;
+	if (Move_Flag) return;
 
-	//あり得ない値が入っていた場合処理しない
+	//事前に座標を記録する
+	Vector3 positionlog = m_Position;
 
-	//Vector3 MoveVec = m_Position - Target;
 	
 	//これ距離が近すぎるなら動かないようにしたい
 	Vector3 coppos_P = {0.0f,0.0f,0.0f};
@@ -849,15 +861,22 @@ void Enemy_Missile::Move(Vector3 Target)
 		// 4. Roll は今回は固定 0
 		m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
 	}
+
+	//移動しすぎを防ぐ(450)
+	if (m_Position.x > 450 || m_Position.x < -450)m_Position.x = positionlog.x;
+	if (m_Position.z > 450 || m_Position.z < -450)m_Position.z = positionlog.z;
+
+
+	Move_Flag = true;
 }
 
 void Enemy_Missile::MoveLev5(Vector3 Target)
 {
 	if (HP <= 0) return;
+	if (Move_Flag) return;
 
-	//あり得ない値が入っていた場合処理しない
-
-	//Vector3 MoveVec = m_Position - Target;
+	//事前に座標を記録する
+	Vector3 positionlog = m_Position;
 
 	//これ距離が近すぎるなら動かないようにしたい
 	Vector3 coppos_P = { 0.0f,0.0f,0.0f };
@@ -880,7 +899,7 @@ void Enemy_Missile::MoveLev5(Vector3 Target)
 
 	//移動部分(レベル別に速度も調節したいのでベクトルに速度を掛ける形にする)
 	//ここでレベル別に固定値掛けて調整する
-	m_Position += MoveVec * (movespead /* 5.0f*/);
+	m_Position += MoveVec * (movespead * 5.0f);
 
 	//ステップの速度が乗っているならすべる
 	if (AvoidancePowor != 0)
@@ -910,6 +929,12 @@ void Enemy_Missile::MoveLev5(Vector3 Target)
 		// 4. Roll は今回は固定 0
 		m_Rotation = Vector3{ 0.0f,yaw, 0.0f };
 	}
+
+	//移動しすぎを防ぐ(450)
+	if (m_Position.x > 450 || m_Position.x < -450)m_Position.x = positionlog.x;
+	if (m_Position.z > 450 || m_Position.z < -450)m_Position.z = positionlog.z;
+
+	Move_Flag = true;
 }
 
 void Enemy_Missile::Timer(uint64_t deltatime)
@@ -1421,9 +1446,10 @@ void Enemy_Missile::SetCollision(bool col, int ATK)
 	if (!col) return;
 
 	if (!collision_hit) {
-		HP -= ATK;
+		Damage += ATK;
+		/*HP -= ATK;
 
-		if (HP < 0) HP = 0;
+		if (HP < 0) HP = 0;*/
 	}
 
 

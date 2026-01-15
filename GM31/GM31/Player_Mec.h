@@ -34,6 +34,7 @@ private:
 
 	int MaxHP = 100;
 	int HP = MaxHP;//体力
+	int Damage = 0;//食らうダメージ
 	float Invincibility_time = 0;//無敵時間
 
 	Vector3* Target = nullptr;
@@ -94,7 +95,8 @@ public:
 	void SetTarget(Vector3* tar);
 	Vector3* GetTarget() { return Target; }
 	void SetCol(bool collision) { if (collision) { col = collision; } };
-	void HitDamage(int damage) { if (col) HP -= damage; }
+	//被弾処理
+	void HitDamage(int damage) { if (col) Damage += damage; }
 	void SetBurst(bool br) { if(!Burst)BurstFlag = true;  Burst = br;   }
 	bool GetBurst() { return BurstFlag; }
 

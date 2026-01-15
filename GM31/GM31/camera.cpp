@@ -67,59 +67,53 @@ void Camera::Dispose()
 
 void Camera::Update()
 {
-	//if (GetRange(m_position, moveposition) < 10) m_position = moveposition;
-
-	//if (moveposition != Vector3(0.0f, 0.0f, 0.0f)) {
-	//	Vector3 MoveVec = moveposition - m_position;
-	//	MoveVec.y = 0;//正規化前にy軸を切る
-	//	MoveVec.Normalize();
-
-	//	float ranged = GetRange(moveposition, m_position);
-	//	
-	//	if (ranged <= 10.0f) {//移動地点と現在地が近いなら移動しない
-	//		//m_position = moveposition;
-	//		//moveposition = Vector3(0.0f, 0.0f, 0.0f);
-	//		if (moveposition != campos) moveposition = campos;
-	//		else m_position = moveposition;
-	//	}else m_position += MoveVec * 2.0f;
-	//}
-	//else m_position = campos;
 
 	moveposition.y = 30;
-	Vector3 MoveVec = moveposition - m_position;
-	//MoveVec.y = 0;
 
-	float dist = MoveVec.Length();
+	//線形補完でカメラを動かすように変更する
+	//カメラ位置をスムーズに補間
+	float followSpeed = 0.1f; //0.05~0.2の間で調整
+	m_position = Vector3::Lerp(m_position, moveposition, followSpeed);
 
-	if (dist > 0.01f)
+	//LookAt も同様に補間
+	if (m_enemypos != Vector3::Zero)
 	{
-		MoveVec.Normalize();
-		m_position += MoveVec * 2.0f; // スムーズに追従
+		float lookSpeed = 0.15f;
+		m_lookat = Vector3::Lerp(m_lookat, m_enemypos, lookSpeed);
 	}
 
-	//近すぎるなら直接目標座標につく
-	if (GetRange(m_position, moveposition) < 2.0f) m_position = moveposition;
+
+	//Vector3 MoveVec = moveposition - m_position;
+	////MoveVec.y = 0;
+
+	//float dist = MoveVec.Length();
+
+	//if (dist > 0.01f)
+	//{
+	//	MoveVec.Normalize();
+	//	m_position += MoveVec * 6.0f; // スムーズに追従
+	//}
+
+	////近すぎるなら直接目標座標につく
+	//if (GetRange(m_position, moveposition) < 5.0f) m_position = moveposition;
 
 
-	//lookatもずらす形にしたい
-	if (m_enemypos != Vector3::Zero) {
-		Vector3 LookatVec = m_enemypos - m_lookat;
-		//MoveVec.y = 0;
+	////lookatもずらす形にしたい
+	//if (m_enemypos != Vector3::Zero) {
+	//	Vector3 LookatVec = m_enemypos - m_lookat;
+	//	//MoveVec.y = 0;
 
-		dist = LookatVec.Length();
+	//	dist = LookatVec.Length();
 
-		if (dist > 0.01f)
-		{
-			LookatVec.Normalize();
-			m_lookat += LookatVec * 2.0f; // スムーズに追従
-		}
+	//	if (dist > 0.01f)
+	//	{
+	//		LookatVec.Normalize();
+	//		m_lookat += LookatVec * 2.0f; // スムーズに追従
+	//	}
 
-		//近すぎるなら直接目標座標につく
-		if (GetRange(m_enemypos, m_lookat) < 2.0f) m_lookat = m_enemypos;
-
-
-	}
-	
+	//	//近すぎるなら直接目標座標につく
+	//	if (GetRange(m_enemypos, m_lookat) < 3.0f) m_lookat = m_enemypos;
+	//}
 	
 }
 

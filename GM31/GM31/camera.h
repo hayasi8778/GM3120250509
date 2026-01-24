@@ -24,6 +24,9 @@ protected:
 	Vector3 moveposition = Vector3(0.0f, 0.0f, 0.0f);//カメラの移動目標
 	Vector3 campos = Vector3(0.0f, 0.0f, 0.0f);//本来のカメラ位置
 
+	//プロジェクション行列の生成
+	float fieldOfView = DirectX::XMConvertToRadians(45.0f);    // 視野角
+
 	void CameraGUI();//GUI
 public:
 	float UseGUI = false;//カメラGUIの使用をフラグで管理する
@@ -61,6 +64,8 @@ public:
 		if (m_vibration_time != 0) return;
 		m_vibration = size; 
 		m_vibration_time = time; }
+
+	void SetfieldOfView(float view) { fieldOfView = DirectX::XMConvertToRadians(view); }
 };
 
 // / 自由視点カメラ
@@ -80,12 +85,12 @@ public:
 		m_azimuth = azimuth;
 	}
 
-	void SetRadius(float radius) 
-{
+	void SetRadius(float radius)
+	{
 		m_radius = radius;
 	}
 
-	void CalcCameraPosition() 
+	void CalcCameraPosition()
 	{
 		// 仰角と方位角からカメラの位置を計算
 		CPolor3D polar(m_radius, m_elevation, m_azimuth);
@@ -96,7 +101,8 @@ public:
 		m_up = polarup.ToCartesian();
 	}
 
-	void Draw() {
+	void Draw()
+	{
 		// ビュー変換後列作成
 		m_viewmtx =
 			DirectX::XMMatrixLookAtLH(
@@ -133,7 +139,6 @@ public:
 	//	projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane);
 
 		Renderer::SetProjectionMatrix(&projectionMatrix);
-
 	}
 };
 

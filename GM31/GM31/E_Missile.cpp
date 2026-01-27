@@ -1,5 +1,7 @@
 #include "E_Missile.h"
 
+Vector3 RotateAroundAxis(const Vector3&, const Vector3&, float);
+
 E_Missile::E_Missile()
 {
 	Init();
@@ -407,6 +409,12 @@ void E_Missile::Update_Shot2(uint64_t deltatime)
 		shot = false;
 	}
 
+	//地面にぶつかっても爆発する
+	if (m_Position.y < GroundHight) {
+		collsion = true;
+		shot = false;
+	}
+
 	//通常と違う追尾性持っているならここを通る
 	if (maxTurn != DefaultMaxTurn) 
 	{
@@ -416,6 +424,14 @@ void E_Missile::Update_Shot2(uint64_t deltatime)
 			maxTurn = Turn;
 		}
 	}
+	
+	//デバック用コード
+	if (false) {
+		// 移動
+		m_Position += Forward_vec * ShotSpeed * time_D;
+		return;
+	}
+
 
 	// ターゲット方向
 	Vector3 PLpos = player->GetPosition();
@@ -431,12 +447,41 @@ void E_Missile::Update_Shot2(uint64_t deltatime)
 		float angleDiff = acosf(dotVal);
 
 		if (angleDiff > maxTurn) {
+			/*
 			float t = 1;
-			if (count > 0) {
+			if (count > 0) {//最初の数フレームは完全に追従させる
 				count--;
 			}
-			else { t = maxTurn / angleDiff; }
+			else { t = maxTurn / angleDiff;
+			t = std::clamp(t, 0.0f, 1.0f);//tが１を上回るとバグるのでここで補完する
+			}
 			Forward_vec = (Vector3::Lerp(Forward_vec, toTarget, t));
+			*/
+
+			float turnAngle = 0.0f;
+
+			if (count > 0) {
+				// 発射直後は完全追従
+				count--;
+				turnAngle = angleDiff;   // つまり toTarget へ一気に向ける
+			}
+			else {
+				// 最大旋回角で追尾
+				turnAngle = maxTurn;
+			}
+
+			// 回転軸
+			Vector3 axis = Forward_vec.Cross(toTarget);
+			if (axis.LengthSquared() < 1e-6f) {
+				axis = Vector3(0, 1, 0); // ほぼ同方向 or 真逆方向の保険
+			}
+			axis.Normalize();
+
+			// Forward_vec を axis まわりに turnAngle 回転
+			Forward_vec = RotateAroundAxis(Forward_vec, axis, turnAngle);
+			Forward_vec.Normalize();
+
+
 		}
 		else {
 			Forward_vec = toTarget;
@@ -458,4 +503,13 @@ void E_Missile::Update_Shot2(uint64_t deltatime)
 	// 移動
 	m_Position += Forward_vec * ShotSpeed * time_D;
 
+}
+
+Vector3 RotateAroundAxis(const Vector3& v, const Vector3& axis, float angle)
+{
+	float c = cosf(angle);
+	float s = sinf(angle);
+
+	// axis.Cross(v) に修正
+	return v * c + axis.Cross(v) * s + axis * axis.Dot(v) * (1 - c);
 }

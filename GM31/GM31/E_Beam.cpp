@@ -136,7 +136,7 @@ void E_Beam::Draw()
 	Matrix4x4 transmtx = scaleMtx * m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 
-	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+	//m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
 	m_Position = poscop;//position‚ÍŒ³‚É–ß‚µ‚Ä‚¨‚­

@@ -57,7 +57,7 @@ private:
 
 
 	//体力
-	const int MaxHP = 100;
+	const int MaxHP = 150;
 	int HP = MaxHP;
 	int Damage = 0;//食らっているダメージ
 	//攻撃力
@@ -87,10 +87,11 @@ private:
 	float FireRate_FullBurst = 100.0f;
 	int Burstnum = 20;
 	bool SpecialFlag = false;
+	float SpecialCool = 0.0f;//必殺技のクールタイム
 
 	bool Pranter_PE = true; //trueで対戦相手はPlayer、falseでEnemy
 	M_Player* player = nullptr;//プレイヤー
-	Enemy_Missile* Partner;//タイトルシーンでの相手役
+	Enemy_Missile* Partner = nullptr;//タイトルシーンでの相手役
 
 	bool FIRE = true;//弾の発射フラグ
 	bool FIRE_BEAM = false;//ビームの照射フラグ
@@ -104,6 +105,7 @@ private:
 
 	Vector3 AvoidanceVec = { 0,0,0 };//回避ベクトル
 	float AvoidancePowor = 0;//回避の速度
+	float AvoidanceCool = 0;//回避のクールタイム
 
 	float JumpPowor = 0;	//ジャンプ力
 	float JumpCool = 0.0f;//ジャンプのクールタイム
@@ -148,6 +150,7 @@ public:
 	GM31::GE::Collision::BoundingSphere GetShere();
 	void CreateBullet();
 	void CreateBullet(Vector3 forward);//発射方向を決める物を用意しておく
+	void CreateBullet(Vector3 forward,float tormin,float tormax,float,int CorrectionCount);//発射方向を決める物を用意しておく
 	void CreateBulletLevel5(); //かなり強めの射撃
 	void CreateBullet_FullBurst();
 	void CreateBullet_FullBurst_Tes();
@@ -189,7 +192,9 @@ public:
 	bool GetBulletcol(int bulletnum) { return e_missiles[bulletnum].GetCollsion(); }
 	GM31::GE::Collision::BoundingBoxOBB GetOBB_Beam();
 	
-	
+	//クールタイム開けている+必殺技中じゃないなら必殺技使用可能
+	float GetSpecialCool() { return SpecialCool; }
+	bool CanUseSpecial() { if (!SpecialFlag && SpecialCool == 0.0f) { return true; } return false; }
 	bool GetSpecialFlag() { return SpecialFlag; }
 	void SetSpecialFlag(bool fg) { SpecialFlag = fg; }
 	bool GetShotFlag() { return Shot_Flag; }

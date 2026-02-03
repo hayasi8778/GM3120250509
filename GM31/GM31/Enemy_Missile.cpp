@@ -34,6 +34,10 @@ void Enemy_Missile::Init()
 		"assets/model/Mec/MecBone_Body.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+	//	"assets/model/Mec/MecArm_cop");						// テクスチャのパス
+
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
@@ -128,6 +132,18 @@ void Enemy_Missile::Update(uint64_t deltatime)
 		if (Damage < 0)Damage = 0;
 	}
 
+	//ステップのクールタイム計算
+	if (AvoidanceCool != 0) {
+		AvoidanceCool -= static_cast<float>(deltatime) / 1000;
+		if (AvoidanceCool < 0) AvoidanceCool = 0;
+	}
+
+	//必殺技のクールタイム計算
+	if (SpecialCool != 0.0f && !SpecialFlag) {
+		SpecialCool -= static_cast<float>(deltatime) / 1000;
+		if (SpecialCool < 0.0f) SpecialCool = 0.0f;
+	}
+
 	//Move();//移動処理
 
 	//Timer(deltatime);//時間経過処理
@@ -142,14 +158,14 @@ void Enemy_Missile::Update(uint64_t deltatime)
 
 	//重力
 	m_Position.y += JumpPowor;
-	m_Position.y -= 0.98;//とりあえず0.98で重力取る
-	JumpPowor -= 0.08;
-	if (JumpPowor < 0)JumpPowor = 0;
+	m_Position.y -= 0.98f;//とりあえず0.98で重力取る
+	JumpPowor -= 0.08f;
+	if (JumpPowor < 0)JumpPowor = 0.0f;
 	//地面よりも下に行かないように
-	if(m_Position.y <10)m_Position.y = 10;
+	if(m_Position.y <10.0f)m_Position.y = 10.0f;
 	//この部分有効化するとジャンプする
-	if (m_Position.y == 10 && JumpFlag) JumpCool += static_cast<float>(deltatime) / 1000;
-	if (JumpCool > 2000) { JumpPowor = 2.5f; JumpCool = 0.0f; }
+	if (m_Position.y == 10.0f && JumpFlag) JumpCool += static_cast<float>(deltatime) / 1000;
+	if (JumpCool > 2000.0f) { JumpPowor = 2.5f; JumpCool = 0.0f; }
 
 	Head.Update(deltatime);
 	Leftarm.Update(deltatime);
@@ -240,6 +256,7 @@ void Enemy_Missile::Draw()
 	//m_shader.SetGPU();
 
 	if (HP > 0) {
+		//胴体
 		m_meshrenderer.Draw();//HPがないなら描画しない
 
 		for (int i = 0; i < BulletMaxnum; i++)
@@ -283,7 +300,7 @@ void Enemy_Missile::Draw()
 	}
 	else
 	{
-		m_shapecube_col->Draw(transmtx, { 1.0f,1.0f,1.0f,0.5f });
+		//m_shapecube_col->Draw(transmtx, { 1.0f,1.0f,1.0f,0.5f });
 	}
 
 	//弾丸の検知範囲
@@ -296,16 +313,13 @@ void Enemy_Missile::Draw()
 		//m_interceptionSphere->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 	}
 #endif
-	//姿勢の補完をここでする
-	/*m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;*/
 
 	//パーティクルの描画
 	if (m_emitter.size() > 0) {
 		const std::vector<PARTICLE>& allp = m_emitter[0]->GetParticles();
 
 		for (auto& p : allp) {
-			SphereDrawerDraw(1.0f, Color(0.8, 0.8, 0.6, 0.3f), p.pos.x, p.pos.y, p.pos.z);
+			SphereDrawerDraw(1.0f, Color(0.8f, 0.8f, 0.6f, 0.3f), p.pos.x, p.pos.y, p.pos.z);
 		}
 	}
 }
@@ -476,6 +490,55 @@ void Enemy_Missile::CreateBullet(Vector3 forward)
 	e_missiles[Bulletnum].SetCount(0);//補正無し
 	e_missiles[Bulletnum].SetmaxTurn(0.0f, 1000.0f);//一定時間立ったら元の追従に戻すようにしたい
 	e_missiles[Bulletnum].SetTurn(0.03f);//一定時間立ったら元の追従に戻すようにしたい
+	e_missiles[Bulletnum].SetPosition(bulletpos);
+	e_missiles[Bulletnum].SetShot(true);
+	e_missiles[Bulletnum].priod = 1000;
+
+	//e_missile.push_back(std::move(pb));
+
+	Bulletnum++;
+}
+
+void Enemy_Missile::CreateBullet(Vector3 forward, float tormin, float tormax, float tailgatingtime ,int CorrectionCount)
+{
+	Shot_Flag = true;//射撃フラグを付ける
+	if (Bulletnum == BulletMaxnum) Bulletnum = 0;
+
+	// SRT情報作成
+	SRT srt;
+	srt.scale = m_Scale;			// 拡縮
+	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
+	srt.pos = m_Position;			// 位置
+
+	//念のためforwardを正規化する
+	forward.Normalize();
+
+	if (forward.x != 0) {
+		Forward_vec;
+		Right_vec;
+		Up_vec;
+		int test = 0;
+
+	}
+	
+	e_missiles[Bulletnum].Reset();
+	e_missiles[Bulletnum].SetForward(forward);
+	//e_missiles[Bulletnum].SetForward(Right_vec);
+	if (Pranter_PE) e_missiles[Bulletnum].SetObject(player);
+	else e_missiles[Bulletnum].SetObject(Partner);
+
+	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
+
+	//指定したボーンがないならオブジェクトの中心座標から球を打つ
+	if (bulletpos == Vector3::Zero) bulletpos = m_Position;
+
+	e_missiles[Bulletnum].SetCount(CorrectionCount);//補正無し
+
+	RandomGen rand;
+	float Turn = rand.UniformFloat(tormin, tormax);
+	e_missiles[Bulletnum].SetmaxTurn(Turn, tailgatingtime);//一定時間立ったら元の追従に戻すようにしたい
+	e_missiles[Bulletnum].SetTurn(0.0f);//一定時間経った後の追従(もう追尾せずに直線)
+	
 	e_missiles[Bulletnum].SetPosition(bulletpos);
 	e_missiles[Bulletnum].SetShot(true);
 	e_missiles[Bulletnum].priod = 1000;
@@ -666,7 +729,7 @@ void Enemy_Missile::CreateBullet_FullBurst_Tes()
 	//float maxYaw = XMConvertToRadians(35.0f);   // 左右最大15度
 	//float maxPitch = XMConvertToRadians(-45.0f);   // 上方向最大45度
 	float maxYaw = 0.6108f;   // 左右最大15度
-	float maxPitch = -0.7853;   // 上方向最大45度
+	float maxPitch = -0.7853f;   // 上方向最大45度
 	//0.6108
 	//-0.7853
 
@@ -820,7 +883,7 @@ void Enemy_Missile::Move(Vector3 Target)
 	if (coppos_E.z < 0) coppos_E.z *= -1;
 	//Y軸は直接移動できないからXZの2軸判定
 	float rangedALL = coppos_P.x - coppos_E.x + coppos_P.z - coppos_E.z;
-	if (rangedALL < 0) rangedALL * -1;
+	if (rangedALL < 0) rangedALL *= -1;
 
 	Vector3 MoveVec = Target - m_Position;
 	MoveVec.y = 0;//正規化前にy軸を切る
@@ -831,7 +894,9 @@ void Enemy_Missile::Move(Vector3 Target)
 	}
 
 	//移動部分(レベル別に速度も調節したいのでベクトルに速度を掛ける形にする)
-	m_Position += MoveVec * movespead;
+	float movesp = movespead;
+	if (SpecialFlag) movesp *= 0.6f;
+	m_Position += MoveVec * movesp;
 
 	//ステップの速度が乗っているならすべる
 	if (AvoidancePowor != 0)
@@ -1078,7 +1143,28 @@ void Enemy_Missile::Shot(uint64_t deltatime)
 
 	if (FIRE)//弾丸を増やす
 	{
-		CreateBullet();
+		switch (shotstate)
+		{
+		case ShotState::Idle:
+			CreateBullet();
+			break;
+		case ShotState::Easy:
+			CreateBullet(Forward_vec, 0.01f, 0.011f, 1000.0f, 3);
+			break;
+		case ShotState::Normal:
+			CreateBullet(Forward_vec, 0.01f, 0.011f, 1000.0f, 3);
+			break;
+		case ShotState::Hard:
+			CreateBullet(Forward_vec, 0.011f, 0.013f, 1000.0f, 3);
+			break;
+		case ShotState::Hell:
+			break;
+		case ShotState::Lunatic:
+			break;
+		default:
+			break;
+		}
+		
 		FIRE = false;
 	}
 	
@@ -1168,16 +1254,42 @@ void Enemy_Missile::SpecialAttack(uint64_t deltatime)
 		switch (shotstate) {
 		case ShotState::Idle:
 			//if (FIRE_BEAM) Beam(deltatime);
-			if (SpecialFlag) Beam(deltatime);
+			if (SpecialFlag) {
+				Beam(deltatime);
+				SpecialCool = 2000;
+			}
 			break;
 		case ShotState::Easy:
-			if (SpecialFlag) Beam(deltatime);
+			if (SpecialFlag) {
+				Beam(deltatime);
+				SpecialCool = 2000;
+			}
 			break;
 		case ShotState::Normal:
-			if (SpecialFlag) FullBurstLv1(deltatime);
+			if (SpecialFlag) {
+				FullBurstLv1(deltatime);
+				SpecialCool = 2000;
+			}
 			break;
 		case ShotState::Hard:
-			if (SpecialFlag) FullBurstLv2(deltatime);
+			if (SpecialFlag) {
+				FullBurstLv2(deltatime);
+				SpecialCool = 2000;
+			}
+			break;
+
+		case ShotState::Hell:
+			if (SpecialFlag) {
+				FullBurstLv2(deltatime);
+				SpecialCool = 2000;
+			}
+			break;
+
+		case ShotState::Lunatic:
+			if (SpecialFlag) {
+				FullBurstLv2(deltatime);
+				SpecialCool = 2000;
+			}
 			break;
 		default:
 			SpecialFlag = false;
@@ -1252,7 +1364,7 @@ void Enemy_Missile::Beam(uint64_t deltatime)
 		FIRE_BEAM = true;
 	}
 
-
+	//ビーム照射後
 	if (beam_time > 3000)
 	{
 		FIRE_BEAM = false;
@@ -1292,7 +1404,7 @@ bool Enemy_Missile::Collision_EN(GM31::GE::Collision::BoundingBoxOBB colobb)
 
 void Enemy_Missile::Stepavoidance(Vector3 bulletpos ,bool StepVec)
 {
-	if (FIRE_BEAM) return;//ビーム照射中か既にステップ踏んでるなら何もしない
+	if (FIRE_BEAM || AvoidanceCool != 0) return;//ビーム照射中か既にステップ踏んでるなら何もしない
 	//敵の弾の位置から向きを割り出す
 	Vector3 TargetForward = (m_Position - bulletpos);
 
@@ -1362,15 +1474,42 @@ void Enemy_Missile::SetShotState(int lev)
 	switch (lev) {
 	case 0:
 		shotstate = ShotState::Idle;
+#ifdef _DEBUG
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_Green");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+#endif
+		
 		break;
 	case 1:
 		shotstate = ShotState::Easy;
+#ifdef _DEBUG
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_Red");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+#endif
+		
 		break;
 	case 2:
 		shotstate = ShotState::Normal;
+#ifdef _DEBUG
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_White");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+#endif
+		
 		break;
 	case 3:
 		shotstate = ShotState::Hard;
+#ifdef _DEBUG
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_Black");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+#endif
 		break;
 	case 4:
 		shotstate = ShotState::Hell;
@@ -1406,10 +1545,12 @@ void Enemy_Missile::SetMoveState(int lev)
 	case 1:
 		movestate = MoveState::Easy;
 		JumpFlag = false;
+		
 		break;
 	case 2:
 		movestate = MoveState::Normal;
 		JumpFlag = false;
+		
 		break;
 	case 3:
 		movestate = MoveState::Hard;
@@ -1461,7 +1602,7 @@ void Enemy_Missile::SetCollision_Bullet(int num, bool col)
 	e_missiles[num].SetCol(col);
 }
 
-Vector3 RotateAroundAxis(const Vector3& v, const Vector3& axis, float angle)
+Vector3 AroundAxis(const Vector3& v, const Vector3& axis, float angle)
 {
 	Quaternion q = Quaternion::CreateFromAxisAngle(axis, angle);
 	return Vector3::Transform(v, q);
@@ -1477,10 +1618,10 @@ void Enemy_Missile::ForwardToAngles(float& elevation, float& azimuth , float sid
 	float pitchOffset = XMConvertToRadians(upangle);   // 上下
 
 	// 1. yaw（左右）→ Up 軸で回す
-	f = RotateAroundAxis(f, Up_vec, yawOffset);
+	f = AroundAxis(f, Up_vec, yawOffset);
 
 	// 2. pitch（上下）→ Right 軸で回す
-	f = RotateAroundAxis(f, Right_vec, pitchOffset);
+	f = AroundAxis(f, Right_vec, pitchOffset);
 
 	f.Normalize();
 

@@ -482,6 +482,10 @@ void Enemy_Missile::CreateBullet(Vector3 forward)
 		e_missiles[Bulletnum].SetObject(player);
 	else e_missiles[Bulletnum].SetObject(Partner);
 
+	float Targetrange = 0.0f;
+	if (Pranter_PE) Targetrange = GetRange(GetPosition(), player->GetPosition());
+	else Targetrange = GetRange(GetPosition(), Partner->GetPosition());
+
 	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
 
 	//指定したボーンがないならオブジェクトの中心座標から球を打つ
@@ -491,6 +495,8 @@ void Enemy_Missile::CreateBullet(Vector3 forward)
 	e_missiles[Bulletnum].SetmaxTurn(0.0f, 1000.0f);//一定時間立ったら元の追従に戻すようにしたい
 	e_missiles[Bulletnum].SetTurn(0.03f);//一定時間立ったら元の追従に戻すようにしたい
 	e_missiles[Bulletnum].SetPosition(bulletpos);
+	//距離に応じて弾の速度を上げる(離れすぎると弾が当たらなくなるため)
+	e_missiles[Bulletnum].SetShotSpeed(0.01f * Targetrange);
 	e_missiles[Bulletnum].SetShot(true);
 	e_missiles[Bulletnum].priod = 1000;
 
@@ -532,6 +538,13 @@ void Enemy_Missile::CreateBullet(Vector3 forward, float tormin, float tormax, fl
 	//指定したボーンがないならオブジェクトの中心座標から球を打つ
 	if (bulletpos == Vector3::Zero) bulletpos = m_Position;
 
+	float Targetrange = 0.0f;
+	if (Pranter_PE) Targetrange = GetRange(GetPosition(), player->GetPosition());
+	else Targetrange = GetRange(GetPosition(), Partner->GetPosition());
+
+	//近すぎるとかえって遅くなるので加速度の最低値を入れる
+	if (Targetrange < 120.0f) Targetrange = 120.0f;
+
 	e_missiles[Bulletnum].SetCount(CorrectionCount);//補正無し
 
 	RandomGen rand;
@@ -539,6 +552,8 @@ void Enemy_Missile::CreateBullet(Vector3 forward, float tormin, float tormax, fl
 	e_missiles[Bulletnum].SetmaxTurn(Turn, tailgatingtime);//一定時間立ったら元の追従に戻すようにしたい
 	e_missiles[Bulletnum].SetTurn(0.0f);//一定時間経った後の追従(もう追尾せずに直線)
 	
+	//距離に応じて弾の速度を上げる(離れすぎると弾が当たらなくなるため)
+	e_missiles[Bulletnum].SetShotSpeed(0.001f * Targetrange);
 	e_missiles[Bulletnum].SetPosition(bulletpos);
 	e_missiles[Bulletnum].SetShot(true);
 	e_missiles[Bulletnum].priod = 1000;

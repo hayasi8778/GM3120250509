@@ -27,6 +27,8 @@ void EnemyThinking::DebugUI()
 	ImGui::Text("Enemy");
 	ImGui::Checkbox(std::string("Think").c_str(), &Think);
 	ImGui::Text("Strength: %d", Strength);
+	ImGui::Checkbox(std::string("ShotLevel").c_str(), &LevelLock_Shot);
+	ImGui::Checkbox(std::string("MoveLevel").c_str(), &LevelLock_Move);
 	if (ImGui::Button("AddStrongth+1000")) 
 	{
 		ShotStrength += 500;
@@ -58,6 +60,8 @@ void EnemyThinking::DebugUI()
 
 	ImGui::Text("ShotStrength: %d", ShotStrength);
 	ImGui::Text("MoveStrength: %d", MoveStrength);
+
+	ImGui::Text("PlayerRange: %3f", GetRange(Player->GetPosition(),Enemy.GetPosition()));
 
 	ImGui::Text("PlayerPosition.x: %.3f", Player->GetPosition().x);
 	ImGui::Text("PlayerPosition.y: %.3f", Player->GetPosition().y);
@@ -439,54 +443,61 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 void EnemyThinking::LevelControl()
 {
 	//レベルの調整(レベルは下がらないものとして扱う)
-	//射撃部分
-	switch (ShotLevel) {
-	case 0:
-		if ((ShotStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 1; Enemy.SetShotState(ShotLevel); }
-		break;
-	case 1:
-		if ((ShotStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
-		break;
-	case 2:
-		if (ShotLevel == 2 && ShotStrength > 500 && MoveStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel); }
-		break;
-	case 3:
-		if (ShotLevel == 3 && ShotStrength > 1000) { ShotLevel = 4; Enemy.SetShotState(ShotLevel); }
-		break;
-	default:
-		break;
+	
+	if (!LevelLock_Shot) //レベルにロックがかかっていないならレベル変更処理を通る
+	{
+		//射撃部分
+		switch (ShotLevel) {
+		case 0:
+			if ((ShotStrength > 400 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 1; Enemy.SetShotState(ShotLevel); }
+			break;
+		case 1:
+			if ((ShotStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+			break;
+		case 2:
+			if (ShotLevel == 2 && ShotStrength > 800) { ShotLevel = 3; Enemy.SetShotState(ShotLevel); }
+			break;
+		case 3:
+			if (ShotLevel == 3 && ShotStrength > 1000) { ShotLevel = 4; Enemy.SetShotState(ShotLevel); }
+			break;
+		default:
+			break;
+		}
 	}
 	
-	
-	//移動部分のレベル調整
-	switch (MoveLevel) {
-	case 0:
-		if (MoveStrength > 600 && MoveLevel < 2) { MoveLevel = 1;  AvoidanceCost = 300; Enemy.SetMoveState(MoveLevel); }
-		//HPを削った場合はその時点でレベル2に行く
-		if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 1;  AvoidanceCost = 300; Enemy.SetMoveState(MoveLevel); }
-		break;
-	case 1:
-		if (MoveStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
-		//HPを削った場合はその時点でレベル2に行く
-		if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
-		break;
-	case 2:
-		if (MoveStrength > 1000 && MoveLevel < 3) { MoveLevel = 3;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); MoveStrength -= 800; }
-		//HP差によって強さをコントロールする
-		if (Player->GetHP() - Enemy.GetHP() >60) { MoveLevel = 3;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
-		break;
-	case 3:
-		if (MoveStrength > 1000 && MoveLevel < 4) { MoveLevel = 4;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel);  MoveStrength -= 850; }
-		//HP差の判断
-		if (Player->GetHP() - Enemy.GetHP() > 80) { MoveLevel = 4;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
-		break;
+	if (!LevelLock_Shot) //レベルにロックがかかっていないならレベル変更処理を通る
+	{
+		//移動部分のレベル調整
+		switch (MoveLevel) {
+		case 0:
+			if (MoveStrength > 600 && MoveLevel < 2) { MoveLevel = 1;  AvoidanceCost = 300; Enemy.SetMoveState(MoveLevel); }
+			//HPを削った場合はその時点でレベル2に行く
+			if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 1;  AvoidanceCost = 300; Enemy.SetMoveState(MoveLevel); }
+			break;
+		case 1:
+			if (MoveStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+			//HPを削った場合はその時点でレベル2に行く
+			if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+			break;
+		case 2:
+			if (MoveStrength > 1000 && MoveLevel < 3) { MoveLevel = 3;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); MoveStrength -= 800; }
+			//HP差によって強さをコントロールする
+			if (Player->GetHP() - Enemy.GetHP() > 60) { MoveLevel = 3;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+			break;
+		case 3:
+			if (MoveStrength > 1000 && MoveLevel < 4) { MoveLevel = 4;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel);  MoveStrength -= 850; }
+			//HP差の判断
+			if (Player->GetHP() - Enemy.GetHP() > 80) { MoveLevel = 4;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+			break;
 
-	case 4:
+		case 4:
 
-		break;
-	default:
-		break;
+			break;
+		default:
+			break;
+		}
 	}
+	
 	
 
 }

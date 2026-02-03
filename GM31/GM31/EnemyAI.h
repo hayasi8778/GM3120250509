@@ -27,7 +27,11 @@ private:
 	int ShotStrength = 1;
 	int MoveStrength = 1;
 	int ShotLevel = 0;//敵の強さを行動で増減する数値と安易に増減しないレベルで管理する
+
 	int MoveLevel = 0;//敵の強さを行動で増減する数値と安易に増減しないレベルで管理する
+	//レベルの変動するかのフラグ
+	bool LevelLock_Shot = false;
+	bool LevelLock_Move = false;
 	//行動で増える量
 	int ShotIncrease = 200;
 	int MoveIncrease = 1;

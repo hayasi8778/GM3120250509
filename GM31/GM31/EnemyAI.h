@@ -57,7 +57,9 @@ public:
 	Enemy_Missile* GetEnemy() { return &Enemy; }
 	void RuleUpdate(uint64_t);//ルールベースのAI
 	void ThinkUpdate(uint64_t);//プレイヤーの動きに対して強化されるAI
+	//移動
 	void ThinkMove(uint64_t);
+	//回避
 	void ThinkEvasion(uint64_t);
 	void ThinkShot(uint64_t);
 	void LevelControl();

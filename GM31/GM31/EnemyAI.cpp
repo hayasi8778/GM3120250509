@@ -63,9 +63,13 @@ void EnemyThinking::DebugUI()
 	ImGui::Text("PlayerPosition.y: %.3f", Player->GetPosition().y);
 	ImGui::Text("PlayerPosition.z: %.3f", Player->GetPosition().z);
 
-	ImGui::Text("Testvec.x: %.3f", Testvec.x);
+	ImGui::Text("Testvec.x: %.3f", Enemy.GetPosition().x);
+	ImGui::Text("Testvec.y: %.3f", Enemy.GetPosition().y);
+	ImGui::Text("Testvec.z: %.3f", Enemy.GetPosition().z);
+
+	/*ImGui::Text("Testvec.x: %.3f", Testvec.x);
 	ImGui::Text("Testvec.y: %.3f", Testvec.y);
-	ImGui::Text("Testvec.z: %.3f", Testvec.z);
+	ImGui::Text("Testvec.z: %.3f", Testvec.z);*/
 
 	ImGui::End();
 }
@@ -195,15 +199,21 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 	//経過時間を記録
 	float time = static_cast<float>(deltatime) / 1000;
 	//射撃を取得してきて加算(連打でレベルが上がるのでクールタイムを加味する)
-	if (shotcool == 500) { if (Player->GetShot()) { 
+	if (shotcool == 100) { if (Player->GetShot()) { 
 		//Strength += ShotIncrease;  
-		ShotStrength += ShotIncrease;
+		MoveStrength += ShotIncrease;
 		shotcool -= time; } }
 	else { shotcool -= time; 
-	if (shotcool < 0)shotcool = 500;
+	if (shotcool < 0)shotcool = 100;
+	}
+
+	//プレイヤーと敵が近いなら評価点を加算()
+	if (GetRange(Player->GetPosition(), Enemy.GetPosition()) < 60) {
+		MoveStrength += 1;
 	}
 	
 	Enemy.Update(deltatime);
+	ThinkEvasion(deltatime);
 	ThinkMove(deltatime);
 	ThinkShot(deltatime);
 	Enemy.Timer(deltatime);
@@ -212,7 +222,18 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 	//プレイヤーが動いていた場合
 	if (GetRange(CurentPos_P, Player->GetPosition()) > 1) {
 		//Strength += MoveIncrease;//強さの数値を加算
-		MoveStrength += MoveIncrease;
+		//MoveStrength += MoveIncrease;
+		ShotStrength += MoveIncrease;
+	}
+	//近くの弾を回避しているなら評価点が高い
+	for (int i = 0; i < Enemy.GetBulletMaxnum(); i++) {
+		float tes = GetRange(Enemy.GetBulletpos(i), Player->GetPosition());
+		if (GetRange(Enemy.GetBulletpos(i), Player->GetPosition()) < 10 && !Player->GetInvincibility()) {
+			//MoveStrength += MoveIncrease*2;//とりあえず移動の２倍
+			ShotStrength += MoveIncrease * 2;//とりあえず移動の２倍
+			break;
+		}
+
 	}
 
 	//プレイヤーの過去座標として記録
@@ -225,6 +246,28 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 }
 
 void EnemyThinking::ThinkMove(uint64_t deltatime)
+{
+
+	//プレイヤー座標-敵座標を保存する
+	Vector3 pos = Vector3(0, 0, 0);
+	for (int i = 0; i < 300; i++) //
+	{
+		pos += PositionLog[i];
+	}
+	//距離の平均値出す
+	pos /= 300;
+
+	//プレイヤーのローカル座標系の座標をワールド座標系へ復元
+	pos = Player->GetPosition() + Player->GetRight() * pos.x + Player->GetUp() * pos.y + Player->GetForward() * pos.z;
+	Vector3 Targetpos = pos - Player->GetPosition();//positionLogに保存された場所に移動する
+
+	if (MoveLevel < 5) Enemy.Move(Targetpos);
+	else Enemy.MoveLev5(Targetpos);
+
+	
+}
+
+void EnemyThinking::ThinkEvasion(uint64_t deltatime)
 {
 	Vector3 pos_PL = Player->GetPosition();
 	Vector3 pos_EN = Enemy.GetPosition();
@@ -252,18 +295,6 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 
 		//std::cout << "座標計測リセット" << std::endl;
 	}
-	//プレイヤー座標-敵座標を保存する
-	Vector3 pos = Vector3(0, 0, 0);
-	for (int i = 0; i < 300; i++) //
-	{
-		pos += PositionLog[i];
-	}
-	//距離の平均値出す
-	pos /= 300;
-
-	//プレイヤーのローカル座標系の座標をワールド座標系へ復元
-	pos = Player->GetPosition() + Player->GetRight() * pos.x + Player->GetUp() * pos.y + Player->GetForward() * pos.z;
-	Vector3 Targetpos = pos - Player->GetPosition();//positionLogに保存された場所に移動する
 
 	//当たり判定処理
 	Vector3 minposition = { 0,0,0 };
@@ -299,7 +330,7 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 						minposition = gun->GetBulletpos(i);
 						range = rangedALL;
 					}
-					
+
 					//gun->SetCollision_Bullet(i, inter);
 				}
 			}
@@ -324,62 +355,46 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 
 		if (localpos.x > 0) //ローカル座標に合わせて左右の判定をする
 		{
-			
-			if (ShotStrength > 300 /*&& range >30 */)
+			if (MoveStrength > 300 /*&& range >30 */)
 			{
+				if (MoveLevel >= 4) {
+					MoveStrength -= AvoidanceCost;
+					Enemy.SetAvoidance(true);
+					Enemy.Stepavoidance(minposition, false);
+				}
 
-				ShotStrength -= AvoidanceCost;
-				Enemy.SetAvoidance(true);
-				Enemy.Stepavoidance(minposition, false);
 			}
 			else {
 				if (MoveLevel < 5) Enemy.Move(Enemy.GetPosition() - Targetright * 100);
 				else Enemy.MoveLev5(Enemy.GetPosition() - Targetright * 100);
 			}
 		}
-		else 
+		else
 		{
 			//射撃部分の判定のみを取って計算
-			if (ShotStrength > 300 /*&& range > 30 */ )
+			if (MoveStrength > 300 /*&& range > 30 */)
 			{
+				if (MoveLevel >= 4) {
+					MoveStrength -= AvoidanceCost;
+					Enemy.SetAvoidance(true);
+					Enemy.Stepavoidance(minposition, true);
+				}
 
-				ShotStrength -= AvoidanceCost;
-				Enemy.SetAvoidance(true);
-				Enemy.Stepavoidance(minposition, true);
+				
 			}
 			else {
 				if (MoveLevel < 5) Enemy.Move(Enemy.GetPosition() + Targetright * 100);
-					else Enemy.MoveLev5(Enemy.GetPosition() - Targetright * 100);
+				else Enemy.MoveLev5(Enemy.GetPosition() - Targetright * 100);
 			}
-			
+
 		}
-		//Enemy.SetAvoidance(true);
-		//Enemy.Stepavoidance(gun->GetPosition());
 	}
-	else {	if (MoveLevel < 5) Enemy.Move(Targetpos);
-			else Enemy.MoveLev5(Targetpos);
-	}
-
-	////一定以上攻撃的ならステップ踏む
-	//if (Boost > 30)
-	//{
-	//	
-	//	Boost -= 30;
-	//	Enemy.MoveStep(-Enemy.GetRight());
-	//}
-
-	
-}
-
-void EnemyThinking::ThinkEvasion(uint64_t)
-{
-
 }
 
 void EnemyThinking::ThinkShot(uint64_t dt)
 {
 	//射撃は大技→通常射撃の順で行う
-	if (Strength > 1000 && Enemy.GetFIRE() && !Enemy.GetSpecialFlag()) {
+	if (Strength > 1000 && Enemy.GetFIRE() && Enemy.CanUseSpecial()) {
 		//Strength -= 1000;
 		//ShotとMoveの割合で合計1000引く
 		float test = float(ShotStrength) / float(Strength);
@@ -391,17 +406,17 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 		Enemy.SetSpecialFlag(true);
 
 		//Enemy.Shot(dt);
-
 	}
+
 
 	if (Strength > 40 && Enemy.GetFIRE() && !Enemy.GetSpecialFlag()) {
 		//Strength -= 40;
-		if (MoveStrength > 40) MoveStrength -= 40;
+		if (ShotStrength > 40) ShotStrength -= 40;
 		else {
 			ShotStrength -= float(ShotStrength) / float(Strength) * 40;
 			MoveStrength -= float(MoveStrength) / float(Strength) * 40;
 		}
-		if(ShotLevel <2)Enemy.Shot(dt);//レベル別に射撃を変更する
+		if (ShotLevel < 3)Enemy.Shot(dt);//レベル別に射撃を変更する
 		else {
 			Vector3 player_vec = Player->GetPosition() - CurentPos_P;
 			player_vec.Normalize();
@@ -411,7 +426,10 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 				//Enemy.Shot(dt, Targetvec);
 				Enemy.ShotLev5();
 			}
-			Enemy.Shot(dt);
+			else {
+				Enemy.Shot(dt);
+			}
+			
 		}
 	}
 
@@ -424,15 +442,17 @@ void EnemyThinking::LevelControl()
 	//射撃部分
 	switch (ShotLevel) {
 	case 0:
-		if ((MoveStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+		if ((ShotStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 1; Enemy.SetShotState(ShotLevel); }
 		break;
 	case 1:
-		if ((MoveStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
+		if ((ShotStrength > 600 || Enemy.GetHP() != Enemy.GetMaxHP()) && ShotLevel < 2) { ShotLevel = 2; Enemy.SetShotState(ShotLevel); }
 		break;
 	case 2:
-		if (ShotLevel == 2 && MoveStrength > 500 && ShotStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel); }
+		if (ShotLevel == 2 && ShotStrength > 500 && MoveStrength > 400) { ShotLevel = 3; Enemy.SetShotState(ShotLevel); }
 		break;
-
+	case 3:
+		if (ShotLevel == 3 && ShotStrength > 1000) { ShotLevel = 4; Enemy.SetShotState(ShotLevel); }
+		break;
 	default:
 		break;
 	}
@@ -441,17 +461,30 @@ void EnemyThinking::LevelControl()
 	//移動部分のレベル調整
 	switch (MoveLevel) {
 	case 0:
-		if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		if (MoveStrength > 600 && MoveLevel < 2) { MoveLevel = 1;  AvoidanceCost = 300; Enemy.SetMoveState(MoveLevel); }
 		//HPを削った場合はその時点でレベル2に行く
-		if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 1;  AvoidanceCost = 300; Enemy.SetMoveState(MoveLevel); }
 		break;
 	case 1:
-		if (ShotStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		if (MoveStrength > 600 && MoveLevel < 2) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
 		//HPを削った場合はその時点でレベル2に行く
 		if (Enemy.GetHP() != Enemy.GetMaxHP()) { MoveLevel = 2;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
 		break;
 	case 2:
-		if (ShotStrength > 800 && MoveLevel < 2) { MoveLevel = 3;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); }
+		if (MoveStrength > 1000 && MoveLevel < 3) { MoveLevel = 3;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); MoveStrength -= 800; }
+		//HP差によって強さをコントロールする
+		if (Player->GetHP() - Enemy.GetHP() >60) { MoveLevel = 3;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		break;
+	case 3:
+		if (MoveStrength > 1000 && MoveLevel < 4) { MoveLevel = 4;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel);  MoveStrength -= 850; }
+		//HP差の判断
+		if (Player->GetHP() - Enemy.GetHP() > 80) { MoveLevel = 4;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+		break;
+
+	case 4:
+
+		break;
+	default:
 		break;
 	}
 	

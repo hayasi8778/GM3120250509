@@ -34,7 +34,7 @@ void EnemyThinking::DebugUI()
 		ShotStrength += 500;
 		MoveStrength += 500;
 	}
-	ImGui::SliderInt("ShotIncrease", &ShotIncrease, 0, 500);
+	ImGui::SliderFloat("ShotIncrease", &ShotIncrease, 0.0f, 500.0f);
 	
 	//射撃のレベルを変更できるようにして置く
 	ImGui::Text("ShotLevel: % d", ShotLevel);
@@ -204,8 +204,9 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 	float time = static_cast<float>(deltatime) / 1000;
 	//射撃を取得してきて加算(連打でレベルが上がるのでクールタイムを加味する)
 	if (shotcool == 100) { if (Player->GetShot()) { 
-		//Strength += ShotIncrease;  
-		MoveStrength += ShotIncrease;
+		//Strength += ShotIncrease;
+		ShotCount++;
+		MoveStrength += (int)(ShotIncrease * ShotImportance);
 		shotcool -= time; } }
 	else { shotcool -= time; 
 	if (shotcool < 0)shotcool = 100;
@@ -215,7 +216,25 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 	if (GetRange(Player->GetPosition(), Enemy.GetPosition()) < 60) {
 		MoveStrength += 1;
 	}
+
+	//連打してたたら射撃の重要性を小さくするようにする(連打で強さが跳ね上がるのは良くない)
+	if (ShotCount_time < 2001.0f) 
+	{
+		ShotCount_time -= time;
+		if (ShotCount_time < 0.0f) {
+			ShotCount_time = 2000.0f;
+			//計算式(射撃数 * 1/ 判定感覚(0.1秒単位))
+			ShotImportance = 1.0f - ((float)ShotCount * (1.0f/20.0f));
+			if (ShotImportance < 0.0f) {
+				int tes = 0;
+				ShotImportance = 0.01f;
+			}
+			ShotCount = 0;
+		}
+	}
 	
+
+
 	Enemy.Update(deltatime);
 	ThinkEvasion(deltatime);
 	ThinkMove(deltatime);
@@ -458,7 +477,7 @@ void EnemyThinking::LevelControl()
 			if (ShotLevel == 2 && ShotStrength > 800) { ShotLevel = 3; Enemy.SetShotState(ShotLevel); }
 			break;
 		case 3:
-			if (ShotLevel == 3 && ShotStrength > 1000) { ShotLevel = 4; Enemy.SetShotState(ShotLevel); }
+			if (ShotLevel == 3 && ShotStrength > 1000) { ShotLevel = 4; Enemy.SetShotState(ShotLevel); ShotStrength -= 750; }
 			break;
 		default:
 			break;
@@ -488,10 +507,12 @@ void EnemyThinking::LevelControl()
 			if (MoveStrength > 1000 && MoveLevel < 4) { MoveLevel = 4;  AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel);  MoveStrength -= 850; }
 			//HP差の判断
 			if (Player->GetHP() - Enemy.GetHP() > 80) { MoveLevel = 4;  AvoidanceCost = 100; Enemy.SetMoveState(MoveLevel); }
+
 			break;
 
 		case 4:
-
+			//現状理不尽に強いので降格する仕組みを作る(MoveStrengthは値を固定値にする)
+			if (MoveStrength > 2000 && MoveLevel == 4) { MoveLevel = 3; AvoidanceCost = 50; Enemy.SetMoveState(MoveLevel); MoveStrength = 600; }
 			break;
 		default:
 			break;

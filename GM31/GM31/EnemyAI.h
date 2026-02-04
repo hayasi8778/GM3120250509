@@ -25,7 +25,13 @@ private:
 	//プレイヤーの動きの苛烈さに対して敵の動きのレベル上げたいのでプレイヤーの動きで加算して敵の動きの上限作る
 	int Strength = 0;
 	int ShotStrength = 1;
+	//行動の重みを付ける(0~1で取る)
+	float ShotImportance = 1.0f;
+	
 	int MoveStrength = 1;
+	//行動の重みを付ける(0~1で取る)
+	float MoveImportance = 0.5f;
+	
 	int ShotLevel = 0;//敵の強さを行動で増減する数値と安易に増減しないレベルで管理する
 
 	int MoveLevel = 0;//敵の強さを行動で増減する数値と安易に増減しないレベルで管理する
@@ -33,7 +39,7 @@ private:
 	bool LevelLock_Shot = false;
 	bool LevelLock_Move = false;
 	//行動で増える量
-	int ShotIncrease = 200;
+	float ShotIncrease = 200.0f;
 	int MoveIncrease = 1;
 	int AvoidanceCost = 300;
 
@@ -45,6 +51,10 @@ private:
 	float cooltime = 0;//1/60秒ごとに判定を挟むための変数
 	float shotcool = 500;//射撃連打すると難易度爆上がりするのを抑制するための変数
 	bool Think = true;//思考ベースのAIを使うか
+
+	//射撃の頻度取って射撃部分の重み決める
+	int ShotCount = 0;
+	float ShotCount_time = 0.0f;
 
 	//int Level = 0;//AIを切り替える用に変数用意しておく
 public:

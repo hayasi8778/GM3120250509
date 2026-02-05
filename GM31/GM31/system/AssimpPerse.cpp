@@ -108,18 +108,18 @@ namespace myAssimp{
 			bone.armaturename = std::string(mesh->mBones[bidx]->mArmature->mName.C_Str());
 
 			// デバッグ用
-			std::cout << bone.bonename
+			/*std::cout << bone.bonename
 				<< "(" << bone.meshname << ")"
 				<< "(" << bone.armaturename << ")"
-				<< std::endl;
+				<< std::endl;*/
 
 			// ボーンオフセット行列取得
 			bone.OffsetMatrix = mesh->mBones[bidx]->mOffsetMatrix;
 
-			std::cout << "OffsetMatrix of " << bone.bonename
+			/*std::cout << "OffsetMatrix of " << bone.bonename
 				<< ": " << bone.OffsetMatrix.a4 << ", "
 				<< bone.OffsetMatrix.b4 << ", "
-				<< bone.OffsetMatrix.c4 << std::endl;
+				<< bone.OffsetMatrix.c4 << std::endl;*/
 
 			bone.AnimationMatrix = g_BoneDictionary[bone.bonename].AnimationMatrix;
 

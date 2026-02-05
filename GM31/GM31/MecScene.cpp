@@ -765,7 +765,7 @@ void MecScene::PlayerAdhesion()
 			}
 		}
 		
-
+		m_camera.SetfieldOfView(45.0f);
 
 	}
 	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_K))//取り外しテスト処理
@@ -780,6 +780,8 @@ void MecScene::PlayerAdhesion()
 		//	}
 		//	
 		//}
+
+		m_camera.SetfieldOfView(35.0f);
 
 		m_player.ReleaseALL();
 	}
@@ -1080,6 +1082,7 @@ void MecScene::UIDraw()
 	m_Special->Draw(Vector3{ 1.7f * (Specialcool / 5000), 0.17f, 1.0f }, Vector3(0.0f, 0.0f, 0.0f),
 		Vector3(120.0f + 180.0f * Specialcool / 5000, 150.0f, 0.0f));
 
+	//操作方法の表示
 	m_Tutorial->Draw(Vector3{ 3,1,1 }, { 0,0,0 }, { 300,670,0 });
 
 	//HP_Player_R->Draw(Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(100, 100, 0));

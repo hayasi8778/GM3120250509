@@ -316,6 +316,10 @@ void EnemyThinking::ThinkEvasion(uint64_t deltatime)
 		cooltime = 0;
 		TimeLog = 0;
 
+		//•KŽE‹Z‚Å‘«‚ðŽ~‚ß‚é‚©‚à‚±‚±‚Å”»’f‚·‚é
+		if (Player->GetActionInterval() > 3000.0f) Enemy.SetSpecialStop(true);
+		else Enemy.SetSpecialStop(false);
+
 		//std::cout << "À•WŒv‘ªƒŠƒZƒbƒg" << std::endl;
 	}
 

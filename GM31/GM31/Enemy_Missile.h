@@ -87,6 +87,7 @@ private:
 	float FireRate_FullBurst = 100.0f;
 	int Burstnum = 20;
 	bool SpecialFlag = false;
+	bool SpecialStop = false;//必殺技で足を止めるか
 	float SpecialCool = 0.0f;//必殺技のクールタイム
 
 	bool Pranter_PE = true; //trueで対戦相手はPlayer、falseでEnemy
@@ -195,8 +196,13 @@ public:
 	//クールタイム開けている+必殺技中じゃないなら必殺技使用可能
 	float GetSpecialCool() { return SpecialCool; }
 	bool CanUseSpecial() { if (!SpecialFlag && SpecialCool == 0.0f) { return true; } return false; }
+	
 	bool GetSpecialFlag() { return SpecialFlag; }
 	void SetSpecialFlag(bool fg) { SpecialFlag = fg; }
+	bool GetSpecialStop() { return SpecialStop; }
+	//必殺技で足を止めるかの設定(必殺技中は変更しない)
+	void SetSpecialStop(bool fg) { if(!SpecialFlag)SpecialStop = fg; }
+
 	bool GetShotFlag() { return Shot_Flag; }
 	void SetLevel(int lev) { Level = lev; }
 	int GetLevel() { return Level; }

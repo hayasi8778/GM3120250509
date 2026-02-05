@@ -876,6 +876,10 @@ void Enemy_Missile::Move(Vector3 Target)
 {
 	if (HP <= 0) return;
 	if (Move_Flag) return;
+	if (SpecialFlag && SpecialStop)
+	{
+		return;
+	}//“Á’èó‹µ‰º‚Å‘«‚ðŽ~‚ß‚é
 
 	//Ž–‘O‚ÉÀ•W‚ð‹L˜^‚·‚é
 	Vector3 positionlog = m_Position;
@@ -954,6 +958,7 @@ void Enemy_Missile::MoveLev5(Vector3 Target)
 {
 	if (HP <= 0) return;
 	if (Move_Flag) return;
+	if (SpecialFlag && SpecialStop) return;//•KŽE‹Z‚Å‘«‚ðŽ~‚ß‚éÝ’è‚È‚ç‘«‚ðŽ~‚ß‚é
 
 	//Ž–‘O‚ÉÀ•W‚ð‹L˜^‚·‚é
 	Vector3 positionlog = m_Position;

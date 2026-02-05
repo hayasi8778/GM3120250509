@@ -8,10 +8,14 @@ void Enemy_Head::Init()
 	//プレイヤーなので接触フラグは最初からon
 	adhesioing = true;
 
-	//ロボットモデル(頭)
+	////ロボットモデル(頭)
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_Head.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
 	m_mesh.Load(
-		"assets/model/Mec/MecBone_Head.fbx",				// モデル名
-		"assets/model/Mec/");						// テクスチャのパス
+		"assets/model/Mec/MecBone_Head_Base.fbx",				// モデル名
+		"assets/model/Mec/MecArm_cop/Base_Red");						// テクスチャのパス
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);
@@ -192,4 +196,46 @@ Vector3 Enemy_Head::Conectpos(const std::string& targetName)
 	conect = m_meshrenderer.LogBoneWorldPosition(targetName, srt);
 
 	return conect;
+}
+
+void Enemy_Head::SetMoveState(int state) 
+{
+	//最悪2重チェックになってもいいのでswitch入る前にデバック状態かチェックする
+#ifdef _DEBUG
+	switch (state) {
+	case 0:
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Head_Base.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_Green");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+
+		break;
+	case 1:
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Head_Base.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_Red");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+
+		break;
+	case 2:
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Head_Base.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_White");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+
+		break;
+	case 3:
+		m_mesh.Load(
+			"assets/model/Mec/MecBone_Head_Base.fbx",				// モデル名
+			"assets/model/Mec/MecArm_cop/Base_Black");						// テクスチャのパス
+		m_meshrenderer.Init(m_mesh);
+		break;
+	case 4:
+		break;
+	case 5:
+		break;
+	default:
+		break;
+	}
+#endif
 }

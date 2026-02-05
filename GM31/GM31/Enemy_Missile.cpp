@@ -1588,6 +1588,12 @@ void Enemy_Missile::SetMoveState(int lev)
 		movestate = MoveState::Idle;
 		break;
 	}
+
+#ifdef _DEBUG
+	//デバックモードで頭の色をmovestateと一致させる
+	Head.SetMoveState(lev);
+#endif
+	
 }
 
 int Enemy_Missile::GetMoveState()

@@ -28,5 +28,7 @@ public:
 	int GetShaderNum() override;
 	GM31::GE::Collision::BoundingBoxOBB GetOBB() override;
 
+	void SetMoveState(int state);
+
 	Vector3 Conectpos(const std::string& targetName);
 };

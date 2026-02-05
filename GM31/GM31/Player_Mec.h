@@ -37,6 +37,9 @@ private:
 	int Damage = 0;//食らうダメージ
 	float Invincibility_time = 0;//無敵時間
 
+	float ActionCool = 0.0f;//行動のクールタイム
+	float ActionInterval = 0.0f;
+
 	Vector3* Target = nullptr;
 	
 	float time = 0;//経過時間を加算して計測する
@@ -63,9 +66,11 @@ private:
 	bool LeftFeetSet = false;
 	bool RightFeetSet = false;
 
-	float Spead = 0.06f;
+	float Spead = 0.08f;
 
 	int DoublePistol = 3;//二丁拳銃を交互に打つための変数
+
+	float Specialcool = 5000;//特殊攻撃のクールタイム
 
 public:
 	int TestInt = 0;//デバックであると便利だから作っておく
@@ -97,11 +102,15 @@ public:
 	void SetCol(bool collision) { if (collision) { col = collision; } };
 	//被弾処理
 	void HitDamage(int damage) { if (col) Damage += damage; }
-	void SetBurst(bool br) { if(!Burst)BurstFlag = true;  Burst = br;   }
+	//
+	//void SetBurst(bool br) { if(!Burst)BurstFlag = true;  Burst = br;   }
+	void SetBurst(bool br) { if (!Burst)BurstFlag = true;  Burst = br; }
 	bool GetBurst() { return BurstFlag; }
 
 	void SetSpead(float sp) { Spead = sp; }
 	float GetSpead() { return Spead; }
+
+	float GetActionInterval() { return ActionInterval; }
 
 	Vector3 ConectPos();
 	Vector3 ConectPos(int i);

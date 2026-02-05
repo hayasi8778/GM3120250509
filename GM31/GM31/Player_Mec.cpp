@@ -14,6 +14,10 @@ void M_Player::Init()
 		"assets/model/Mec/MecBone_Body.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
 	//ロボットモデル(左腕)
 	//m_mesh.Load(
 	//	"assets/model/Mec/MecBone_LeftArm_TestModel.fbx",				// モデル名
@@ -117,6 +121,28 @@ void M_Player::Update(uint64_t deltatime)
 
 	}
 
+
+	if (ActionCool != 0) {
+		ActionCool -= timeD;
+		if (ActionCool < 0)ActionCool = 0;
+	}
+
+
+	if (!Burst && BurstCoolTime != 0) {
+		BurstCoolTime -= timeD;
+		if (BurstCoolTime < 0) 
+		{ 
+			BurstCoolTime = 0; 
+
+		}
+	}
+
+	//攻撃の間隔
+	if (ActionInterval < 5000.0f) {
+		ActionInterval += timeD;
+		if (ActionInterval > 5000.0f) ActionInterval = 5000.0f;
+	}
+
 	if (Target != nullptr) {
 		//ターゲットの方向く
 		Vector3 TargetForward = (m_Position - *Target);
@@ -131,7 +157,8 @@ void M_Player::Update(uint64_t deltatime)
 		// 4. Roll は今回は固定 0
 		SetRotation_PL({ 0.0f,yaw, 0.0f });
 	}
-
+	
+	//必殺技のフラグ立ってるなら使用する
 	if (Burst) SpecialAttack(deltatime);
 
 	for (int i = 0; i < MaxBullets; i++)
@@ -282,6 +309,8 @@ void M_Player::Action(Vector3 vec)
 	/*Burst = true;
 	FullBurst();*/
 
+	if (ActionCool != 0)return;
+
 	DoublePistol++;
 	if (DoublePistol > 1) 
 	{
@@ -289,12 +318,20 @@ void M_Player::Action(Vector3 vec)
 	}
 
 	head.Action(vec);
-	if(DoublePistol !=1)leftarm.Action(*Target);
-	if (DoublePistol != 0)rightarm.Action(*Target);
+	if (DoublePistol != 1) 
+	{ 
+		leftarm.Action(*Target); 
+	}
+	if (DoublePistol != 0)
+	{
+		rightarm.Action(*Target);
+	}
 	leftfeet.Action(vec);
 	rightfeet.Action(vec);
 
 	Shot = true;//射撃フラグを付ける
+	ActionCool = 300;//0.3秒遅延
+	ActionInterval = 0.0f;
 }
 
 GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()

@@ -140,7 +140,8 @@ void DumpMetaData(const aiScene* scene)
 void PrintMatrix(const aiMatrix4x4& m)
 {
     // 行ごとに出力（row-major 表示）
-    printf("%8.4f %8.4f %8.4f %8.4f\n", m.a1, m.a2, m.a3, m.a4);
+    
+    ("%8.4f %8.4f %8.4f %8.4f\n", m.a1, m.a2, m.a3, m.a4);
     printf("%8.4f %8.4f %8.4f %8.4f\n", m.b1, m.b2, m.b3, m.b4);
     printf("%8.4f %8.4f %8.4f %8.4f\n", m.c1, m.c2, m.c3, m.c4);
     printf("%8.4f %8.4f %8.4f %8.4f\n", m.d1, m.d2, m.d3, m.d4);
@@ -200,8 +201,8 @@ void CStaticMeshRenderer::Init(CStaticMesh& mesh)
     }
 
     //Sceneの中身出力
-    DumpMetaData(m_pScene);
-    DumpRootTransform(m_pScene);
+    //DumpMetaData(m_pScene);
+    //DumpRootTransform(m_pScene);
 
     //// ボーン用CB作成 (b3 を想定)
     ID3D11Device* dev = Renderer::GetDevice();

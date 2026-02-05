@@ -53,6 +53,9 @@ protected:
 	//プレイヤーと接着しているか
 	bool adhesioing = false;
 
+	//地面の高さ
+	float GroundHight = 0.0f;
+
 	// 描画の為の情報（メッシュに関わる情報）
 	CStaticMeshRenderer	m_meshrenderer;
 	CStaticMesh			m_mesh;							// メッシュデータ
@@ -82,6 +85,7 @@ public:
 	bool  CanConnectable(int i) { return  Connectable[i]; }
 
 	int GetAttribute() { return Attribute; }//ゲッターだけ
+	int GetMytype() { return MyType; }
 
 	void SetPosition(Vector3 pos) { m_Position = pos; }
 	void SetRotation(Vector3 rot) { m_Rotation = rot; }

@@ -17,10 +17,6 @@ void Bullet::Init()
 	//属性
 	Attribute = UNJOINABLE;
 
-	//m_mesh.Load(
-	//	"assets/model/starwars/laser.x",		// モデル名
-	//	"assets/model/starwars/");				// テクスチャのパス;
-
 	m_mesh.Load(
 		"assets/model/Shot/laser.x",				// モデル名
 		"assets/model/Shot/");						// テクスチャのパス

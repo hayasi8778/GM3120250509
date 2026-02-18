@@ -23,6 +23,9 @@ private:
 	Vector3 Up_vec;
 	Vector3 Forward_vec;
 
+	//移動ベクトル
+	Vector3 Move_vec = Vector3::Zero;
+
 	//最終的にはここにまとめる形にしたい
 	const int MaxBullets = 20;
 	Bullet m_bullets[20];
@@ -90,6 +93,9 @@ public:
 	Vector3 GetForward();
 	Vector3 GetRight();
 	Vector3 GetUp();
+
+	void SetMove_vec(Vector3 vec) { Move_vec = vec; }
+	Vector3 GetMove_vec() {return Move_vec;}
 
 	void Debug_Player();//デバック用GUI一式
 

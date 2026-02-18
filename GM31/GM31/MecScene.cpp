@@ -143,7 +143,8 @@ void MecScene::init()
 	m_Screen = std::make_unique<CSprite>(200, 200, "assets/texture/ScreenEfect.png", uv,
 		mtrl_Screen, "shader/unlitTextureVS.hlsl", "shader/NoizePS.hlsl");
 	//操作方法出す
-	m_Tutorial = std::make_unique<CSprite>(200, 200, "assets/texture/Tutorial.png", uv);
+	//m_Tutorial = std::make_unique<CSprite>(200, 200, "assets/texture/Tutorial.png", uv);
+	m_Tutorial = std::make_unique<CSprite>(200, 200, "assets/texture/Tutorial_02.png", uv);
 	
 	//プレイヤーHP
 	HP_Player_G = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_green.png", uv);
@@ -341,7 +342,7 @@ void MecScene::draw(uint64_t deltatime)
 		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
 		break;
 	case 4://ノイズ
-		m_Noizeshader.SetGPU();//通常描画
+		m_Noizeshader.SetGPU();//ノイズの設定
 		m_skydome->Draw();	// スカイドームの描画(シェーダー無効化)
 		m_field->Draw(); //フィールド描画
 		break;
@@ -677,12 +678,18 @@ void MecScene::PlayerMove()
 	{
 		Object_Speed.y += VALUE_JUMP_PLAYER;
 	}
-	
 
+	m_player.SetMove_vec(Object_Speed);
 	/// 位置移動
-	m_player.SetPosition(m_player.GetPosition() + Object_Speed);
-	//取り付けられているオブジェクトも同時に動かす
+	//移動しすぎを防ぐ(450)
+	bool OberMove = false;
+	if (m_player.GetPosition().x + Object_Speed.x > 450 || m_player.GetPosition().x + Object_Speed.x < -450)OberMove = true;
+	if (m_player.GetPosition().x + Object_Speed.z > 450 || m_player.GetPosition().x + Object_Speed.z < -450)OberMove = true;
 
+	//移動しすぎないなら移動する
+	if(!OberMove)m_player.SetPosition(m_player.GetPosition() + Object_Speed);
+	
+	//取り付けられているオブジェクトも同時に動かす
 	//この接続地点の取り方多分重いから代用案考える
 	//for (int i = 0; i < ADHESIOINGMAX; i++) 
 	//{
@@ -1083,7 +1090,8 @@ void MecScene::UIDraw()
 		Vector3(120.0f + 180.0f * Specialcool / 5000, 150.0f, 0.0f));
 
 	//操作方法の表示
-	m_Tutorial->Draw(Vector3{ 3,1,1 }, { 0,0,0 }, { 300,670,0 });
+	//m_Tutorial->Draw(Vector3{ 3,1,1 }, { 0,0,0 }, { 300,670,0 });
+	m_Tutorial->Draw(Vector3{ 6,1,1 }, { 0,0,0 }, { 600,670,0 });
 
 	//HP_Player_R->Draw(Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(100, 100, 0));
 	//画面青色のエフェクト掛けてコクピットっぽい写りにしたい

@@ -395,6 +395,10 @@ void M_Player::Reset()
 	BurstCoolTime = 0;
 	BurstCount = 0;
 	bulletcur = 0;
+
+	//”íƒ_ƒŠÖŒW‚Ì‰Šú‰»‚à‚µ‚Ä‚¨‚­
+	Damage = 0;
+	Invincibility_time = 0.0f;
 }
 
 int M_Player::GetShaderNum()

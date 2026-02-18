@@ -681,13 +681,7 @@ void MecScene::PlayerMove()
 
 	m_player.SetMove_vec(Object_Speed);
 	/// 位置移動
-	//移動しすぎを防ぐ(450)
-	bool OberMove = false;
-	if (m_player.GetPosition().x + Object_Speed.x > 450 || m_player.GetPosition().x + Object_Speed.x < -450)OberMove = true;
-	if (m_player.GetPosition().x + Object_Speed.z > 450 || m_player.GetPosition().x + Object_Speed.z < -450)OberMove = true;
 
-	//移動しすぎないなら移動する
-	if(!OberMove)m_player.SetPosition(m_player.GetPosition() + Object_Speed);
 	
 	//取り付けられているオブジェクトも同時に動かす
 	//この接続地点の取り方多分重いから代用案考える
@@ -1311,7 +1305,19 @@ void MecScene::PlayerMovetes()
 	}
 
 	// 7. 位置更新＋減速
-	m_player.SetPosition(m_player.GetPosition() + Object_Speed);
+
+		//移動しすぎを防ぐ(450)
+	bool OberMove = false;
+	if (m_player.GetPosition().x + Object_Speed.x > 450 || m_player.GetPosition().x + Object_Speed.x < -450)OberMove = true;
+	if (m_player.GetPosition().z + Object_Speed.z > 450 || m_player.GetPosition().z + Object_Speed.z < -450)OberMove = true;
+
+	//移動しすぎないなら移動する
+	if (!OberMove)m_player.SetPosition(m_player.GetPosition() + Object_Speed);
+	else {
+		OberMove = false;
+	}
+
+	//m_player.SetPosition(m_player.GetPosition() + Object_Speed);
 
 	//この接続地点の取り方多分重いから代用案考える
 	//for (int i = 0; i < ADHESIOINGMAX; i++) 

@@ -217,7 +217,7 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 		MoveStrength += 1;
 	}
 
-	//連打してたたら射撃の重要性を小さくするようにする(連打で強さが跳ね上がるのは良くない)
+	//連打してたら射撃の重要性を小さくするようにする(連打で強さが跳ね上がるのは良くない)
 	if (ShotCount_time < 2001.0f) 
 	{
 		ShotCount_time -= time;
@@ -252,7 +252,7 @@ void EnemyThinking::ThinkUpdate(uint64_t deltatime)
 	for (int i = 0; i < Enemy.GetBulletMaxnum(); i++) {
 		float tes = GetRange(Enemy.GetBulletpos(i), Player->GetPosition());
 		if (GetRange(Enemy.GetBulletpos(i), Player->GetPosition()) < 10 && !Player->GetInvincibility()) {
-			//MoveStrength += MoveIncrease*2;//とりあえず移動の２倍
+
 			ShotStrength += MoveIncrease * 2;//とりあえず移動の２倍
 			break;
 		}
@@ -325,6 +325,7 @@ void EnemyThinking::ThinkEvasion(uint64_t deltatime)
 
 	//当たり判定処理
 	Vector3 minposition = { 0,0,0 };
+	//一番身近な弾との距離
 	float range = 1000.0f;
 	for (int i = 0; i < TotalGun; i++) //銃を親オブジェクトとした弾と敵の当たり判定
 	{
@@ -451,7 +452,9 @@ void EnemyThinking::ThinkShot(uint64_t dt)
 			Testvec = Targetvec;
 			if(GetRange(CurentPos_P, Player->GetPosition()) > 1){
 				//Enemy.Shot(dt, Targetvec);
+				//プレイヤーが攻撃に積極的なら正面から射撃
 				Enemy.ShotLev5();
+				//消極的なら偏差を入れてプレイヤーを狙う
 			}
 			else {
 				Enemy.Shot(dt);

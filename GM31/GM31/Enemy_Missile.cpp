@@ -49,7 +49,7 @@ void Enemy_Missile::Init()
 	//		"shader/unlitTextureVS.hlsl",				// 頂点シェーダー
 	//		"shader/unlitTexturePS.hlsl");			// ピクセルシェーダー
 
-	m_Position.z += 50;
+	m_Position.z += 70;
 	m_Position.y += 10;
 
 	// 方向ベクトル作成
@@ -142,6 +142,12 @@ void Enemy_Missile::Update(uint64_t deltatime)
 	if (SpecialCool != 0.0f && !SpecialFlag) {
 		SpecialCool -= static_cast<float>(deltatime) / 1000;
 		if (SpecialCool < 0.0f) SpecialCool = 0.0f;
+	}
+
+	//必殺技終わった後に停止フラグが立っているなら適用する
+	if (SpecialStop_Late && !SpecialFlag) { 
+		SpecialStop = true;
+		SpecialStop_Late;
 	}
 
 	//Move();//移動処理
@@ -354,6 +360,11 @@ void Enemy_Missile::Reset()
 	FIRE_BEAM = false;
 	beam_time = 0;
 	beamsize = { 0,0,0 };
+	//必殺技のフラグを切る
+	SpecialFlag = false;
+	SpecialStop = false;
+	SpecialStop_Late = false;
+	Burstnum = 20;
 	for (int i = 0; i < BulletMaxnum; i++)
 	{
 		e_missiles[i].Reset();
@@ -361,7 +372,7 @@ void Enemy_Missile::Reset()
 	e_beam.Reset();
 
 	//座標のリセット
-	m_Position.z += 50;
+	m_Position.z += 70;
 	m_Position.y += 10;
 }
 
@@ -587,14 +598,29 @@ void Enemy_Missile::CreateBulletLevel5()
 
 		e_missiles[Bulletnum].Reset();
 		//e_missiles[Bulletnum].SetForward(forward);
-		
+
 		Vector3 dir = -Forward_vec;
 		//ここで弾丸の向きを決める
 		if (count == 0) {
 			//e_missiles[Bulletnum].SetForward(Forward_vec);
 			dir = -Forward_vec;
+
+			if (Pranter_PE) {
+				//半径の決定
+				float P_E_radius = GetRange(player->GetPosition(), GetPosition());
+
+				float omega = player->GetSpead() / P_E_radius; // [rad/sec]
+
+				float angle = omega * 4.5f;
+				Quaternion rot;
+				//rot.CreateFromAxisAngle(angle * Mathf.Rad2Deg, Vector3.up);
+				rot.CreateFromAxisAngle(player->GetUp(), angle);
+				//プレイヤーの未来座標
+				Vector3 futurePos = player->GetPosition() + rot * P_E_radius;
+				dir = futurePos;
+			}
 		}
-		else if(count == 1) {
+		else if (count == 1) {
 			dir = Right_vec;
 		}
 		else if (count == 2) {
@@ -612,6 +638,9 @@ void Enemy_Missile::CreateBulletLevel5()
 			//e_missiles[Bulletnum].SetForward(Forward_vec);
 			dir = -Forward_vec;
 		}
+
+		
+		
 		
 		// 弾にセット
 		e_missiles[Bulletnum].SetForward(dir);
@@ -639,7 +668,9 @@ void Enemy_Missile::CreateBulletLevel5()
 		//float TurnTime = rand.UniformFloat(2200.0f, 4200.0f);
 		float TurnTime = rand.UniformFloat(800.0f, 2200.0f);
 
-		e_missiles[Bulletnum].SetmaxTurn(Turn, TurnTime);//一定時間立ったら元の追従に戻すようにしたい
+		if (count == 0) {
+			e_missiles[Bulletnum].SetmaxTurn(0, TurnTime);//一定時間立ったら元の追従に戻すようにしたい
+		}else e_missiles[Bulletnum].SetmaxTurn(Turn, TurnTime);//一定時間立ったら元の追従に戻すようにしたい
 		e_missiles[Bulletnum].SetTurn(0.0f);//一定時間経った後の追従
 
 		float Speed = rand.UniformFloat(0.08f, 0.12f);
@@ -984,12 +1015,17 @@ void Enemy_Missile::MoveLev5(Vector3 Target)
 
 	//移動部分(レベル別に速度も調節したいのでベクトルに速度を掛ける形にする)
 	//ここでレベル別に固定値掛けて調整する
-	m_Position += MoveVec * (movespead * 5.0f);
+	float movepower = 5.0f;
+	//必殺技中は移動能力下げる
+	if (SpecialFlag) movepower /= 2;
+	m_Position += MoveVec * (movespead * movepower);
 
 	//ステップの速度が乗っているならすべる
 	if (AvoidancePowor != 0)
 	{
-		m_Position += AvoidanceVec * AvoidancePowor;
+		//必殺技中は速度半分
+		if (SpecialFlag)m_Position += AvoidanceVec * (AvoidancePowor / 2);
+		else  m_Position += AvoidanceVec * AvoidancePowor;
 
 		AvoidancePowor -= 0.2f;
 

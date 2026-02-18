@@ -88,6 +88,7 @@ private:
 	int Burstnum = 20;
 	bool SpecialFlag = false;
 	bool SpecialStop = false;//•KE‹Z‚Å‘«‚ğ~‚ß‚é‚©
+	bool SpecialStop_Late = false;
 	float SpecialCool = 0.0f;//•KE‹Z‚ÌƒN[ƒ‹ƒ^ƒCƒ€
 
 	bool Pranter_PE = true; //true‚Å‘Îí‘Šè‚ÍPlayerAfalse‚ÅEnemy
@@ -201,7 +202,7 @@ public:
 	void SetSpecialFlag(bool fg) { SpecialFlag = fg; }
 	bool GetSpecialStop() { return SpecialStop; }
 	//•KE‹Z‚Å‘«‚ğ~‚ß‚é‚©‚Ìİ’è(•KE‹Z’†‚Í•ÏX‚µ‚È‚¢)
-	void SetSpecialStop(bool fg) { if(!SpecialFlag)SpecialStop = fg; }
+	void SetSpecialStop(bool fg) { if (!SpecialFlag)SpecialStop = fg; else SpecialStop_Late = fg; }
 
 	bool GetShotFlag() { return Shot_Flag; }
 	void SetLevel(int lev) { Level = lev; }

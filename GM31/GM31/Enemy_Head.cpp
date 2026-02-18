@@ -15,7 +15,7 @@ void Enemy_Head::Init()
 
 	m_mesh.Load(
 		"assets/model/Mec/MecBone_Head_Base.fbx",				// モデル名
-		"assets/model/Mec/MecArm_cop/Base_Red");						// テクスチャのパス
+		"assets/model/Mec/MecArm_cop/Base_Green");						// テクスチャのパス
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);

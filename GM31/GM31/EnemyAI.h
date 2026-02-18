@@ -42,6 +42,8 @@ private:
 	float ShotIncrease = 200.0f;
 	int MoveIncrease = 1;
 	int AvoidanceCost = 300;
+	//攻撃にどれだけ
+	int Proactiveness = 0;
 
 
 	Vector3 PositionLog[300]; //5秒間(60fpsで計測)のプレイヤーと敵の距離を記録

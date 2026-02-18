@@ -15,7 +15,8 @@ void TitleScene::init()
 		Vector2(1.0f / 1.0f, 1.0f / 1.0f)
 	};
 
-	Title = std::make_unique<CSprite>(200, 200, "assets/texture/Title.png", uv);
+	//Title = std::make_unique<CSprite>(200, 200, "assets/texture/Title.png", uv);
+	Title = std::make_unique<CSprite>(200, 200, "assets/texture/Title_02.png", uv);
 	Start = std::make_unique<CSprite>(200, 200, "assets/texture/Start.png", uv);
 
 	// マテリアル生成
@@ -77,8 +78,8 @@ void TitleScene::draw(uint64_t deltatime)
 	Vector3 rot = { 0,3,3.13 };
 	Vector3 pos = { 0,10,0.2f };
 	Enemy_Title.Draw();
-	//Title->Draw3D(Vector3{ 9, 5, 1 }, rot, pos);
-	Title->Draw(Vector3{ 5,3,1 }, Vector3(0, 0, 0), Vector3(650, 100, 0));
+	//Title->Draw(Vector3{ 5,3,1 }, Vector3(0, 0, 0), Vector3(650, 100, 0));//旧タイトルロゴ用
+	Title->Draw(Vector3{ 3,1,1 }, Vector3(0, 0, 0), Vector3(650, 100, 0));
 	Start->Draw(Vector3{ 3 * StartScale,2 * StartScale,1 }, Vector3(0, 0, 0), Vector3(650, 600, 0));
 
 	m_Fade->Draw(Vector3{ 7,5,1 }, Vector3(0, 0, 0), Vector3(650, 340, 0));

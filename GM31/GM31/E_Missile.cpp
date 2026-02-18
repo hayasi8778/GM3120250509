@@ -16,9 +16,13 @@ void E_Missile::Init()
 	//属性
 	Attribute = UNJOINABLE;
 
+	//m_mesh.Load(
+	//	"assets/model/Shot/laser.x",				// モデル名
+	//	"assets/model/Shot/");						// テクスチャのパス
 	m_mesh.Load(
-		"assets/model/Shot/laser.x",				// モデル名
-		"assets/model/Shot/");						// テクスチャのパス
+		"assets/model/Gun/Bullet02.fbx",				// モデル名
+		"assets/model/Gun/Tex/Tex_Red");						// テクスチャのパス
+
 
 	// 画像のUV座標
 	Vector2 uv[4] = {
@@ -51,9 +55,9 @@ void E_Missile::Init()
 
 	m_Position.y = -20;
 
-	m_Scale.x = 1.5f;
+	/*m_Scale.x = 1.5f;
 	m_Scale.y = 1.5f;
-	m_Scale.z = 1.5f;
+	m_Scale.z = 1.5f;*/
 
 	//弾の当たり判定
 	aiVector3D minpos;
@@ -137,7 +141,7 @@ void E_Missile::Draw()
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	//原点とモデルの差の分ずらして再定義
-	m_Position += Forward_vec * 5.0f;
+	//m_Position += Forward_vec * 5.0f;
 	transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;//positionは元に戻しておく

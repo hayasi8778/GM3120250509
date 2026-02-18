@@ -53,6 +53,7 @@ void Field::Init()
 
 	// テクスチャロード
 	bool sts = m_Texture.Load("assets\\texture\\field000.jpg");
+	//bool sts = m_Texture.Load("assets\\texture\\wall000.jpg");
 	assert(sts == true);
 
 	//法線の取得

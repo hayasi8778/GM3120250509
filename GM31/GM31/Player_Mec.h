@@ -16,6 +16,11 @@
 class M_Player : public Object 
 {
 private:
+	float VALUE_ROTATE_PLAYER = PI * 0.02f;				// キー入力時の回転量
+	float VALUE_JUMP_PLAYER = 3.80;						//プレイヤーのジャンプ力
+	float RATE_ROTATE_PLAYER = 0.40f;					// １フレーム当たりの回転割合
+	float GRAVITY = 0.068;								//重力
+
 	Object* Connectableobject = nullptr;//接続されたオブジェクト
 
 	//方向ベクトル
@@ -77,6 +82,12 @@ private:
 
 public:
 	int TestInt = 0;//デバックであると便利だから作っておく
+
+	//プレイヤー移動に必須の情報を参照できるようにして置く
+	float GetVALUE_ROTATE_PLAYER() { return VALUE_ROTATE_PLAYER; }
+	float GetVALUE_JUMP_PLAYER() {return VALUE_JUMP_PLAYER;}
+	float GetRATE_ROTATE_PLAYER() { return RATE_ROTATE_PLAYER; }
+	float GetGRAVITY(){ return GRAVITY; }
 
 	void Init() override;
 	void Update(uint64_t deltatime) override;

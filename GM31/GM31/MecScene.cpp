@@ -177,7 +177,7 @@ void MecScene::update(uint64_t deltatime)
 	
 
 	if (Fade_Time == 0) {
-		if (UseCamera == UseCameraRockOn) PlayerMovetes();
+		if (UseCamera == UseCameraRockOn) PlayerMoveRockOn();
 		else PlayerMove();
 
 
@@ -709,6 +709,154 @@ void MecScene::PlayerMove()
 	Object_Speed.z *= dampingFactor;
 }
 
+void MecScene::PlayerMoveRockOn()
+{
+	bool step = CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_LSHIFT);
+	bool jumpf = false;
+
+	// ジャンプ判定
+	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_SPACE)
+		&& m_player.GetPosition().y < 10.0f)
+	{
+		jumpf = true;
+	}
+
+	// 左右・前後の入力をローカル座標系で集約
+	Vector3 localDir = { 0, 0, 0 };
+	auto& DI = CDirectInput::GetInstance();
+
+	if (DI.CheckKeyBuffer(DIK_W)) {
+		localDir += { 0, 0, 1 };
+		Vector3 camposition = campos + m_player.GetForward() * 20;
+		m_camera.SetMovePosition(camposition);
+	}  // 前
+	if (DI.CheckKeyBuffer(DIK_S)) {
+		localDir += { 0, 0, -1 };
+		Vector3 camposition = campos - m_player.GetForward() * 20;
+		m_camera.SetMovePosition(camposition);
+	}  // 後
+	if (DI.CheckKeyBuffer(DIK_A)) {
+		localDir += {-1, 0, 0 };
+		Vector3 camposition = campos + m_player.GetRight() * 20;
+		m_camera.SetMovePosition(camposition);
+	}  // 左
+	if (DI.CheckKeyBuffer(DIK_D)) {
+		localDir += { 1, 0, 0 };
+		Vector3 camposition = campos - m_player.GetRight() * 20;
+		m_camera.SetMovePosition(camposition);
+	}// 右
+
+	if (localDir.LengthSquared() > 1e-6f) localDir.Normalize();  // 斜め移動時も速度一定
+
+	//カメラのがたがた補正する
+	if (localDir.LengthSquared() > 0)
+	{
+		localDir.Normalize();
+		m_camera.SetMovePosition(campos + localDir * 20.0f);
+	}
+	else
+	{
+		m_camera.SetMovePosition(campos);
+	}
+
+
+
+	if (localDir.LengthSquared() > 1e-6f)
+	{
+		localDir.Normalize();
+
+		// 2. ワールド変換（）
+		Vector3 worldDir = Vector3{ 0,0,0 };
+		if (UseCamera == UseCameraNormal)
+		{
+			////プレイヤーの向き基準
+			//float yaw = m_player.GetRotation().y;
+			//Matrix4x4 rot = Matrix4x4::CreateRotationY(yaw);
+			//worldDir = Vector3::Transform(localDir, rot);
+			//カメラの向き基準
+			float camYaw = 0;
+			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
+			worldDir = Vector3::Transform(localDir, rotMatCam);
+		}
+		else if (UseCamera == UseCameraRockOn)
+		{
+			//カメラの向き基準
+			float camYaw = camRot.y;
+			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
+			worldDir = Vector3::Transform(localDir, rotMatCam);
+		}
+		else //それ以外ならとりあえずカメラに合わせる
+		{
+			//カメラの向き基準
+			float camYaw = 0;
+			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
+			worldDir = Vector3::Transform(localDir, rotMatCam);
+		}
+
+		//カメラの向き基準
+		float camYaw = camRot.y;
+		auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
+		worldDir = Vector3::Transform(localDir, rotMatCam);
+
+		// 移動量に乗じる前に反転
+		worldDir = -worldDir;
+
+		// 3. ステップ時は加速度UP
+		float speedScale = m_player.GetSpead() * (step ? 5.0f : 1.0f);
+		Object_Speed += worldDir * speedScale;
+
+		// 4. 向き目標を設定（ワールド方向ベクトルから計算）
+		m_Destrot.y = atan2f(-worldDir.x, -worldDir.z);
+	}
+
+	// 5. 重力・ジャンプ・摩擦 etc.
+	Object_Speed.y -= GRAVITY;
+	if (m_player.GetPosition().y < 9.0f)
+	{
+		auto p = m_player.GetPosition();
+		p.y = 9.0f;  Object_Speed.y = 0;
+		m_player.SetPosition(p);
+	}
+	if (jumpf) Object_Speed.y += VALUE_JUMP_PLAYER;
+
+	// 6. 回転補間
+	Vector3 rot = m_player.GetRotation();
+	float diff = m_Destrot.y - rot.y;
+	if (diff > PI) diff -= 2 * PI;
+	if (diff < -PI) diff += 2 * PI;
+	rot.y += diff * RATE_ROTATE_PLAYER;
+	if (rot.y > PI) rot.y -= 2 * PI;
+	if (rot.y < -PI) rot.y += 2 * PI;
+	m_player.SetRotation(rot);
+
+	//ステップ
+	if (step) {
+		Object_Speed.x *= 5;
+		Object_Speed.z *= 5;
+		if (Object_Speed.y < 0) //若干急降下気味に降りる方が感触良かったから残す
+		{
+			Object_Speed.y *= 2.5;
+		}
+	}
+
+	// 7. 位置更新＋減速
+
+	//移動しすぎを防ぐ(450を限界点として設計)
+	bool OberMove = false;
+	if (m_player.GetPosition().x + Object_Speed.x > 450 || m_player.GetPosition().x + Object_Speed.x < -450)Object_Speed.x = 0.0f;
+	if (m_player.GetPosition().z + Object_Speed.z > 450 || m_player.GetPosition().z + Object_Speed.z < -450)Object_Speed.z = 0.0f;;
+	//if (m_player.GetPosition().z + Object_Speed.z > 450 || m_player.GetPosition().z + Object_Speed.z < -450)OberMove = true;
+
+	//移動しすぎないなら移動する
+	if (!OberMove)m_player.SetPosition(m_player.GetPosition() + Object_Speed);
+	else {
+		OberMove = false;
+	}
+
+	Object_Speed *= dampingFactor;
+
+}
+
 void MecScene::PlayerAdhesion()
 {
 	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_L))//取り付けテスト処理
@@ -1175,167 +1323,4 @@ void MecScene::debugFreeCamera()
 	ImGui::End();
 }
 
-void MecScene::PlayerMovetes()
-{
-	bool step = CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_LSHIFT);
-	bool jumpf = false;
 
-	// ジャンプ判定
-	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_SPACE)
-		&& m_player.GetPosition().y < 10.0f)
-	{
-		jumpf = true;
-	}
-
-	// 左右・前後の入力をローカル座標系で集約
-	Vector3 localDir = { 0, 0, 0 };
-	auto& DI = CDirectInput::GetInstance();
-
-	if (DI.CheckKeyBuffer(DIK_W)) { localDir += { 0, 0, 1 };
-	Vector3 camposition = campos + m_player.GetForward() * 20;
-	m_camera.SetMovePosition(camposition);
-	}  // 前
-	if (DI.CheckKeyBuffer(DIK_S)) {
-		localDir += { 0, 0, -1 };
-		Vector3 camposition = campos - m_player.GetForward() * 20;
-		m_camera.SetMovePosition(camposition);
-	}  // 後
-	if (DI.CheckKeyBuffer(DIK_A)) { 
-		localDir += {-1, 0, 0 };
-		Vector3 camposition = campos + m_player.GetRight() * 20;
-		m_camera.SetMovePosition(camposition);
-	}  // 左
-	if (DI.CheckKeyBuffer(DIK_D)) { 
-		localDir += { 1, 0, 0 }; 
-		Vector3 camposition = campos - m_player.GetRight() * 20;
-		m_camera.SetMovePosition(camposition);
-	}// 右
-
-	if (localDir.LengthSquared() > 1e-6f) localDir.Normalize();  // 斜め移動時も速度一定
-
-	//カメラのがたがた補正する
-	if (localDir.LengthSquared() > 0)
-	{
-		localDir.Normalize();
-		m_camera.SetMovePosition(campos + localDir * 20.0f);
-	}
-	else
-	{
-		m_camera.SetMovePosition(campos);
-	}
-
-	
-
-	if (localDir.LengthSquared() > 1e-6f)
-	{
-		localDir.Normalize();
-
-		// 2. ワールド変換（）
-		Vector3 worldDir = Vector3{ 0,0,0 };
-		if (UseCamera == UseCameraNormal) 
-		{
-			////プレイヤーの向き基準
-			//float yaw = m_player.GetRotation().y;
-			//Matrix4x4 rot = Matrix4x4::CreateRotationY(yaw);
-			//worldDir = Vector3::Transform(localDir, rot);
-			//カメラの向き基準
-			float camYaw = 0;
-			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
-			worldDir = Vector3::Transform(localDir, rotMatCam);
-		}
-		else if (UseCamera == UseCameraRockOn) 
-		{
-			//カメラの向き基準
-			float camYaw = camRot.y;
-			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
-			worldDir = Vector3::Transform(localDir, rotMatCam);
-		}
-		else //それ以外ならとりあえずカメラに合わせる
-		{
-			//カメラの向き基準
-			float camYaw = 0;
-			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
-			worldDir = Vector3::Transform(localDir, rotMatCam);
-		}
-
-		//カメラの向き基準
-		float camYaw = camRot.y;
-		auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
-		worldDir = Vector3::Transform(localDir, rotMatCam);
-		
-		// 移動量に乗じる前に反転
-		worldDir = -worldDir;
-
-		// 3. ステップ時は加速度UP
-		float speedScale = m_player.GetSpead() * (step ? 5.0f : 1.0f);
-		Object_Speed += worldDir * speedScale;
-
-		// 4. 向き目標を設定（ワールド方向ベクトルから計算）
-		m_Destrot.y = atan2f(-worldDir.x, -worldDir.z);
-	}
-
-	// 5. 重力・ジャンプ・摩擦 etc.
-	Object_Speed.y -= GRAVITY;
-	if (m_player.GetPosition().y < 9.0f)
-	{
-		auto p = m_player.GetPosition();
-		p.y = 9.0f;  Object_Speed.y = 0;
-		m_player.SetPosition(p);
-	}
-	if (jumpf) Object_Speed.y += VALUE_JUMP_PLAYER;
-
-	// 6. 回転補間
-	Vector3 rot = m_player.GetRotation();
-	float diff = m_Destrot.y - rot.y;
-	if (diff > PI) diff -= 2 * PI;
-	if (diff < -PI) diff += 2 * PI;
-	rot.y += diff * RATE_ROTATE_PLAYER;
-	if (rot.y > PI) rot.y -= 2 * PI;
-	if (rot.y < -PI) rot.y += 2 * PI;
-	m_player.SetRotation(rot);
-
-	//ステップ
-	if (step) {
-		Object_Speed.x *= 5;
-		Object_Speed.z *= 5;
-		if (Object_Speed.y < 0) //若干急降下気味に降りる方が感触良かったから残す
-		{
-			Object_Speed.y *= 2.5;
-		}
-	}
-
-	// 7. 位置更新＋減速
-
-		//移動しすぎを防ぐ(450)
-	bool OberMove = false;
-	if (m_player.GetPosition().x + Object_Speed.x > 450 || m_player.GetPosition().x + Object_Speed.x < -450)OberMove = true;
-	if (m_player.GetPosition().z + Object_Speed.z > 450 || m_player.GetPosition().z + Object_Speed.z < -450)OberMove = true;
-
-	//移動しすぎないなら移動する
-	if (!OberMove)m_player.SetPosition(m_player.GetPosition() + Object_Speed);
-	else {
-		OberMove = false;
-	}
-
-	//m_player.SetPosition(m_player.GetPosition() + Object_Speed);
-
-	//この接続地点の取り方多分重いから代用案考える
-	//for (int i = 0; i < ADHESIOINGMAX; i++) 
-	//{
-	//	if (AdhesioingObjects[i]) 
-	//	{
-	//		if (AdhesioingObjects[i])
-	//		{
-	//			if (AdhesioingObjects[i]->GetAttribute() == JOINABLE && AdhesioingObjects[i]->GetAdhesioing())
-	//			{
-	//				AdhesioingObjects[i]->SetPosition(m_player.ConectPos(i) + Object_Speed);//場所
-	//				AdhesioingObjects[i]->SetRotation(camRot);//角度
-	//			}
-
-	//		}
-	//	}
-	//}
-	
-	Object_Speed *= dampingFactor;
-
-}

@@ -40,6 +40,7 @@ public:
 	void Fade_OUT(uint64_t deltatime);
 
 	void PlayerMove();
+	void PlayerMoveRockOn();
 	void PlayerAdhesion(); //オブジェクトの接合
 	void PlayerShot();
 	void AddSpeed(float, Vector3);
@@ -57,7 +58,7 @@ public:
 	void Debug_Box();
 	void debugFreeCamera();
 	
-	void PlayerMovetes();
+	
 private:
 	float Test = 0;
 

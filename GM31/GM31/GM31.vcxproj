@@ -151,7 +151,6 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AirplaneFlyScene.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="EnemyAI.h" />
     <ClInclude Include="Enemy_Head.h" />
@@ -165,14 +164,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="camera.h" />
-    <ClInclude Include="CarDriveScene.h" />
     <ClInclude Include="CDumpMatrix.h" />
-    <ClInclude Include="CollisionOBBScene.h" />
-    <ClInclude Include="Enemies.h" />
-    <ClInclude Include="Enemy_Default.h" />
-    <ClInclude Include="EnemyLookatScene.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="Enemy_Missile.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -197,7 +189,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Object.h" />
-    <ClInclude Include="ObjParseScene.h" />
+    <ClInclude Include="particle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Player_Head.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -218,13 +210,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="quat.h" />
-    <ClInclude Include="QuaternionScene.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="ResultScene.h" />
-    <ClInclude Include="RubikCubeScene.h" />
-    <ClInclude Include="SceneChanger.h" />
     <ClInclude Include="scenemanager.h" />
-    <ClInclude Include="Shape3DScene.h" />
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="system\AssimpPerse.h" />
     <ClInclude Include="system\BoxDrawer.h" />
@@ -274,28 +262,21 @@
     <ClInclude Include="system\SphereDrawer.h" />
     <ClInclude Include="system\stb_image.h" />
     <ClInclude Include="system\transform.h" />
+    <ClInclude Include="system\utility.h" />
     <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="TutorialScene.h" />
     <ClInclude Include="WallCollisionScene.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="walls.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AirplaneFlyScene.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Bullet.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="CarDriveScene.cpp" />
-    <ClCompile Include="CollisionOBBScene.cpp" />
-    <ClCompile Include="Enemies.cpp" />
-    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyAI.cpp" />
-    <ClCompile Include="EnemyLookatScene.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Enemy_Head.cpp" />
     <ClCompile Include="Enemy_LeftArm.cpp" />
     <ClCompile Include="Enemy_LeftFeet.cpp" />
@@ -324,7 +305,7 @@
     <ClCompile Include="M_Rock.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="ObjParseScene.cpp" />
+    <ClCompile Include="particle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Player_Head.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -345,12 +326,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="qtlooatat.cpp" />
-    <ClCompile Include="QuaternionScene.cpp" />
     <ClCompile Include="ResultScene.cpp" />
-    <ClCompile Include="RubikCubeScene.cpp" />
-    <ClCompile Include="SceneChanger.cpp" />
     <ClCompile Include="scenemanager.cpp" />
-    <ClCompile Include="Shape3DScene.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="system\AssimpPerse.cpp" />
     <ClCompile Include="system\BoxDrawer.cpp" />
@@ -385,7 +362,9 @@
     <ClCompile Include="system\renderer.cpp" />
     <ClCompile Include="system\SphereDrawer.cpp" />
     <ClCompile Include="system\stb.cpp" />
+    <ClCompile Include="system\utility.cpp" />
     <ClCompile Include="TitleScene.cpp" />
+    <ClCompile Include="TutorialScene.cpp" />
     <ClCompile Include="WallCollisionScene.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

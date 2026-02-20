@@ -15,20 +15,15 @@
 #include "Enemy_Missile.h"
 #include "EnemyAI.h"
 
-enum UseCamera //カメラの役割
-{
-	UseCameraFree,
-	UseCameraNormal,
-	UseCameraRockOn,
-	CAMERA_MAX
-};
-
 //ロボットの挙動テスト用のシーン
 class TutorialScene : public IScene
 {
 
 public:
 	TutorialScene() = default;
+
+	void DebugUI();
+
 	void update(uint64_t deltatime) override;
 	void draw(uint64_t deltatime) override;
 	void init() override;
@@ -39,10 +34,13 @@ public:
 	void Fade_IN(uint64_t deltatime);
 	void Fade_OUT(uint64_t deltatime);
 
+	//チュートリアルのテキストを読ませる
+	void Read_Tutorial_Log(uint64_t deltatime);
+
 	//チュートリアルのの段階
-	void Move_Tutorial();
-	void Shot_Tutorial();
-	void Special_Tutorial();
+	void Move_Tutorial(uint64_t deltatime);
+	void Shot_Tutorial(uint64_t deltatime);
+	void Special_Tutorial(uint64_t deltatime);
 
 	void PlayerMove();
 	void PlayerAdhesion(); //オブジェクトの接合
@@ -69,6 +67,12 @@ private:
 	int Tutorial_Phase = 0;//tutorialをどこまで進めたか
 	bool Tutorial_Log = true;//チュートリアルのログを表示したかの関数
 	float Tutorial_Progress = 0.0f;//チュートリアルの進捗度
+
+	//チュートリアルで使う画像群
+	std::unique_ptr<CSprite> Move_Tutorial_Log;//移動の操作説明
+	//操作説明の画像を上けら下に移動させたいのでそのための変数
+	float Log_Upper = 0.0f;
+	bool Log_Up = false;//説明画像の移動方向
 
 	float Fade_Color = 1.0f;//フェードの色
 	float Fade_Time = 1000;//フェードにかかる時間
@@ -106,7 +110,6 @@ private:
 	// 回転行列
 	Matrix4x4 m_RotationMtx{};
 
-	int UseCamera = UseCameraRockOn;//どのカメラ使うか
 	Camera m_camera;									// 固定カメラ
 	Vector3 camRot = Vector3{ 0,0,0 };					//カメラの向き
 	FreeCamera m_cameraF;								//デバック用の自由カメラ
@@ -133,7 +136,7 @@ private:
 
 	std::vector<std::unique_ptr<Object>> m_objects{};                    //接続可能なオブジェクト群
 
-	EnemyThinking Enemy;												//プレイヤーの動きを受け取って動く敵
+	Enemy_Missile m_Enemy;												//プレイヤーの動きを受け取って動く敵
 	//std::vector<std::unique_ptr<Enemy_Missile>> m_enemys{};               //敵
 
 	//接合中のオブジェクト(未接続のときにnullポインタで返すようにする)	全部位につけれるように用意しておく

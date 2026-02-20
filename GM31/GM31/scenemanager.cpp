@@ -1,20 +1,13 @@
 #include	"system/IScene.h"
 #include	"scenemanager.h"
 #include    "ImageDisplayScene.h"
-//#include    "RubikCubeScene.h"
-//#include    "Shape3DScene.h"
-//#include    "CollisionOBBScene.h"
-//#include    "ObjParseScene.h"
-//#include    "AirplaneFlyScene.h"
-//#include    "WallCollisionScene.h"
-//#include	"EnemyLookatScene.h"
-//#include	"CarDriveScene.h"
 
 //こっから授業外で自作したヘッダー
 #include "MecScene.h"
 #include "TitleScene.h"
 #include "ResultScene.h"
 #include "Gameover.h"
+#include "TutorialScene.h"
 
 std::unordered_map<std::string, std::unique_ptr<IScene>> SceneManager::m_scenes;
 std::string SceneManager::m_currentSceneName = "";
@@ -55,6 +48,9 @@ void SceneManager::Init()
 	m_scenes["MecScene"] = std::make_unique<MecScene>();
 	m_scenes["MecScene"]->init();
 
+	m_scenes["TutorialScene"] = std::make_unique<TutorialScene>();
+	m_scenes["TutorialScene"]->init();
+
 	m_scenes["TitleScene"] = std::make_unique<TitleScene>();
 	m_scenes["TitleScene"]->init();
 	m_scenes["ResultScene"] = std::make_unique<ResultScene>();
@@ -62,8 +58,8 @@ void SceneManager::Init()
 	m_scenes["Gameover"] = std::make_unique<Gameover>();
 	m_scenes["Gameover"]->init();
 
-	m_currentSceneName = "TitleScene";
-	//m_currentSceneName = "MecScene";
+	//m_currentSceneName = "TitleScene";
+	m_currentSceneName = "TutorialScene";
 }
 
 void SceneManager::Draw(uint64_t deltatime)

@@ -6,10 +6,28 @@
 
 //float VALUE_MOVE_PLAYER = 0.06f;					// キー入力時の移動量
 
+void TutorialScene::DebugUI() 
+{
+	ImGui::Begin("Tutorial");
+
+	ImGui::Text("Fade: %.3f", Fade_Time);
+	ImGui::Text("Tutorial_Progress: %.3f", Tutorial_Progress);
+	ImGui::Text("Tutorial_Progress: %d", Tutorial_Phase);
+
+	ImGui::End();
+}
+
 void TutorialScene::init()
 {
+	//GUIの設定
+#ifdef _DEBUG
+	DebugUI::RedistDebugFunction([this]() {
+		DebugUI();
+		});
+#endif
+
 	// カメラ(3D)の初期化
-	m_camera.UseGUI = true;
+	//m_camera.UseGUI = true;
 	m_camera.Init();
 	m_cameraF.Init();
 
@@ -107,13 +125,13 @@ void TutorialScene::init()
 
 
 	//敵
-	Enemy.Init(pl);
-	RockonEnemy = Enemy.GetEnemy();
-	Enemy.AddGun(dynamic_cast<M_Gun*>(m_objects[0].get()));
-	Enemy.AddGun(dynamic_cast<M_Gun*>(m_objects[1].get()));
+	//m_Enemy.Init(pl);
+	m_Enemy.Init();
+	m_Enemy.SetPlayer(pl);
+	RockonEnemy = &m_Enemy;
 
 	//プレイヤーが座標受け取れるようにする
-	m_player.SetTarget(Enemy.GetEnemy()->GetPosition_P());
+	m_player.SetTarget(m_Enemy.GetPosition_P());
 
 	//m_enemys[1]->SetPosition({ 25,7,5 });
 
@@ -142,6 +160,9 @@ void TutorialScene::init()
 	//m_Tutorial = std::make_unique<CSprite>(200, 200, "assets/texture/Tutorial.png", uv);
 	m_Tutorial = std::make_unique<CSprite>(200, 200, "assets/texture/Tutorial_02.png", uv);
 
+	//チュートリアルで表示される
+	Move_Tutorial_Log = std::make_unique<CSprite>(200, 200, "assets/texture/MOVE_Tutorial.png", uv);
+
 	//プレイヤーHP
 	HP_Player_G = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_green.png", uv);
 	HP_Player_R = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_red.png", uv);
@@ -156,13 +177,12 @@ void TutorialScene::init()
 void TutorialScene::update(uint64_t deltatime)
 {
 
-	//フェード
-	if (Fade_Time != 0) { Fade_IN(deltatime); }
-
 	switch (Tutorial_Phase)
 	{
 	case 0:
-		Move_Tutorial();
+		//フェード
+		if (Fade_Time != 0) { Fade_IN(deltatime); }
+		Move_Tutorial(deltatime);
 		break;
 	case 100:
 		Fade_OUT(deltatime);
@@ -177,22 +197,6 @@ void TutorialScene::update(uint64_t deltatime)
 		if (Specialcool > 5000) Specialcool = 5000;
 	}
 
-	m_boxSRTs[0].pos = m_objects[0]->GetPosition();
-
-	//座標入れる
-	//m_boxSRTs_col[0].pos
-
-
-	if (Fade_Time == 0) {
-		if (UseCamera == UseCameraRockOn) PlayerMovetes();
-		else PlayerMove();
-
-
-		//接続の処理(軽量化したので稼働させる)
-		PlayerAdhesion();
-		PlayerShot();
-	}
-
 
 	m_player.Update(deltatime);
 
@@ -201,51 +205,35 @@ void TutorialScene::update(uint64_t deltatime)
 		m_objects[i]->Update(deltatime);
 	}
 
-	Enemy.Update(deltatime);
+	m_Enemy.Update(deltatime);
 
 	//m_camera.SetLookat(Enemy.GetEnemy()->GetPosition());
 	//カメラ中視点を直接渡すのではなく敵に向けて保管する形に変更する
-	m_camera.SetEnemypos(Enemy.GetEnemy()->GetPosition());
+	m_camera.SetEnemypos(m_Enemy.GetPosition());
 	m_camera.Update_time(deltatime);
 	m_camera.Update();
-	switch (UseCamera)
-	{
-	case UseCameraNormal:
-		campos = Vector3{ m_player.GetPosition() - (m_player.GetForward() * 50) };
-		campos.y += 20;
+
+	Vector3 camForward = m_player.GetPosition() - RockonEnemy->GetPosition();
+
+	float sumAbs = fabs(camForward.x) + fabs(camForward.y) + fabs(camForward.z);
+	float maxSum = 150.0f;
+
+	// 距離が大きいほどスケールが小さくなる（滑らかに抑える）
+	float scale = maxSum / (sumAbs + maxSum);
+	camForward *= scale;
+	float Special = 1.0f;
+	campos = m_player.GetPosition() + camForward * Special;
+	campos.y = 30;
+
+	/*if (m_camera.GetMovePosition() == Vector3(0.0f, 0.0f, 0.0f)) {
 		m_camera.SetPosition(campos);
-		break;
-	case UseCameraRockOn://敵をロックオンするカメラ
-		//Vector3 camForward = (m_player.GetPosition() - RockonEnemy->GetPosition());
-		//campos = Vector3{ m_player.GetPosition() + (camForward) };
-		//campos.y = 30;
-		//m_camera.SetPosition(campos);
-
-		//
-		Vector3 camForward = m_player.GetPosition() - RockonEnemy->GetPosition();
-
-		float sumAbs = fabs(camForward.x) + fabs(camForward.y) + fabs(camForward.z);
-		float maxSum = 150.0f;
-
-		// 距離が大きいほどスケールが小さくなる（滑らかに抑える）
-		float scale = maxSum / (sumAbs + maxSum);
-		camForward *= scale;
-		float Special = 1.0f;
-		if (Enemy.GetSpecial()) Special = 1.5f;
-		campos = m_player.GetPosition() + camForward * Special;
-		campos.y = 30;
-
-		/*if (m_camera.GetMovePosition() == Vector3(0.0f, 0.0f, 0.0f)) {
-			m_camera.SetPosition(campos);
-		}*/
-		//カメラに本来のカメラ座標を記録させる
-		m_camera.Setcampos(campos);
+	}*/
+	//カメラに本来のカメラ座標を記録させる
+	m_camera.Setcampos(campos);
 
 
-		//被弾時でないかつ銃を撃ったら反動がある
-		if (!m_player.GetInvincibility() && m_player.GetShot()) m_camera.SetVibration(1.0f, 100.0f);
-		break;
-	}
+	//被弾時でないかつ銃を撃ったら反動がある
+	if (!m_player.GetInvincibility() && m_player.GetShot()) m_camera.SetVibration(1.0f, 100.0f);
 
 	//ロックオンの更新
 	RockonUpdate();
@@ -264,15 +252,12 @@ void TutorialScene::update(uint64_t deltatime)
 		m_objects[i]->LateUpdate(deltatime);
 	}
 
-	Enemy.LateUpdate(deltatime);
+	m_Enemy.LateUpdate(deltatime);
 
-	if (Enemy.GetEnemy()->GetShaderNum() == 2) {
+	if (m_Enemy.GetShaderNum() == 2) {
 		m_camera.LateUpdate();
 	}
 
-
-	//デバック用のアップデート
-	CameraFlip();
 
 	//当たり判定の処理
 	Collision_Hit();
@@ -283,20 +268,7 @@ void TutorialScene::update(uint64_t deltatime)
 void TutorialScene::draw(uint64_t deltatime)
 {
 
-	switch (UseCamera)
-	{
-	case UseCameraFree:
-		m_cameraF.Draw();
-		break;
-
-	case UseCameraNormal:
-		m_camera.Draw();
-		break;
-
-	case UseCameraRockOn:
-		m_camera.Draw();
-		break;
-	}
+	m_camera.Draw();
 
 	//使用するシェーダーの種類
 	int Shadernum = 0;
@@ -311,7 +283,7 @@ void TutorialScene::draw(uint64_t deltatime)
 	}
 
 
-	if (Enemy.GetEnemy()->GetShaderNum() != 0) Shadernum = Enemy.GetEnemy()->GetShaderNum();
+	if (m_Enemy.GetShaderNum() != 0) Shadernum = m_Enemy.GetShaderNum();
 
 	//被弾中に画面ノイズ掛ける
 	if (m_player.GetInvincibility()) Shadernum = 4;
@@ -399,8 +371,8 @@ void TutorialScene::draw(uint64_t deltatime)
 	SRT plsrt = m_player.GetSRT();
 
 
-	plsrt.rot.x += 1.55;
-	plsrt.rot.y += 1.55;
+	plsrt.rot.x += 1.55f;
+	plsrt.rot.y += 1.55f;
 
 
 	//m_player.ModelAABB(minpos, maxpos);
@@ -424,11 +396,10 @@ void TutorialScene::draw(uint64_t deltatime)
 		m_objects[i]->Draw();
 	}
 	//m_Shadowshader.SetGPU(); //丸影
-	Enemy.Draw();
+	m_Enemy.Draw();
 
 	//透過の関係で一番最後(最終的にはプレイヤーと一番近い敵とでフォワードベクトル取ってその向きに出す)
-	if (UseCamera == UseCameraRockOn)
-		RockonDraw();
+	RockonDraw();
 
 	UIDraw();
 
@@ -442,7 +413,8 @@ void::TutorialScene::dispose()
 int TutorialScene::ChangeScene()
 {
 	//チュートリアル終わらせたらタイトルに返す
-	if (Tutorial_Phase == 2 && Fade_Time == 1000) {
+	if (Tutorial_Phase == 100 && Fade_Time == 1000) {
+		
 		return 3;
 	}
 
@@ -494,26 +466,43 @@ void TutorialScene::Fade_OUT(uint64_t deltatime)
 	m_Screen->SetMaterial(mtrl_Screen);
 }
 
-void TutorialScene::Move_Tutorial()
+void TutorialScene::Read_Tutorial_Log(uint64_t deltatime)
 {
-	if (Tutorial_Log) {}
+	//経過時間を記録
+	float time = static_cast<float>(deltatime) / 1000;
+	if (Log_Up) {
+		
+		Log_Upper += time / 6;
+	}
+	else {
+		Log_Upper -= time / 6;
+	}
+}
+
+void TutorialScene::Move_Tutorial(uint64_t deltatime)
+{
+	if (!Tutorial_Log) { Read_Tutorial_Log(deltatime); }
 	else {
 		Vector3 Player_Position_Log = m_player.GetPosition();
-		PlayerMove();
+		PlayerMovetes();
 		//移動距離を取ってどれだけ移動したかを判断
-		Tutorial_Progress = GetRange(Player_Position_Log, m_player.GetPosition());
-		//とりあえず合計100進んだら次に進ませる
-		if (Tutorial_Progress > 100.0f) {
+		if (GetRange(Player_Position_Log, m_player.GetPosition()) > 0.5f) {
+			Tutorial_Progress += GetRange(Player_Position_Log, m_player.GetPosition());
+		}
+		
+		//ある程度進んだら次に進ませる
+		if (Tutorial_Progress > 500.0f) {
 			Tutorial_Phase = 100;
+
 		}
 	}
 }
 
-void TutorialScene::Shot_Tutorial()
+void TutorialScene::Shot_Tutorial(uint64_t deltatime)
 {
 }
 
-void TutorialScene::Special_Tutorial()
+void TutorialScene::Special_Tutorial(uint64_t deltatime)
 {
 }
 
@@ -820,7 +809,7 @@ void TutorialScene::PlayerShot()
 	// 敵の射撃フラグ無効化
 	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_P))
 	{
-		Enemy.GetEnemy()->ReturnFire();
+		m_Enemy.ReturnFire();
 	}
 
 
@@ -869,34 +858,34 @@ void TutorialScene::Collision_Hit()//弾とオブジェクトの当たり判定
 //	ここめちゃくちゃ重いから軽量化の手段考えておく
 {
 
-	if (Enemy.GetEnemy()->GetHP() <= 0) //敵が既に死んでいるなら次
+	if (m_Enemy.GetHP() <= 0) //敵が既に死んでいるなら次
 	{
 		return;
 	}
 
-	for (int i = 0; i < Enemy.GetEnemy()->GetBulletMaxnum(); i++)//この敵の弾がプレイヤーにあたっているか
+	for (int i = 0; i < m_Enemy.GetBulletMaxnum(); i++)//この敵の弾がプレイヤーにあたっているか
 	{
 		/*bool col = GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_enemys[0]->GetOBB_Bullet(i));*/
 
 		if (m_player.GetInvincibility()) continue; //プレイヤーの無敵時間中なら判定しない
-		if (Enemy.GetEnemy()->GetBulletcol(i))continue;//検査する弾丸が使われていないなら検査しない
+		if (m_Enemy.GetBulletcol(i))continue;//検査する弾丸が使われていないなら検査しない
 
-		bool col = m_player.Collision_PL(Enemy.GetEnemy()->GetOBB_Bullet(i));
+		bool col = m_player.Collision_PL(m_Enemy.GetOBB_Bullet(i));
 		m_player.SetCol(col);
 
 		if (col)
 		{
-			m_player.HitDamage(Enemy.GetEnemy()->Damage_Bullet());
-			Enemy.GetEnemy()->SetCollision_Bullet(i, col);
+			m_player.HitDamage(m_Enemy.Damage_Bullet());
+			m_Enemy.SetCollision_Bullet(i, col);
 			//カメラ揺れを入れる
 			m_camera.SetVibration(10.0f, 1000);
 		}
 	}
 
-	if (m_player.Collision_PL(Enemy.GetEnemy()->GetOBB_Beam())) //この敵のビームがプレイヤーにあたっているか
+	if (m_player.Collision_PL(m_Enemy.GetOBB_Beam())) //この敵のビームがプレイヤーにあたっているか
 	{
 		m_player.SetCol(true);
-		m_player.HitDamage(Enemy.GetEnemy()->Damage_Beam());
+		m_player.HitDamage(m_Enemy.Damage_Beam());
 	}
 
 	//for (int i = 0; i < ADHESIOINGMAX; i++) //銃を親オブジェクトとした弾と敵の当たり判定
@@ -935,7 +924,7 @@ void TutorialScene::RockonUpdate()
 		// 2) もっとも近いオブジェクト探索
 		float minDistSq = std::numeric_limits<float>::max();
 
-		Vector3 pos = Enemy.GetEnemy()->GetPosition();
+		Vector3 pos = m_Enemy.GetPosition();
 		float dx = pos.x - playerPos.x;
 		float dy = pos.y - playerPos.y;
 		float dz = pos.z - playerPos.z;
@@ -944,7 +933,7 @@ void TutorialScene::RockonUpdate()
 		if (distSq < minDistSq) {
 			minDistSq = distSq;
 			//RockonEnemy = Enemy.GetEnemy();
-			m_player.SetTarget(Enemy.GetEnemy()->GetPosition_P());
+			m_player.SetTarget(m_Enemy.GetPosition_P());
 		}
 	}
 
@@ -1097,43 +1086,13 @@ void TutorialScene::UIDraw()
 	//操作方法の表示
 	//m_Tutorial->Draw(Vector3{ 3,1,1 }, { 0,0,0 }, { 300,670,0 });
 	m_Tutorial->Draw(Vector3{ 6,1,1 }, { 0,0,0 }, { 600,670,0 });
+	
+	//チュートリアルのログ
+	Move_Tutorial_Log->Draw(Vector3{ 3,3,1 }, { 0,0,0 }, { 600,370,0 });
 
 	//HP_Player_R->Draw(Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(100, 100, 0));
 	//画面青色のエフェクト掛けてコクピットっぽい写りにしたい
 	m_Screen->Draw(Vector3{ 7,5,1 }, Vector3(0, 0, 0), Vector3(650, 340, 0));
-}
-
-void TutorialScene::CameraFlip()
-{
-	if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_0))
-	{
-		int idx = UseCamera;
-		++idx;
-		//if (idx < 0) idx = CAMERA_MAX - 1;
-		if (idx >= CAMERA_MAX) idx = 0;
-		UseCamera = idx;
-		//ロックオンしたときにロックオン対象を一番近い敵に更新
-		if (UseCamera == UseCameraRockOn)
-		{
-			// 1) プレイヤーの位置を取得
-			Vector3 playerPos = m_player.GetPosition();
-
-			// 2) もっとも近いオブジェクト探索
-			float minDistSq = std::numeric_limits<float>::max();
-
-			Vector3 pos = Enemy.GetEnemy()->GetPosition();
-			float dx = pos.x - playerPos.x;
-			float dy = pos.y - playerPos.y;
-			float dz = pos.z - playerPos.z;
-
-			float distSq = dx * dx + dy * dy + dz * dz;
-			if (distSq < minDistSq) {
-				minDistSq = distSq;
-				RockonEnemy = Enemy.GetEnemy();
-				m_player.SetTarget(Enemy.GetEnemy()->GetPosition_P());
-			}
-		}
-	}
 
 }
 
@@ -1244,31 +1203,6 @@ void TutorialScene::PlayerMovetes()
 
 		// 2. ワールド変換（）
 		Vector3 worldDir = Vector3{ 0,0,0 };
-		if (UseCamera == UseCameraNormal)
-		{
-			////プレイヤーの向き基準
-			//float yaw = m_player.GetRotation().y;
-			//Matrix4x4 rot = Matrix4x4::CreateRotationY(yaw);
-			//worldDir = Vector3::Transform(localDir, rot);
-			//カメラの向き基準
-			float camYaw = 0;
-			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
-			worldDir = Vector3::Transform(localDir, rotMatCam);
-		}
-		else if (UseCamera == UseCameraRockOn)
-		{
-			//カメラの向き基準
-			float camYaw = camRot.y;
-			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
-			worldDir = Vector3::Transform(localDir, rotMatCam);
-		}
-		else //それ以外ならとりあえずカメラに合わせる
-		{
-			//カメラの向き基準
-			float camYaw = 0;
-			auto rotMatCam = Matrix4x4::CreateRotationY(camYaw);
-			worldDir = Vector3::Transform(localDir, rotMatCam);
-		}
 
 		//カメラの向き基準
 		float camYaw = camRot.y;

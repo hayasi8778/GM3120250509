@@ -472,16 +472,30 @@ void TutorialScene::Read_Tutorial_Log(uint64_t deltatime)
 	float time = static_cast<float>(deltatime) / 1000;
 	if (Log_Up) {
 		
-		Log_Upper += time / 6;
+		
+		if (Log_Upper > 370) {
+			//キー入力をとる
+			if (CDirectInput::GetInstance().CheckKeyBufferTrigger(DIK_J)) {
+				Log_Up = false;
+			}
+		}
+		else Log_Upper += time / 6;
 	}
 	else {
-		Log_Upper -= time / 6;
+		if (Log_Upper < -120) {
+			Log_Upper -= time / 6;
+		}
+		else {
+			//ログが上がり終わったときの処理を行う
+		}
+		
+
 	}
 }
 
 void TutorialScene::Move_Tutorial(uint64_t deltatime)
 {
-	if (!Tutorial_Log) { Read_Tutorial_Log(deltatime); }
+	if (Tutorial_Log) { Read_Tutorial_Log(deltatime); }
 	else {
 		Vector3 Player_Position_Log = m_player.GetPosition();
 		PlayerMovetes();
@@ -492,6 +506,7 @@ void TutorialScene::Move_Tutorial(uint64_t deltatime)
 		
 		//ある程度進んだら次に進ませる
 		if (Tutorial_Progress > 500.0f) {
+			//ここで進んだフラグが立ったからチュートリアルクリアしたってりかいさせたい
 			Tutorial_Phase = 100;
 
 		}
@@ -1088,7 +1103,8 @@ void TutorialScene::UIDraw()
 	m_Tutorial->Draw(Vector3{ 6,1,1 }, { 0,0,0 }, { 600,670,0 });
 	
 	//チュートリアルのログ
-	Move_Tutorial_Log->Draw(Vector3{ 3,3,1 }, { 0,0,0 }, { 600,370,0 });
+	//Move_Tutorial_Log->Draw(Vector3{ 3,3,1 }, { 0,0,0 }, { 600,370,0 });
+	Move_Tutorial_Log->Draw(Vector3{ 3,3,1 }, { 0,0,0 }, { 600,Log_Upper,0 });
 
 	//HP_Player_R->Draw(Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(100, 100, 0));
 	//画面青色のエフェクト掛けてコクピットっぽい写りにしたい

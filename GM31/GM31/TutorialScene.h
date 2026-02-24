@@ -72,7 +72,7 @@ private:
 	std::unique_ptr<CSprite> Move_Tutorial_Log;//移動の操作説明
 	//操作説明の画像を上けら下に移動させたいのでそのための変数
 	float Log_Upper = 0.0f;
-	bool Log_Up = false;//説明画像の移動方向
+	bool Log_Up = true;//説明画像の移動方向
 
 	float Fade_Color = 1.0f;//フェードの色
 	float Fade_Time = 1000;//フェードにかかる時間

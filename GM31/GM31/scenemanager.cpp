@@ -48,8 +48,8 @@ void SceneManager::Init()
 	m_scenes["MecScene"] = std::make_unique<MecScene>();
 	m_scenes["MecScene"]->init();
 
-	m_scenes["TutorialScene"] = std::make_unique<TutorialScene>();
-	m_scenes["TutorialScene"]->init();
+	/*m_scenes["TutorialScene"] = std::make_unique<TutorialScene>();
+	m_scenes["TutorialScene"]->init();*/
 
 	m_scenes["TitleScene"] = std::make_unique<TitleScene>();
 	m_scenes["TitleScene"]->init();
@@ -58,8 +58,8 @@ void SceneManager::Init()
 	m_scenes["Gameover"] = std::make_unique<Gameover>();
 	m_scenes["Gameover"]->init();
 
-	//m_currentSceneName = "TitleScene";
-	m_currentSceneName = "TutorialScene";
+	m_currentSceneName = "TitleScene";
+	//m_currentSceneName = "TutorialScene";
 }
 
 void SceneManager::Draw(uint64_t deltatime)

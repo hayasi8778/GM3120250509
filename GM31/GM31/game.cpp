@@ -42,8 +42,10 @@ void gamedraw(uint64_t deltatime)
 	SceneManager::Draw(deltatime);
 
 	// デバッグUIの描画
+#ifdef _DEBUG
+	//imGuiはデバック時にのみ出るように
 	DebugUI::Render();
-
+#endif
 	// レンダリング後処理
 	Renderer::End();
 

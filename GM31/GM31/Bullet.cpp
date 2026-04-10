@@ -17,9 +17,13 @@ void Bullet::Init()
 	//属性
 	Attribute = UNJOINABLE;
 
+	//m_mesh.Load(
+	//	"assets/model/Shot/laser.x",				// モデル名
+	//	"assets/model/Shot/");						// テクスチャのパス
+
 	m_mesh.Load(
-		"assets/model/Shot/laser.x",				// モデル名
-		"assets/model/Shot/");						// テクスチャのパス
+		"assets/model/Gun/Bullet02.fbx",				// モデル名
+		"assets/model/Gun/Tex/Tex_Blue");						// テクスチャのパス
 
 	// 画像のUV座標
 	Vector2 uv[4] = {
@@ -225,7 +229,7 @@ void Bullet::Draw()
 
 	m_Position = poscop;//positionは元に戻しておく
 
-	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+	//m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
 	//向き気にしなくてもいいからSRTで描画
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
 	Renderer::SetBlendState(BS_SUBTRACTION);   ///< 減算合成

@@ -1,0 +1,7 @@
+リリースビルド
+インクルード
+C:\DirectXLib\directxtk\include
+C:\Assimp\5.2.5\include
+ライブラリ
+C:\DirectXLib\directxtk\lib\x64\Release
+C:\Assimp\5.2.5\lib

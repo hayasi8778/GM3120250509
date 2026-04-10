@@ -1,6 +1,5 @@
 #include	"system/IScene.h"
 #include	"scenemanager.h"
-#include    "ImageDisplayScene.h"
 
 //こっから授業外で自作したヘッダー
 #include "MecScene.h"
@@ -32,24 +31,12 @@ void SceneManager::SetCurrentScene(std::string current)
 void SceneManager::Init()
 {
 	
-	////授業資料
-	//m_scenes["EnemyLookatScene"] = std::make_unique<EnemyLookatScene>();
-	//m_scenes["EnemyLookatScene"]->init();
-	//m_currentSceneName = "EnemyLookatScene";
-	
-
-	
-	////授業資料
-	//m_scenes["ImageDisplayScene"] = std::make_unique<ImageDisplayScene>();
-	//m_scenes["ImageDisplayScene"]->init();
-	//m_currentSceneName = "ImageDisplayScene";
-	
 	//自作物
 	m_scenes["MecScene"] = std::make_unique<MecScene>();
 	m_scenes["MecScene"]->init();
 
-	/*m_scenes["TutorialScene"] = std::make_unique<TutorialScene>();
-	m_scenes["TutorialScene"]->init();*/
+	//m_scenes["TutorialScene"] = std::make_unique<TutorialScene>();
+	//m_scenes["TutorialScene"]->init();
 
 	m_scenes["TitleScene"] = std::make_unique<TitleScene>();
 	m_scenes["TitleScene"]->init();

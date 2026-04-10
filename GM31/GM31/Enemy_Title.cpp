@@ -10,6 +10,7 @@ void EnemyThinking_Title::DebugUI()
 	ImGui::Text("Strength_Enemy1: %d", Strength_Enemy1);
 	if (ImGui::Button("AddStrongth_1+1000"))
 	{
+		//‹ºˆĞƒŒƒxƒ‹ã‚°‚Ä‹­‚¢s“®‚ğ‚³‚¹‚é
 		Strength_Enemy1 += 1000;
 	}
 

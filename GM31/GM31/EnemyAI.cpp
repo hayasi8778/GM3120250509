@@ -126,7 +126,8 @@ void EnemyThinking::Update(uint64_t deltatime)
 void EnemyThinking::LateUpdate(uint64_t deltatime) 
 {
 	Enemy.LateUpdate(deltatime);
-
+	//消極的移動の判断をする
+	Enemy.SetSpecialStop(false);
 	//カメラ用の焦点を送る
 
 }
@@ -287,6 +288,17 @@ void EnemyThinking::ThinkMove(uint64_t deltatime)
 	if (MoveLevel < 5) Enemy.Move(Targetpos);
 	else Enemy.MoveLev5(Targetpos);
 
+	pos = PositionLog[1];
+
+	//プレイヤーが距離離し過ぎてるなら消極的だと判断する
+	float Range = pos.x + pos.y + pos.z;
+	float RangeNow = PositionLog[LogSubscript].x + PositionLog[LogSubscript].y + PositionLog[LogSubscript].z;
+	if (Range < RangeNow && RangeNow >30) 
+	{
+		//足を止める
+		Enemy.SetSpecialStop(true);
+	}
+
 	
 }
 
@@ -317,8 +329,7 @@ void EnemyThinking::ThinkEvasion(uint64_t deltatime)
 		TimeLog = 0;
 
 		//必殺技で足を止めるかもここで判断する
-		if (Player->GetActionInterval() > 3000.0f) Enemy.SetSpecialStop(true);
-		else Enemy.SetSpecialStop(false);
+		if (Player->GetActionInterval() > 3000.0f) { Enemy.SetSpecialStop(true); }
 
 		//std::cout << "座標計測リセット" << std::endl;
 	}

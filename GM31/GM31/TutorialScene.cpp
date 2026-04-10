@@ -163,6 +163,15 @@ void TutorialScene::init()
 	//チュートリアルで表示される
 	Move_Tutorial_Log = std::make_unique<CSprite>(200, 200, "assets/texture/MOVE_Tutorial.png", uv);
 
+	Shot_Tutorial_Log = std::make_unique<CSprite>(200, 200, "assets/texture/Shot_Tutorial.png", uv);
+
+	//swapで正常に画像を変更できるのかをテストする
+	Move_Tutorial_Log.swap(Shot_Tutorial_Log);
+
+	//CSprite Test_Log(200, 200, "assets/texture/Shot_Tutorial.png", uv);
+
+	//Test_Tutorial_LOG = Test_Log;
+
 	//プレイヤーHP
 	HP_Player_G = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_green.png", uv);
 	HP_Player_R = std::make_unique<CSprite>(200, 200, "assets/model/Mec/MecArm/Tex_red.png", uv);
@@ -482,11 +491,12 @@ void TutorialScene::Read_Tutorial_Log(uint64_t deltatime)
 		else Log_Upper += time / 6;
 	}
 	else {
-		if (Log_Upper < -120) {
+		if (Log_Upper > -320) {
 			Log_Upper -= time / 6;
 		}
 		else {
 			//ログが上がり終わったときの処理を行う
+			Tutorial_Log = false;
 		}
 		
 
@@ -515,6 +525,22 @@ void TutorialScene::Move_Tutorial(uint64_t deltatime)
 
 void TutorialScene::Shot_Tutorial(uint64_t deltatime)
 {
+	if (Tutorial_Log) { Read_Tutorial_Log(deltatime); }
+	else {
+		Vector3 Player_Position_Log = m_player.GetPosition();
+		PlayerMovetes();
+		//移動距離を取ってどれだけ移動したかを判断
+		if (GetRange(Player_Position_Log, m_player.GetPosition()) > 0.5f) {
+			Tutorial_Progress += GetRange(Player_Position_Log, m_player.GetPosition());
+		}
+
+		//ある程度進んだら次に進ませる
+		if (Tutorial_Progress > 500.0f) {
+			//ここで進んだフラグが立ったからチュートリアルクリアしたってりかいさせたい
+			Tutorial_Phase = 100;
+
+		}
+	}
 }
 
 void TutorialScene::Special_Tutorial(uint64_t deltatime)

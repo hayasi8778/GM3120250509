@@ -15,6 +15,13 @@
 #include "Enemy_Missile.h"
 #include "EnemyAI.h"
 
+enum Tutorial {
+	Move,
+	Shot,
+	Avoidance,
+	End
+};
+
 //ロボットの挙動テスト用のシーン
 class TutorialScene : public IScene
 {
@@ -68,8 +75,18 @@ private:
 	bool Tutorial_Log = true;//チュートリアルのログを表示したかの関数
 	float Tutorial_Progress = 0.0f;//チュートリアルの進捗度
 
+	//画面に表示するログ
+	std::unique_ptr<CSprite> Now_Tutorial_Log;
+
 	//チュートリアルで使う画像群
 	std::unique_ptr<CSprite> Move_Tutorial_Log;//移動の操作説明
+
+	//
+	std::unique_ptr<CSprite> Shot_Tutorial_Log;//射撃の操作説明
+
+	CSprite Test_Tutorial_LOG;
+
+
 	//操作説明の画像を上けら下に移動させたいのでそのための変数
 	float Log_Upper = 0.0f;
 	bool Log_Up = true;//説明画像の移動方向

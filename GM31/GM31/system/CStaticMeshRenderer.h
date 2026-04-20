@@ -17,6 +17,9 @@ class CStaticMeshRenderer : public CMeshRenderer
 	std::vector<DirectX::SimpleMath::Matrix> m_Worlds;//ワールド行列
 	Microsoft::WRL::ComPtr<ID3D11Buffer>  m_pWorldCB;    // ←追加
 
+	//ボーンの親→子のリスト
+	std::unordered_map<std::string, std::vector<std::string>> m_BoneChildren;
+
 	//ボーン情報その2
 	struct BoneInfo {
 		Matrix4x4 offsetMatrix;      // aiBone::mOffsetMatrix
@@ -42,6 +45,12 @@ class CStaticMeshRenderer : public CMeshRenderer
 		const aiMatrix4x4& parentAiM,
 		const Color& boneColor,
 		SRT  srt);
+
+	void DrawBoneRecursiveBinary(
+		const std::string& boneName,
+		const Matrix4x4& parentWorld,
+		const Color& color,
+		const SRT& srt);
 
 	DirectX::SimpleMath::Vector3 m_Modelrot = { 0.0f,0.0f,0.0f };//モデルへの補正角
 

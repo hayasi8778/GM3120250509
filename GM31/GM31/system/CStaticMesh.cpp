@@ -31,18 +31,7 @@ static DirectX::SimpleMath::Matrix ToSM(const aiMatrix4x4& m)
 
 }
 
-//SimpleMathのToMSの変換ヘルパー
-Matrix4x4 ToSM_Matrix4x4(const aiMatrix4x4& m)
-{
-    Matrix4x4 r;
 
-    r._11 = m.a1; r._12 = m.b1; r._13 = m.c1; r._14 = m.d1;
-    r._21 = m.a2; r._22 = m.b2; r._23 = m.c2; r._24 = m.d2;
-    r._31 = m.a3; r._32 = m.b3; r._33 = m.c3; r._34 = m.d3;
-    r._41 = m.a4; r._42 = m.b4; r._43 = m.c4; r._44 = m.d4;
-
-    return r;
-}
 
 void DumpAiMatrix(const aiMatrix4x4& A)
 {
@@ -71,6 +60,19 @@ void DumpSMMatrix(const DirectX::SimpleMath::Matrix& M, char const* tag)
     printf(" %8.4f %8.4f %8.4f %8.4f\n", f._21, f._22, f._23, f._24);
     printf(" %8.4f %8.4f %8.4f %8.4f\n", f._31, f._32, f._33, f._34);
     printf(" %8.4f %8.4f %8.4f %8.4f\n\n", f._41, f._42, f._43, f._44);
+}
+
+//SimpleMathのToMSの変換ヘルパー
+Matrix4x4  CStaticMesh::ToSM_Matrix4x4(const aiMatrix4x4& m)
+{
+    Matrix4x4 r;
+
+    r._11 = m.a1; r._12 = m.b1; r._13 = m.c1; r._14 = m.d1;
+    r._21 = m.a2; r._22 = m.b2; r._23 = m.c2; r._24 = m.d2;
+    r._31 = m.a3; r._32 = m.b3; r._33 = m.c3; r._34 = m.d3;
+    r._41 = m.a4; r._42 = m.b4; r._43 = m.c4; r._44 = m.d4;
+
+    return r;
 }
 
 
@@ -475,17 +477,17 @@ void CStaticMesh::LoadFromBinary(const std::string& binfile)
         }
     }
 
-    //ボーンの最終確認
-    printf("bones = %u, BoneWorldMap = %zu\n",
-        boneCount,
-        m_BoneWorldMap.size());
+    ////ボーンの最終確認
+    //printf("bones = %u, BoneWorldMap = %zu\n",
+    //    boneCount,
+    //    m_BoneWorldMap.size());
 
-    printf("=== BoneWorldMap keys ===\n");
-    for (auto& kv : m_BoneWorldMap)
-    {
-        printf("%s\n", kv.first.c_str());
-    }
-    printf("=========================\n");
+    //printf("=== BoneWorldMap keys ===\n");
+    //for (auto& kv : m_BoneWorldMap)
+    //{
+    //    printf("%s\n", kv.first.c_str());
+    //}
+    //printf("=========================\n");
 
 }
 
@@ -683,7 +685,7 @@ void CStaticMesh::LoadWithAssimp(std::string filename, std::string texturedirect
     // ルートは親なし、親ワールド行列は単位行列
     dfsBone(m_pScene->mRootNode, nullptr, aiMatrix4x4());
 
-    printf("[Assimp] BoneWorldMap size = %zu\n", m_BoneWorldMap.size());
+    //printf("[Assimp] BoneWorldMap size = %zu\n", m_BoneWorldMap.size());
 }
 
 

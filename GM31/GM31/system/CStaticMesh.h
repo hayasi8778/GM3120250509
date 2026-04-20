@@ -15,6 +15,10 @@ using BoneDict = std::unordered_map<std::string, GM31::GE::myAssimp::BONE>;
 
 class CStaticMesh : public CMesh {
 public:
+
+	//SimpleMathのToMSの変換ヘルパー
+	Matrix4x4 ToSM_Matrix4x4(const aiMatrix4x4& m);
+
 	void Load(std::string filename, std::string texturedirectory="");
 
 	//モデルの行列情報を読み込むためのload

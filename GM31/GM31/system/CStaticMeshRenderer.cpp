@@ -17,6 +17,19 @@ static DirectX::SimpleMath::Matrix ToSM(const aiMatrix4x4& m)
     );
 }
 
+//SimpleMathのToMSの変換ヘルパー
+Matrix4x4 ToSM_Matrix4x4_Renderer(const aiMatrix4x4& m)
+{
+    Matrix4x4 r;
+
+    r._11 = m.a1; r._12 = m.b1; r._13 = m.c1; r._14 = m.d1;
+    r._21 = m.a2; r._22 = m.b2; r._23 = m.c2; r._24 = m.d2;
+    r._31 = m.a3; r._32 = m.b3; r._33 = m.c3; r._34 = m.d3;
+    r._41 = m.a4; r._42 = m.b4; r._43 = m.c4; r._44 = m.d4;
+
+    return r;
+}
+
 // SimpleMath::Matrix →  aiMatrix4x4変換ヘルパーも作る
 aiMatrix4x4 ToAi(const Matrix4x4& m)
 {
@@ -271,6 +284,14 @@ void CStaticMeshRenderer::Init(CStaticMesh& mesh)
             m_BoneDict[b.bonename] = ConvertBone(b);
         }
 
+        m_BoneChildren.clear();
+
+        for (auto& b : mesh.GetBones())
+        {
+            if (!b.parentname.empty())
+                m_BoneChildren[b.parentname].push_back(b.bonename);
+        }
+
         m_BoneViz = std::make_unique<Sphere>(0.5f);
 
         ID3D11Device* dev = Renderer::GetDevice();
@@ -289,6 +310,8 @@ void CStaticMeshRenderer::Init(CStaticMesh& mesh)
     //// ボーン用CB作成 (b3 を想定)
     ID3D11Device* dev = Renderer::GetDevice();
     CreateConstantBuffer(dev, sizeof(DirectX::XMFLOAT4X4), m_pBoneWorldCB.GetAddressOf());
+
+    
 }
 
 
@@ -346,16 +369,41 @@ void CStaticMeshRenderer::Draw(const SRT& objectSrt)
 void CStaticMeshRenderer::DrawWithBones(SRT srt, const Color& boneColor)
 {
 
-    if (!m_pScene) return;
-    auto ctx = Renderer::GetDeviceContext();
+    //if (!m_pScene) return;
+    //auto ctx = Renderer::GetDeviceContext();
 
-    // GPU 側の World は既に SetWorldMatrix() でセット済み
-    // ここではボーン描画の「局所行列のみ」を計算して Sphere に投げる
-    DrawBoneRecursive(
-        m_pScene->mRootNode,
-        aiMatrix4x4(),      // 親 Ai 行列 = Identity
-        boneColor,
-        srt);
+    //// GPU 側の World は既に SetWorldMatrix() でセット済み
+    //// ここではボーン描画の「局所行列のみ」を計算して Sphere に投げる
+    //DrawBoneRecursive(
+    //    m_pScene->mRootNode,
+    //    aiMatrix4x4(),      // 親 Ai 行列 = Identity
+    //    boneColor,
+    //    srt);
+
+    // Assimp がある場合
+    if (m_pScene)
+    {
+        DrawBoneRecursive(
+            m_pScene->mRootNode,
+            aiMatrix4x4(),
+            boneColor,
+            srt
+        );
+        return;
+    }
+
+    // バイナリ読み込みの場合
+    if (!m_pMesh->GetBones().empty())
+    {
+        // 親が空のボーン（ルート）を探す
+        for (auto& b : m_pMesh->GetBones())
+        {
+            if (b.parentname.empty())
+            {
+                DrawBoneRecursiveBinary(b.bonename, Matrix4x4::Identity, boneColor, srt);
+            }
+        }
+    }
 
 }
 
@@ -415,6 +463,47 @@ void CStaticMeshRenderer::DrawBoneRecursive(
         DrawBoneRecursive(node->mChildren[i], globalAiM, boneColor, srt);
     }
 
+}
+
+void CStaticMeshRenderer::DrawBoneRecursiveBinary(
+    const std::string& boneName,
+    const Matrix4x4& parentWorld,
+    const Color& color,
+    const SRT& srt)
+{
+    Matrix4x4 local = ToSM_Matrix4x4_Renderer(m_BoneDict[boneName].Matrix);
+
+    // モデルの SRT を適用
+    Matrix4x4 modelWorld = srt.GetMatrix();
+
+    // 最終ワールド行列
+    Matrix4x4 boneWorld = modelWorld * local;
+
+    // GPU にセット
+    Renderer::SetWorldMatrix(&boneWorld);
+
+    // 平行移動成分を取り出す
+    Vector3 pos(local._41, local._42, local._43);
+
+    // SRT を適用
+    Quaternion q = Quaternion::CreateFromYawPitchRoll(srt.rot.y, srt.rot.x, srt.rot.z);
+    Vector3 rotated = Vector3::Transform(pos, q);
+    Vector3 scaled = rotated * srt.scale;
+    Vector3 worldPos = scaled + srt.pos;
+
+    // スフィア描画
+    SRT srts;
+    srts.scale = Vector3(m_BoneViz->GetRadius());
+    srts.rot = Vector3::Zero;
+    srts.pos = worldPos;
+
+    m_BoneViz->Draw(srts, color);
+
+    // 子ボーンへ
+    for (auto& child : m_BoneChildren[boneName])
+    {
+        DrawBoneRecursiveBinary(child, local, color, srt);
+    }
 }
 
 Vector3 CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName, const SRT& srt)

@@ -90,6 +90,9 @@ public:
 	//
 	const std::unordered_map<std::string, Matrix4x4>& GetBoneWorldMap() const { return m_BoneWorldMap; }
 
+	//バイナリなどで保存したボーンを返す変数
+	const std::vector<BONE> GetBones() { return m_bones; };
+
 private:
 
 	std::vector<MATERIAL> m_materials;					// マテリアル情報
@@ -107,7 +110,8 @@ private:
 	// 追加：メッシュ (aiMesh index) 毎のグローバル行列
 	std::vector<DirectX::SimpleMath::Matrix> m_MeshWorld;
 
-	std::vector<BONE> m_bones;		//ボーン情報
+	//ボーン情報
+	std::vector<BONE> m_bones;		
 
 	//バイナリ用の構造体
 	struct MeshBinHeader {

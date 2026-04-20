@@ -201,8 +201,8 @@ void M_Player::Update(uint64_t deltatime)
 	leftfeet.SetRotation(srt.rot);
 	rightfeet.SetRotation(srt.rot);
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	srt.rot.x += 1.55;
-	srt.rot.y += 1.55;
+	srt.rot.x += 1.55f;
+	srt.rot.y += 1.55f;
 
 	head.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_Neck", srt));
 	leftarm.SetPosition(m_meshrenderer.LogBoneWorldPosition("Joint_LeftArm", srt));

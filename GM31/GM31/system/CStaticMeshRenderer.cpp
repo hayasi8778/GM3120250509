@@ -17,6 +17,17 @@ static DirectX::SimpleMath::Matrix ToSM(const aiMatrix4x4& m)
     );
 }
 
+// SimpleMath::Matrix →  aiMatrix4x4変換ヘルパーも作る
+aiMatrix4x4 ToAi(const Matrix4x4& m)
+{
+    return aiMatrix4x4(
+        m._11, m._12, m._13, m._14,
+        m._21, m._22, m._23, m._24,
+        m._31, m._32, m._33, m._34,
+        m._41, m._42, m._43, m._44
+    );
+}
+
 SRT MatrixToSRT(const Matrix4x4& m)
 {
     SRT srt;
@@ -155,13 +166,49 @@ void DumpRootTransform(const aiScene* scene)
     printf("=================================\n");
 }
 
+//Weightも中身違うのでコンバーターで渡す
+GM31::GE::myAssimp::WEIGHT ConvertWeight(const WEIGHT& src, const std::string& boneName)
+{
+    GM31::GE::myAssimp::WEIGHT dst;
 
+    dst.bonename = boneName;     // ← CStaticMesh 側には無いので BONE から渡す
+    dst.meshname = "";           // 必要なら埋める
+    dst.weight = src.weight;
+    dst.vertexindex = src.vertexindex;
+
+    return dst;
+}
+
+GM31::GE::myAssimp::BONE ConvertBone(const BONE& src)
+{
+    GM31::GE::myAssimp::BONE dst;
+
+    dst.bonename = src.bonename;
+    dst.meshname = src.meshname;
+    dst.armaturename = src.armaturename;
+
+    dst.Matrix = ToAi(src.Matrix);
+    dst.AnimationMatrix = ToAi(src.AnimationMatrix);
+    dst.OffsetMatrix = ToAi(src.OffsetMatrix);
+
+    dst.idx = src.idx;
+
+    //weights の変換
+    dst.weights.clear();
+    dst.weights.reserve(src.weights.size());
+
+    for (auto& w : src.weights)
+    {
+        dst.weights.push_back(ConvertWeight(w, src.bonename));
+    }
+
+    return dst;
+}
 
 void CStaticMeshRenderer::Init(CStaticMesh& mesh)
 {
     //meshを後から参照できるように保存する
     m_pMesh = &mesh;
-
 
 
     // 1) 頂点・インデックス・サブセット・マテリアル初期化
@@ -215,9 +262,20 @@ void CStaticMeshRenderer::Init(CStaticMesh& mesh)
 
     if (m_pScene == NULL)
     {
-        // ボーン関連は全部無効化
         m_BoneDict.clear();
-        m_BoneViz.reset();
+
+        auto& bones = mesh.GetBones();
+
+        for (auto& b : bones)
+        {
+            m_BoneDict[b.bonename] = ConvertBone(b);
+        }
+
+        m_BoneViz = std::make_unique<Sphere>(0.5f);
+
+        ID3D11Device* dev = Renderer::GetDevice();
+        CreateConstantBuffer(dev, sizeof(DirectX::XMFLOAT4X4), m_pBoneWorldCB.GetAddressOf());
+
         return;
     }
 
@@ -409,40 +467,40 @@ Vector3 CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName,
 
 }
 
-Vector3 CStaticMeshRenderer::LogBoneWorldPosition(int cr, const SRT& srt)
-{
-    if (!m_pScene)
-        return Vector3::Zero;  // シーン未設定時は(0,0,0)返却
-
-    auto mesh = m_pScene->mMeshes[0];           // メッシュ 0番目
-    int boneCount = mesh->mNumBones;           //ボーンの合計数(ルートボーン込み)
-
-    if (cr < 0 || cr >= boneCount) return Vector3::Zero;//外側参照もしくはルートボーン参照しているなら0
-
-    // aiBone→aiNode
-    const aiBone* bone = mesh->mBones[cr];
-    aiNode* node = m_pScene->mRootNode->FindNode(bone->mName);
-    if (!node) return Vector3::Zero;//目的のノードがない場合も0
-
-    // Assimp 上の global 行列
-    aiMatrix4x4 globalAiM = GetGlobalAiMatrix(node);
-
-    // オブジェクト SRT をかけて最終ワールド座標を計算
-    Vector3 rawPos{
-        globalAiM.a4,
-        globalAiM.b4,
-        globalAiM.c4
-    };
-    // 回転：YawPitchRoll → Quaternion
-    auto q = Quaternion::CreateFromYawPitchRoll(
-        srt.rot.y, srt.rot.x, srt.rot.z
-    );
-    Vector3 rotated = Vector3::Transform(rawPos, q);
-    Vector3 scaled = rotated * srt.scale;
-    Vector3 world = scaled + srt.pos;
-
-    return world;
-}
+//Vector3 CStaticMeshRenderer::LogBoneWorldPosition(int cr, const SRT& srt)
+//{
+//    if (!m_pScene)
+//        return Vector3::Zero;  // シーン未設定時は(0,0,0)返却
+//
+//    auto mesh = m_pScene->mMeshes[0];           // メッシュ 0番目
+//    int boneCount = mesh->mNumBones;           //ボーンの合計数(ルートボーン込み)
+//
+//    if (cr < 0 || cr >= boneCount) return Vector3::Zero;//外側参照もしくはルートボーン参照しているなら0
+//
+//    // aiBone→aiNode
+//    const aiBone* bone = mesh->mBones[cr];
+//    aiNode* node = m_pScene->mRootNode->FindNode(bone->mName);
+//    if (!node) return Vector3::Zero;//目的のノードがない場合も0
+//
+//    // Assimp 上の global 行列
+//    aiMatrix4x4 globalAiM = GetGlobalAiMatrix(node);
+//
+//    // オブジェクト SRT をかけて最終ワールド座標を計算
+//    Vector3 rawPos{
+//        globalAiM.a4,
+//        globalAiM.b4,
+//        globalAiM.c4
+//    };
+//    // 回転：YawPitchRoll → Quaternion
+//    auto q = Quaternion::CreateFromYawPitchRoll(
+//        srt.rot.y, srt.rot.x, srt.rot.z
+//    );
+//    Vector3 rotated = Vector3::Transform(rawPos, q);
+//    Vector3 scaled = rotated * srt.scale;
+//    Vector3 world = scaled + srt.pos;
+//
+//    return world;
+//}
 
 //void CStaticMeshRenderer::ComputeModelAABB(const aiScene* scene, aiVector3D& outMin, aiVector3D& outMax)
 //{

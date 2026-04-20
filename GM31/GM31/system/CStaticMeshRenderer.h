@@ -62,7 +62,7 @@ public:
 	Vector3 LogBoneWorldPosition(const std::string& targetName,const SRT& srt);
 
 	//ボーン番号を指定する座標出力
-	Vector3 LogBoneWorldPosition(int cr, const SRT& srt);
+	//Vector3 LogBoneWorldPosition(int cr, const SRT& srt);
 
 	/*void ComputeModelAABB(const aiScene* scene,
 		aiVector3D& outMin,

@@ -5,8 +5,11 @@
 #include	"CTexture.h"
 #include    "CMaterial.h"
 
-class CStaticMeshRenderer : public CMeshRenderer 
+class CStaticMeshRenderer : public CMeshRenderer
 {
+	// Asimpへの依存からmeshへの依存に切り替える(バイナリにする都合上Asimp依存だと参照出来ない部分がある)
+	CStaticMesh* m_pMesh = nullptr;
+
 	std::vector<SUBSET> m_Subsets;
 	std::vector<std::unique_ptr<CTexture>> m_DiffuseTextures;
 	std::vector<std::unique_ptr<CMaterial>> m_Materiales;
@@ -61,9 +64,9 @@ public:
 	//ボーン番号を指定する座標出力
 	Vector3 LogBoneWorldPosition(int cr, const SRT& srt);
 
-	void ComputeModelAABB(const aiScene* scene,
+	/*void ComputeModelAABB(const aiScene* scene,
 		aiVector3D& outMin,
-		aiVector3D& outMax);
+		aiVector3D& outMax);*/
 
 	//アニメーションに対してボーン行列を更新する
 	void ApplyAnimationToNode(
@@ -79,5 +82,7 @@ public:
 	void ComputeModelAABB(
 		aiVector3D& outMin,
 		aiVector3D& outMax);
+
+	void SetDiffuseTexture(int subsetIndex, const std::string& texPath);
 
 };

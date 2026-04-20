@@ -16,7 +16,7 @@ void E_Beam::Init()
 
 	m_mesh.Load(
 		"assets/model/Shot/Beam01.fbx",		// モデル名
-		"assets/model/Shot/");				// テクスチャのパス;
+		"assets/model/Shot");				// テクスチャのパス;
 
 	//レンダラ初期化
 	m_meshrenderer.Init(m_mesh);

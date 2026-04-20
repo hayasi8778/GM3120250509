@@ -80,8 +80,8 @@ void Enemy_LeftFeet::Dispose()
 void Enemy_LeftFeet::Draw()
 {
 	//p¨‚Ì•âŠ®‚ğ‚±‚±‚Å‚·‚é
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	// SRTî•ñì¬
 	SRT srt;
@@ -159,8 +159,8 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_LeftFeet::GetOBB()
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
 	//p¨‚Ì•âŠ®‚ğ‚±‚±‚Å‚·‚é
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// p¨i‰ñ“]Šp“xj

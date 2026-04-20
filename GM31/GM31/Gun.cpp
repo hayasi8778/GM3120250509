@@ -19,7 +19,7 @@ void M_Gun::Init()
 
 	m_mesh.Load(
 		"assets/model/Gun/Gun_Testmodel2.fbx",				// モデル名
-		"assets/model/Gun/");						// テクスチャのパス
+		"assets/model/Gun");						// テクスチャのパス
 
 
 	//レンダラ初期化
@@ -46,10 +46,11 @@ void M_Gun::Init()
 
 	m_shapecube_col = std::make_unique<Box>(Width, Height, Depth);
 
-	for (int i = 0; i < BulletMaxnum; i++)
+	//弾丸を生成する形にするので無効化しておく
+	/*for (int i = 0; i < BulletMaxnum; i++)
 	{
 		m_bullets[i].Init();
-	}
+	}*/
 };
 
 void M_Gun::Update(uint64_t deltatime)
@@ -65,10 +66,19 @@ void M_Gun::Update(uint64_t deltatime)
 		m_Position.y = 0;
 	}
 
-	for (int i = 0; i < BulletMaxnum; i++)
-	{
-		m_bullets[i].Update(deltatime);
+	//弾丸を初期生成する場合
+	//for (int i = 0; i < BulletMaxnum; i++)
+	//{
+	//	m_bullets[i].Update(deltatime);
+	//}
+
+	if (Bullets.size() != 0) {
+		
+		for (int i = 0; i < Bullets.size(); i++) {
+			Bullets[i]->Update(deltatime);
+		}
 	}
+
 
 	// 弾の回転角度から回転行列を作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -93,6 +103,35 @@ void M_Gun::Update(uint64_t deltatime)
 void M_Gun::LateUpdate(uint64_t deltatime) 
 {
 
+	//使い終わった弾の消去をする
+	if (Bullets.size() == 0) {
+		return;
+	}
+
+	if (Bullets.size() != 0) {
+
+		for (int i = 0; i < Bullets.size(); i++) {
+			Bullets[i]->LateUpdate(deltatime);
+		}
+	}
+
+	//for (int i = 0; i < Bullets.size(); i++) {
+	//	if (Bullets[i]->GetAriveTime() < 0) {
+	//		Bullets.erase(Bullets[i]);
+	//	}
+	//}
+
+	for (auto bullet = Bullets.begin(); bullet != Bullets.end(); ) {
+		// Alive_Time が尽きたら削除
+		float time = (*bullet)->GetAriveTime();
+		time = 0;
+		if ((*bullet)->GetAriveTime() < 0) {
+			bullet = Bullets.erase(bullet);  // unique_ptr が自動で delete
+		}
+		else {
+			++bullet;
+		}
+	}
 }
 
 void M_Gun::Draw()
@@ -117,9 +156,14 @@ void M_Gun::Draw()
 
 	m_meshrenderer.Draw();
 
-	for (int i = 0; i < BulletMaxnum; i++)
+	//弾丸を初期生成する場合
+	/*for (int i = 0; i < BulletMaxnum; i++)
 	{
 		m_bullets[i].Draw();
+	}*/
+
+	for (int i = 0; i < Bullets.size(); i++) {
+		Bullets[i]->Draw();
 	}
 
 	Vector3 poscop = m_Position;//positionのコピーをとる
@@ -156,7 +200,7 @@ void M_Gun::Adhesioing()
 
 void M_Gun::Action(Vector3 vec)
 {
-	if (bulletnum == BulletMaxnum) bulletnum = 0;
+	//if (bulletnum == BulletMaxnum) bulletnum = 0;
 
 	// SRT情報作成
 	SRT srt;
@@ -165,7 +209,7 @@ void M_Gun::Action(Vector3 vec)
 	srt.pos = m_Position;			// 位置
 
 	//新しい弾を作る
-	//std::unique_ptr<Bullet> pb = std::make_unique<Bullet>();
+	std::unique_ptr<Bullet> pb = std::make_unique<Bullet>();
 
 	Matrix4x4 world = srt.GetMatrix();
 	//Vector3 forward = world.Forward();
@@ -175,23 +219,31 @@ void M_Gun::Action(Vector3 vec)
 	forward.Normalize();
 	forward *= 3.0f;
 
-	//pb->SetForward(forward);
-	m_bullets[bulletnum].SetForward(forward);
+	//生成したオブジェクト
+	pb->SetForward(forward);
+	
+	//弾丸を初期生成する場合
+	//m_bullets[bulletnum].SetForward(forward);
 
 
 	//前向き行列取ってから姿勢補完する
 	Vector3 bulletpos = m_meshrenderer.LogBoneWorldPosition("Shot", srt);
 
-	//pb->SetScale(Vector3(1, 1, 1));
-	//pb->SetRotation(m_Rotation);
-	//pb->SetPosition(bulletpos);
+	//生成したオブジェクト
+	pb->SetScale(Vector3(0.5, 0.5, 0.5));
+	pb->SetRotation(m_Rotation);
+	pb->SetPosition(bulletpos);
 
-	//m_bullets[bulletnum].SetScale(Vector3(1, 1, 1));
-	m_bullets[bulletnum].SetScale(Vector3(0.5, 0.5, 0.5));
+
+	//弾丸を初期生成する場合
+	/*m_bullets[bulletnum].SetScale(Vector3(0.5, 0.5, 0.5));
 	m_bullets[bulletnum].SetRotation(m_Rotation);
-	m_bullets[bulletnum].SetPosition(bulletpos);
+	m_bullets[bulletnum].SetPosition(bulletpos);*/
 
-	bulletnum++;
+	//bulletnum++;
+
+	//弾丸を追加する
+	Bullets.push_back(std::move(pb));
 
 };
 
@@ -229,9 +281,15 @@ GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB()
 
 GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB_Bullet(int num) 
 {
-	if (num < BulletMaxnum) 
+	//弾丸を初期生成する場合
+	/*if (num < BulletMaxnum) 
 	{
 		return  m_bullets[num].GetOBB();
+	}*/
+
+	if (num < Bullets.size())
+	{
+		return  Bullets[num]->GetOBB();
 	}
 
 	GM31::GE::Collision::BoundingBoxOBB colbox;
@@ -241,10 +299,19 @@ GM31::GE::Collision::BoundingBoxOBB M_Gun::GetOBB_Bullet(int num)
 
 void M_Gun::SetCollision_Bullet(int num, bool col)
 {
-	m_bullets[num].SetCol(col);
+	//弾丸を初期生成する場合
+	//m_bullets[num].SetCol(col);
+
+	if (num > Bullets.size())return;
+	Bullets[num]->SetCol(col);
 }
 
 Vector3 M_Gun::GetBulletpos(int num)
 {
-	return m_bullets[num].GetPosition();
+	//弾丸を初期生成する場合
+	//return m_bullets[num].GetPosition();
+
+	//配列の外参照するなら0で返す
+	if (num > Bullets.size()) return Vector3(0.0f, 0.0f, 0.0f);
+	return Bullets[num]->GetPosition();
 }

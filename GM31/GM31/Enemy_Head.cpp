@@ -83,8 +83,8 @@ void Enemy_Head::Dispose()
 void Enemy_Head::Draw()
 {
 	//p¨‚Ì•âŠ®‚ğ‚±‚±‚Å‚·‚é
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	// SRTî•ñì¬
 	SRT srt;
@@ -161,8 +161,8 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_Head::GetOBB()
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
 	//p¨‚Ì•âŠ®‚ğ‚±‚±‚Å‚·‚é
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// p¨i‰ñ“]Šp“xj
@@ -185,8 +185,8 @@ Vector3 Enemy_Head::Conectpos(const std::string& targetName)
 	Vector3 rotcop = m_Rotation;
 
 	//p¨•âŠ®•ª
-	rotcop.x += 1.55;
-	rotcop.y += 1.55;
+	rotcop.x += 1.55f;
+	rotcop.y += 1.55f;
 	SRT srt;
 
 	srt.scale = m_Scale;

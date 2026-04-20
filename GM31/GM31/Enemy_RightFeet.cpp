@@ -159,8 +159,8 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_RightFeet::GetOBB()
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// épê®ÅiâÒì]äpìxÅj

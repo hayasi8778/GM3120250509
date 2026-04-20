@@ -12,9 +12,12 @@ private:
 	Vector3 Up_vec;
 	Vector3 Forward_vec;
 
-	int bulletnum = 0;
+	//int bulletnum = 0;
 
-	Bullet m_bullets[5];
+	//Bullet m_bullets[5];
+
+	//弾を生成して使用するようにする
+	std::vector<std::unique_ptr<Bullet>> Bullets;
 
 	std::unique_ptr<Box> m_shapecube_col;// 当たり判定(ボックス)
 	float Width;
@@ -40,6 +43,9 @@ public:
 	Vector3 GetBulletpos(int num);
 
 	int Damage_Bullet() { return ATK; }
+
+	//今の弾丸の量を送る
+	int GetBulletsSize() { return (int)Bullets.size(); }
 
 	const int BulletMaxnum = 5;
 };

@@ -40,6 +40,7 @@ struct BONE
     std::string bonename;          ///< ボーン名
     std::string meshname;          ///< メッシュ名
     std::string armaturename;      ///< アーマチュア名
+    std::string parentname;        ///< 親のボーン名
     Matrix4x4 Matrix{};            ///< 親子関係を考慮した行列
     Matrix4x4 AnimationMatrix{};   ///< 自分の変形のみを考慮した行列
     Matrix4x4 OffsetMatrix{};      ///< ボーンオフセット行列

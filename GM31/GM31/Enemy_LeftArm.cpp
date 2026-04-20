@@ -34,7 +34,7 @@ void Enemy_LeftArm::Init()
 	SetScale({ 1.0f,1.0f,1.0f });
 
 	//à íuï‚ê≥
-	m_Position.y += 9;
+	m_Position.y += 9.0f;
 
 	m_Rotation.z -= 1.40f;
 
@@ -118,7 +118,7 @@ void Enemy_LeftArm::Draw()
 	srt.rot = m_Rotation;			// épê®	srt.pos = m_Position;
 	srt.pos = m_Position;			// à íu
 
-	srt.pos += Right_vec * 1.5;
+	srt.pos += Right_vec * 1.5f;
 	srt.rot.z += Armrot;
 
 	Matrix4x4 worldmtx;

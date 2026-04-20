@@ -17,9 +17,9 @@ class M_Player : public Object
 {
 private:
 	float VALUE_ROTATE_PLAYER = PI * 0.02f;				// キー入力時の回転量
-	float VALUE_JUMP_PLAYER = 3.80;						//プレイヤーのジャンプ力
+	float VALUE_JUMP_PLAYER = 3.80f;						//プレイヤーのジャンプ力
 	float RATE_ROTATE_PLAYER = 0.40f;					// １フレーム当たりの回転割合
-	float GRAVITY = 0.068;								//重力
+	float GRAVITY = 0.068f;								//重力
 
 	Object* Connectableobject = nullptr;//接続されたオブジェクト
 

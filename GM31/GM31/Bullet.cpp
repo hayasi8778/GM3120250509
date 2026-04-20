@@ -6,6 +6,7 @@
 Bullet::Bullet()
 {
 	Init();
+	Reset();
 }
 
 Bullet::~Bullet()
@@ -70,10 +71,13 @@ void Bullet::Init()
 
 void Bullet::Update(uint64_t deltatime)
 {
+	float time_D = static_cast<float>(deltatime) / 1000;
+
+	Alive_time -= time_D;
 
 	if (collsion)
 	{
-		boom_time += static_cast<float>(deltatime) / 1000;
+		boom_time += time_D;
 
 		if (boom_time > 1000)
 		{
@@ -91,7 +95,7 @@ void Bullet::Update(uint64_t deltatime)
 	if (induction)
 	{
 		if (!Target_P) return;
-		float time_D = static_cast<float>(deltatime) / 1000;
+		
 		//m_Position += forward * 0.3;
 		velocty;// = Vector3{ 0,0,0 };//加速値
 		Vector3 Position = m_Position;//ポジション
@@ -164,7 +168,7 @@ void Bullet::Update(uint64_t deltatime)
 			if (!collsion)m_Position = Position;
 		}
 	}
-	else if (!collsion)m_Position += forward * 0.3;//命中するまでは移動する
+	else if (!collsion)m_Position += forward * 0.3f;//命中するまでは移動する
 
 	// 方向ベクトル作成
 	Matrix4x4 rotmtxX = Matrix4x4::CreateRotationX(m_Rotation.x);
@@ -261,6 +265,8 @@ void Bullet::Reset()
 	m_Position = { 0,-200,0 };
 	shot = false;
 
+	//5秒持続
+	Alive_time = 5000;
 
 	//弾丸の個性を戻す
 	Missile = true;

@@ -182,7 +182,23 @@ void EnemyThinking::RuleUpdate(uint64_t deltatime)
 		if (!GunObject[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
 		if (auto gun = GunObject[i])
 		{
-			for (int i = 0; i < 5; i++)
+			//弾丸が初期生成の場合
+			//for (int i = 0; i < 5; i++)
+			//{
+			//	bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), gun->GetOBB_Bullet(i));
+			//	//索敵範囲内に弾丸があるかどうか
+			//	bool inter = GM31::GE::Collision::CollisionSphereOBB_(Enemy.GetShere(), gun->GetOBB_Bullet(i));
+			//	Enemy.SetCollision(col, gun->Damage_Bullet());
+			//	if (col) gun->SetCollision_Bullet(i, col);
+			//	if (inter) {
+			//		Enemy.SetAvoidance(inter);
+			//		Enemy.Stepavoidance(gun->GetPosition(),true);
+			//		//gun->SetCollision_Bullet(i, inter);
+			//	}
+			//}
+
+			//弾丸をその場で生成している場合
+			for (int i = 0; i < gun->GetBulletsSize(); i++)
 			{
 				bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), gun->GetOBB_Bullet(i));
 				//索敵範囲内に弾丸があるかどうか
@@ -191,7 +207,7 @@ void EnemyThinking::RuleUpdate(uint64_t deltatime)
 				if (col) gun->SetCollision_Bullet(i, col);
 				if (inter) {
 					Enemy.SetAvoidance(inter);
-					Enemy.Stepavoidance(gun->GetPosition(),true);
+					Enemy.Stepavoidance(gun->GetPosition(), true);
 					//gun->SetCollision_Bullet(i, inter);
 				}
 			}
@@ -343,7 +359,8 @@ void EnemyThinking::ThinkEvasion(uint64_t deltatime)
 		if (!GunObject[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
 		if (auto gun = GunObject[i])
 		{
-			for (int i = 0; i < 5; i++)
+			//実行中に弾丸を生成するので弾丸サイズ取得してfor回す
+			for (int i = 0; i < gun->GetBulletsSize(); i++)
 			{
 				//弾丸を見てかわす
 				bool inter = GM31::GE::Collision::CollisionSphereOBB_(Enemy.GetShere(), gun->GetOBB_Bullet(i));
@@ -549,7 +566,8 @@ void EnemyThinking::Collision()
 		if (!GunObject[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
 		if (auto gun = GunObject[i])
 		{
-			for (int i = 0; i < 5; i++)
+			//弾丸を生成しているのでその場でサイズ取得する
+			for (int i = 0; i < gun->GetBulletsSize(); i++)
 			{
 				bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetOBB(), gun->GetOBB_Bullet(i));
 				Enemy.SetCollision(col, gun->Damage_Bullet());

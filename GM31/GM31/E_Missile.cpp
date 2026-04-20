@@ -5,6 +5,7 @@ Vector3 RotateAroundAxis(const Vector3&, const Vector3&, float);
 E_Missile::E_Missile()
 {
 	Init();
+	Reset();
 }
 
 E_Missile::~E_Missile()
@@ -16,11 +17,8 @@ void E_Missile::Init()
 	//属性
 	Attribute = UNJOINABLE;
 
-	//m_mesh.Load(
-	//	"assets/model/Shot/laser.x",				// モデル名
-	//	"assets/model/Shot/");						// テクスチャのパス
 	m_mesh.Load(
-		"assets/model/Gun/Bullet02.fbx",				// モデル名
+		"assets/model/Gun/Bullet002.fbx",				// モデル名
 		"assets/model/Gun/Tex/Tex_Red");						// テクスチャのパス
 
 

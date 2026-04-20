@@ -81,4 +81,5 @@ public:
 	void SetShotSpeed(float speed) { ShotSpeed = speed; }
 	void Update_Shot1(uint64_t deltatime);
 	void Update_Shot2(uint64_t deltatime);
+	float GetAriveTime() { return Alive_time; }
 };

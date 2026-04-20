@@ -6,9 +6,9 @@
 
 //float VALUE_MOVE_PLAYER = 0.06f;					// キー入力時の移動量
 float VALUE_ROTATE_PLAYER = PI * 0.02f;				// キー入力時の回転量
-float VALUE_JUMP_PLAYER = 3.80;						//プレイヤーのジャンプ力
+float VALUE_JUMP_PLAYER = 3.80f;						//プレイヤーのジャンプ力
 float RATE_ROTATE_PLAYER = 0.40f;					// １フレーム当たりの回転割合
-float GRAVITY = 0.068;								//重力
+float GRAVITY = 0.068f;								//重力
 
 void MecScene::init() 
 {
@@ -392,8 +392,8 @@ void MecScene::draw(uint64_t deltatime)
 	SRT plsrt = m_player.GetSRT();
 
 
-	plsrt.rot.x += 1.55;
-	plsrt.rot.y += 1.55;
+	plsrt.rot.x += 1.55f;
+	plsrt.rot.y += 1.55f;
 	
 
 	//m_player.ModelAABB(minpos, maxpos);
@@ -1011,6 +1011,7 @@ void MecScene::Collision_Hit()//弾とオブジェクトの当たり判定
 		return;
 	}
 
+	//弾が初期生成の場合
 	for (int i = 0; i < Enemy.GetEnemy()->GetBulletMaxnum(); i++)//この敵の弾がプレイヤーにあたっているか
 	{
 		/*bool col = GM31::GE::Collision::CollisionOBB(m_player.GetOBB(), m_enemys[0]->GetOBB_Bullet(i));*/
@@ -1036,25 +1037,6 @@ void MecScene::Collision_Hit()//弾とオブジェクトの当たり判定
 		m_player.HitDamage(Enemy.GetEnemy()->Damage_Beam());
 	}
 
-	//for (int i = 0; i < ADHESIOINGMAX; i++) //銃を親オブジェクトとした弾と敵の当たり判定
-	//{
-	//	if (!AdhesioingObjects[i]) continue;//ネスト長くなるからここはifの中身じゃなくてcontinueで返す
-	//	if (auto gun = dynamic_cast<M_Gun*>(AdhesioingObjects[i]))
-	//	{
-	//		for (int i = 0; i < 5; i++)
-	//		{
-	//			bool col = GM31::GE::Collision::CollisionOBB(Enemy.GetEnemy()->GetOBB(), gun->GetOBB_Bullet(i));
-	//			bool inter = GM31::GE::Collision::CollisionSphereOBB_(Enemy.GetEnemy()->GetShere(), gun->GetOBB_Bullet(i));
-	//			Enemy.GetEnemy()->SetCollision(col);
-	//			if (col) gun->SetCollision_Bullet(i, col);
-	//			if (inter) {
-	//				Enemy.GetEnemy()->SetAvoidance(inter);
-	//				Enemy.GetEnemy()->Stepavoidance(gun->GetPosition());
-	//				//gun->SetCollision_Bullet(i, inter);
-	//			}
-	//		}
-	//	}
-	//}
 	
 }
 

@@ -159,10 +159,29 @@ void DumpRootTransform(const aiScene* scene)
 
 void CStaticMeshRenderer::Init(CStaticMesh& mesh)
 {
+    //meshを後から参照できるように保存する
+    m_pMesh = &mesh;
+
+
+
     // 1) 頂点・インデックス・サブセット・マテリアル初期化
     CMeshRenderer::Init(mesh);
     m_Subsets = mesh.GetSubsets();
-    m_DiffuseTextures = mesh.GetDiffuseTextures();
+
+    auto& srcTex = mesh.GetDiffuseTextures_move();
+
+    m_DiffuseTextures.clear();
+    m_DiffuseTextures.resize(m_Subsets.size());
+
+    // srcTex の中身をそのまま移す（move）
+    for (size_t i = 0; i < srcTex.size() && i < m_DiffuseTextures.size(); ++i)
+    {
+        if (srcTex[i])
+        {
+            // 所有権を移す（共有したいなら clone 方式に変更）
+            m_DiffuseTextures[i] = std::move(const_cast<std::unique_ptr<CTexture>&>(srcTex[i]));
+        }
+    }
     auto mats = mesh.GetMaterials();
     for (auto& m : mats)
     {
@@ -192,13 +211,18 @@ void CStaticMeshRenderer::Init(CStaticMesh& mesh)
     );*/
 
     m_pScene = mesh.GetScene();                       // Assimp シーンを取得
-    m_BoneDict = GM31::GE::myAssimp::GetBoneDictionary();
-    m_BoneViz = std::make_unique<Sphere>(0.5f);
+
 
     if (m_pScene == NULL)
     {
+        // ボーン関連は全部無効化
+        m_BoneDict.clear();
+        m_BoneViz.reset();
         return;
     }
+
+    m_BoneDict = GM31::GE::myAssimp::GetBoneDictionary();
+    m_BoneViz = std::make_unique<Sphere>(0.5f);
 
     //Sceneの中身出力
     //DumpMetaData(m_pScene);
@@ -218,12 +242,32 @@ void CStaticMeshRenderer::Draw()
     // マテリアル数分ループ 
     for (int i = 0; i < m_Subsets.size(); i++)
     {
+        const int matIdx = m_Subsets[i].MaterialIdx;
+
+        // 安全確認
+        if (matIdx < 0 || matIdx >= m_Materiales.size()) {
+            std::cout << "matIdx が m_Materiales 範囲外\n" << "endl";
+            continue;
+        }
+        if (matIdx >= m_DiffuseTextures.size()) {
+            std::cout << "matIdx が m_DiffuseTextures 範囲外\n" << "endl";
+            continue;
+        }
+
+
         // マテリアルをセット(サブセット情報の中にあるマテリアルインデックを使用する)
         m_Materiales[m_Subsets[i].MaterialIdx]->SetGPU();
 
         if (m_Materiales[m_Subsets[i].MaterialIdx]->isDiffuseTextureEnable())
         {
-            m_DiffuseTextures[m_Subsets[i].MaterialIdx]->SetGPU();
+            if (!m_DiffuseTextures[matIdx]) {
+                std::cout << "DiffuseTexture ポインタが nullptr\n";
+            }
+            else {
+                // ここで SRV が null かどうかを CTexture 側でログ出すようにしてもいい
+                m_DiffuseTextures[matIdx]->SetGPU();
+            }
+            //m_DiffuseTextures[m_Subsets[i].MaterialIdx]->SetGPU();
         }
 
         // サブセットの描画
@@ -317,8 +361,9 @@ void CStaticMeshRenderer::DrawBoneRecursive(
 
 Vector3 CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName, const SRT& srt)
 {
-    if (!m_pScene)
-        return Vector3::Zero;  // シーン未設定時は(0,0,0)返却
+    if (m_pScene)
+    {
+        //return Vector3::Zero;  // シーン未設定時は(0,0,0)返却
 
     Vector3 resultPos{};
     bool found = FindAndLogBoneRecursive(
@@ -328,14 +373,39 @@ Vector3 CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName,
         srt,
         resultPos);
 
-    // 見つからなかった場合はゼロベクトルかエラー処理へ
-    if (!found)
-    {
-        // assert(false && "Bone not found: " + targetName);
-        return Vector3::Zero;
+        //見つかったら値を返す
+        if (found)
+        {
+            // assert(false && "Bone not found: " + targetName);
+            return resultPos;
+        }
+
     }
 
-    return resultPos;
+    //これがバイナリならメッシュからポジションを拾う
+    if (m_pMesh)
+    {
+        const auto& boneMap = m_pMesh->GetBoneWorldMap();
+        auto it = boneMap.find(targetName);
+        if (it != boneMap.end())
+        {
+            // 行列から平行移動を取り出し
+            const Matrix4x4& m = it->second;
+            Vector3 local{ m._41, m._42, m._43 };
+
+            Quaternion q = Quaternion::CreateFromYawPitchRoll(
+                srt.rot.y, srt.rot.x, srt.rot.z);
+            Vector3 rotated = Vector3::Transform(local, q);
+            Vector3 scaled = rotated * srt.scale;
+            Vector3 world = scaled + srt.pos;
+
+            return world;
+        }
+    }
+
+   
+
+    return Vector3::Zero;
 
 }
 
@@ -374,29 +444,29 @@ Vector3 CStaticMeshRenderer::LogBoneWorldPosition(int cr, const SRT& srt)
     return world;
 }
 
-void CStaticMeshRenderer::ComputeModelAABB(const aiScene* scene, aiVector3D& outMin, aiVector3D& outMax)
-{
-    // 初期化
-    const float INF = std::numeric_limits<float>::infinity();
-    outMin = aiVector3D(INF, INF, INF);
-    outMax = aiVector3D(-INF, -INF, -INF);
-
-    // 全メッシュを走査
-    for (unsigned m = 0; m < scene->mNumMeshes; ++m) {
-        const aiMesh* mesh = scene->mMeshes[m];
-        //全インデックスでループ
-        for (unsigned v = 0; v < mesh->mNumVertices; ++v) {
-            const aiVector3D& p = mesh->mVertices[v];
-            outMin.x = std::min(outMin.x, p.x);
-            outMin.y = std::min(outMin.y, p.y);
-            outMin.z = std::min(outMin.z, p.z);
-            outMax.x = std::max(outMax.x, p.x);
-            outMax.y = std::max(outMax.y, p.y);
-            outMax.z = std::max(outMax.z, p.z);
-        }
-    }
-
-}
+//void CStaticMeshRenderer::ComputeModelAABB(const aiScene* scene, aiVector3D& outMin, aiVector3D& outMax)
+//{
+//    // 初期化
+//    const float INF = std::numeric_limits<float>::infinity();
+//    outMin = aiVector3D(INF, INF, INF);
+//    outMax = aiVector3D(-INF, -INF, -INF);
+//
+//    // 全メッシュを走査
+//    for (unsigned m = 0; m < scene->mNumMeshes; ++m) {
+//        const aiMesh* mesh = scene->mMeshes[m];
+//        //全インデックスでループ
+//        for (unsigned v = 0; v < mesh->mNumVertices; ++v) {
+//            const aiVector3D& p = mesh->mVertices[v];
+//            outMin.x = std::min(outMin.x, p.x);
+//            outMin.y = std::min(outMin.y, p.y);
+//            outMin.z = std::min(outMin.z, p.z);
+//            outMax.x = std::max(outMax.x, p.x);
+//            outMax.y = std::max(outMax.y, p.y);
+//            outMax.z = std::max(outMax.z, p.z);
+//        }
+//    }
+//
+//}
 
 void CStaticMeshRenderer::ApplyAnimationToNode(const aiNode* node, const Matrix4x4& parentWorld, const SRT srt, const std::unordered_map<std::string, Matrix4x4>& latestNodeTransforms, const Color& boneColor)
 {
@@ -442,20 +512,37 @@ void CStaticMeshRenderer::ComputeModelAABB(aiVector3D& outMin, aiVector3D& outMa
     outMin = aiVector3D(INF, INF, INF);
     outMax = aiVector3D(-INF, -INF, -INF);
 
-    // 全メッシュを走査
-    for (unsigned m = 0; m < m_pScene->mNumMeshes; ++m) {
-        const aiMesh* mesh = m_pScene->mMeshes[m];
-        //全インデックスでループ
-        for (unsigned v = 0; v < mesh->mNumVertices; ++v) {
-            const aiVector3D& p = mesh->mVertices[v];
-            outMin.x = std::min(outMin.x, p.x);
-            outMin.y = std::min(outMin.y, p.y);
-            outMin.z = std::min(outMin.z, p.z);
-            outMax.x = std::max(outMax.x, p.x);
-            outMax.y = std::max(outMax.y, p.y);
-            outMax.z = std::max(outMax.z, p.z);
-        }
+
+    // メッシュがなければ何もしない
+    if (!m_pMesh) return;
+    //スタティックメッシュから頂点情報持ってきて値を返す
+    const auto& verts = m_pMesh->GetVertices();
+    if (verts.empty()) return;
+
+    for (const auto& v : verts) {
+        outMin.x = std::min(outMin.x, v.Position.x);
+        outMin.y = std::min(outMin.y, v.Position.y);
+        outMin.z = std::min(outMin.z, v.Position.z);
+
+        outMax.x = std::max(outMax.x, v.Position.x);
+        outMax.y = std::max(outMax.y, v.Position.y);
+        outMax.z = std::max(outMax.z, v.Position.z);
     }
+
+    //// 全メッシュを走査
+    //for (unsigned m = 0; m < m_pScene->mNumMeshes; ++m) {
+    //    const aiMesh* mesh = m_pScene->mMeshes[m];
+    //    //全インデックスでループ
+    //    for (unsigned v = 0; v < mesh->mNumVertices; ++v) {
+    //        const aiVector3D& p = mesh->mVertices[v];
+    //        outMin.x = std::min(outMin.x, p.x);
+    //        outMin.y = std::min(outMin.y, p.y);
+    //        outMin.z = std::min(outMin.z, p.z);
+    //        outMax.x = std::max(outMax.x, p.x);
+    //        outMax.y = std::max(outMax.y, p.y);
+    //        outMax.z = std::max(outMax.z, p.z);
+    //    }
+    //}
 }
 
 bool CStaticMeshRenderer::FindAndLogBoneRecursive(const aiNode* node,
@@ -498,4 +585,15 @@ bool CStaticMeshRenderer::FindAndLogBoneRecursive(const aiNode* node,
 
     return false;
 
+}
+
+void CStaticMeshRenderer::SetDiffuseTexture(int subsetIndex, const std::string& texPath)
+{
+    // 必要なら拡張
+    if (subsetIndex >= m_DiffuseTextures.size()) {
+        m_DiffuseTextures.resize(subsetIndex + 1);
+    }
+
+    m_DiffuseTextures[subsetIndex] = std::make_unique<CTexture>();
+    m_DiffuseTextures[subsetIndex]->Load(texPath);
 }

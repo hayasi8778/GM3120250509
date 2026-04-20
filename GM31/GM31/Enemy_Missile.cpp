@@ -35,8 +35,9 @@ void Enemy_Missile::Init()
 		"assets/model/Mec/");						// テクスチャのパス
 
 	//m_mesh.Load(
-	//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
-	//	"assets/model/Mec/MecArm_cop");						// テクスチャのパス
+//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+//	"assets/model/Mec/MecArm_cop/Base_Black");						// テクスチャのパス
+//m_meshrenderer.Init(m_mesh);
 
 
 	//レンダラ初期化
@@ -1531,40 +1532,44 @@ void Enemy_Missile::SetShotState(int lev)
 	case 0:
 		shotstate = ShotState::Idle;
 #ifdef _DEBUG
-		m_mesh.Load(
-			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
-			"assets/model/Mec/MecArm_cop/Base_Green");						// テクスチャのパス
-		m_meshrenderer.Init(m_mesh);
+		//m_mesh.Load(
+		//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+		//	"assets/model/Mec/MecArm_cop/Base_Green");						// テクスチャのパス
+		//m_meshrenderer.Init(m_mesh);
+		//m_meshrenderer.SetDiffuseTexture(0, "assets/model/Mec/MecArm_cop/Base_Green");
 #endif
 		
 		break;
 	case 1:
 		shotstate = ShotState::Easy;
 #ifdef _DEBUG
-		m_mesh.Load(
-			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
-			"assets/model/Mec/MecArm_cop/Base_Red");						// テクスチャのパス
-		m_meshrenderer.Init(m_mesh);
+		//m_mesh.Load(
+		//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+		//	"assets/model/Mec/MecArm_cop/Base_Red");						// テクスチャのパス
+		//m_meshrenderer.Init(m_mesh);
+		//m_meshrenderer.SetDiffuseTexture(0, "assets/model/Mec/MecArm_cop/Base_Red");
 #endif
 		
 		break;
 	case 2:
 		shotstate = ShotState::Normal;
 #ifdef _DEBUG
-		m_mesh.Load(
-			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
-			"assets/model/Mec/MecArm_cop/Base_White");						// テクスチャのパス
-		m_meshrenderer.Init(m_mesh);
+		//m_mesh.Load(
+		//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+		//	"assets/model/Mec/MecArm_cop/Base_White");						// テクスチャのパス
+		//m_meshrenderer.Init(m_mesh);
+		//m_meshrenderer.SetDiffuseTexture(0, "assets/model/Mec/MecArm_cop/Base_White");
 #endif
 		
 		break;
 	case 3:
 		shotstate = ShotState::Hard;
 #ifdef _DEBUG
-		m_mesh.Load(
-			"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
-			"assets/model/Mec/MecArm_cop/Base_Black");						// テクスチャのパス
-		m_meshrenderer.Init(m_mesh);
+		//m_mesh.Load(
+		//	"assets/model/Mec/MecBone_Body_white.fbx",				// モデル名
+		//	"assets/model/Mec/MecArm_cop/Base_Black");						// テクスチャのパス
+		//m_meshrenderer.Init(m_mesh);
+		//m_meshrenderer.SetDiffuseTexture(0, "assets/model/Mec/MecArm_cop/Base_Black");
 #endif
 		break;
 	case 4:

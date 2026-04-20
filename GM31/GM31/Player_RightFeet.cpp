@@ -176,8 +176,8 @@ GM31::GE::Collision::BoundingBoxOBB Player_RightFeet::GetOBB()
 		Depth);					// âúçs
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	m_Rotation.x -= 1.55f;
+	m_Rotation.y -= 1.55f;
 
 	return obb;
 }

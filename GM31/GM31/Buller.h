@@ -17,6 +17,8 @@ private:
 	Vector3 Targetpos = Vector3{ 0,0,0 };
 	Vector3* Target_P = nullptr;
 
+	float Alive_time = 5000;//¶‘¶ŠÔ
+
 	bool induction = false;
 	float priod = 0;
 	float filstpriod = 0;
@@ -60,4 +62,7 @@ public:
 	void SetCol(bool col) {collsion = col;}
 	int Life = 120;
 	bool erase = false;
+
+	//’e‚Ì‘±ŠÔ‚Ì”»’è
+	float GetAriveTime() { return Alive_time; }
 };

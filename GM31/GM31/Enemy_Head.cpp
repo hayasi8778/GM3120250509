@@ -35,7 +35,7 @@ void Enemy_Head::Init()
 	SetScale({ 1.0f,1.0f,1.0f });
 
 	//à íuï‚ê≥
-	m_Position.y += 9;
+	m_Position.y += 9.0f;
 
 	//íeÇÃìñÇΩÇËîªíË
 	aiVector3D minpos;
@@ -119,12 +119,12 @@ void Enemy_Head::Draw()
 	// çáê¨
 	Matrix4x4 m_RotationMtx = rotmtxX * rotmtxY * rotmtxZ;
 
-	m_Position += Up_vec * 1;
+	m_Position += Up_vec * 1.0f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
-	m_Position -= Up_vec * 1;
+	m_Position -= Up_vec * 1.0f;
 
 	if (col) {
-		m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
+		m_shapecube_col->Draw(transmtx, { 0.6f,0.0f,0.0f,0.5f });
 	}
 	else
 	{
@@ -132,8 +132,8 @@ void Enemy_Head::Draw()
 	}
 
 
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	m_Rotation.x -= 1.55f;
+	m_Rotation.y -= 1.55f;
 }
 
 void Enemy_Head::Adhesioing()
@@ -148,7 +148,7 @@ void Enemy_Head::Action(Vector3 vec)
 
 void Enemy_Head::Reset()
 {
-	m_Scale = { 1,1,1 };
+	m_Scale = { 1.0f,1.0f,1.0f };
 }
 
 int Enemy_Head::GetShaderNum()
@@ -172,15 +172,15 @@ GM31::GE::Collision::BoundingBoxOBB Enemy_Head::GetOBB()
 		Depth);					// âúçs
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	m_Rotation.x -= 1.55f;
+	m_Rotation.y -= 1.55f;
 
 	return obb;
 }
 
 Vector3 Enemy_Head::Conectpos(const std::string& targetName)
 {
-	Vector3 conect = { 0,0,0 };
+	Vector3 conect = { 0.0f,0.0f,0.0f };
 
 	Vector3 rotcop = m_Rotation;
 

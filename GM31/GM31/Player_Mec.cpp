@@ -9,8 +9,13 @@ void M_Player::Init()
 	//プレイヤーなので接触フラグは最初からon
 	adhesioing = true;
 
-	//ロボットモデル(胴体)
-	m_mesh.Load(
+	////ロボットモデル(胴体)
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_Body.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+	//Assimpでの直接読み込み
+	m_mesh.LoadToAssimp(
 		"assets/model/Mec/MecBone_Body.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 

@@ -33,21 +33,34 @@ static DirectX::SimpleMath::Matrix ToSM(const aiMatrix4x4& m)
 
 
 
-void DumpAiMatrix(const aiMatrix4x4& A)
+// 共通ユーティリティ（既存ファイルの先頭付近に追加）
+void DumpMatrix4x4(const Matrix4x4& m, const char* tag)
 {
-    printf("%8.4f %8.4f %8.4f %8.4f\n", A.a1, A.a2, A.a3, A.a4);
-    printf("%8.4f %8.4f %8.4f %8.4f\n", A.b1, A.b2, A.b3, A.b4);
-    printf("%8.4f %8.4f %8.4f %8.4f\n", A.c1, A.c2, A.c3, A.c4);
-    printf("%8.4f %8.4f %8.4f %8.4f\n\n", A.d1, A.d2, A.d3, A.d4);
-};
+    printf("%s (Matrix4x4) =\n", tag);
+    printf(" %8.4f %8.4f %8.4f %8.4f\n", m._11, m._12, m._13, m._14);
+    printf(" %8.4f %8.4f %8.4f %8.4f\n", m._21, m._22, m._23, m._24);
+    printf(" %8.4f %8.4f %8.4f %8.4f\n", m._31, m._32, m._33, m._34);
+    printf(" %8.4f %8.4f %8.4f %8.4f\n\n", m._41, m._42, m._43, m._44);
+}
 
-void DumpAiMatrix(const aiMatrix4x4& A, char const* tag)
+void DumpAiMatrixShort(const aiMatrix4x4& a, const char* tag)
 {
-    printf("%s (aiMatrix4x4) =\n", tag);
-    printf(" %8.4f %8.4f %8.4f %8.4f\n", A.a1, A.a2, A.a3, A.a4);
-    printf(" %8.4f %8.4f %8.4f %8.4f\n", A.b1, A.b2, A.b3, A.b4);
-    printf(" %8.4f %8.4f %8.4f %8.4f\n", A.c1, A.c2, A.c3, A.c4);
-    printf(" %8.4f %8.4f %8.4f %8.4f\n\n", A.d1, A.d2, A.d3, A.d4);
+    printf("%s (aiMatrix4x4) transl = %8.4f, %8.4f, %8.4f\n",
+        tag, a.a4, a.b4, a.c4);
+}
+
+void DumpMatrix4x4Short(const Matrix4x4& m, const char* tag)
+{
+    printf("%s (Matrix4x4) transl = %8.4f, %8.4f, %8.4f\n",
+        tag, m._41, m._42, m._43);
+}
+
+void PrintDiffTransl(const Matrix4x4& a, const Matrix4x4& b, const char* tagA, const char* tagB)
+{
+    float dx = a._41 - b._41;
+    float dy = a._42 - b._42;
+    float dz = a._43 - b._43;
+    printf("DIFF transl %s - %s = %8.6f, %8.6f, %8.6f\n", tagA, tagB, dx, dy, dz);
 }
 
 void DumpSMMatrix(const DirectX::SimpleMath::Matrix& M, char const* tag)
@@ -93,6 +106,24 @@ void CStaticMesh::Load(std::string filename, std::string texturedirectory)
    
     return;
     
+}
+
+//バイナリを読み込まず、Assimpでモデルを読み込む方式
+// (現状バイナリでのボーン情報の取り込みが未完成なのでAssimpのみの読み込みを追加する)
+void CStaticMesh::LoadToAssimp(std::string filename, std::string texturedirectory)
+{
+    std::string base = GetBaseName(filename);
+    std::string bin = base + ".bin";
+    
+    //同名のバイナリを複数保存しないためにバイナリ化は最初の一回だけ行う
+    if (FileExists(bin)) {
+        LoadWithAssimp(filename, texturedirectory);
+    }
+    else {
+        LoadWithAssimp(filename, texturedirectory);
+        SaveToBinary(bin);
+    }
+
 }
 
 

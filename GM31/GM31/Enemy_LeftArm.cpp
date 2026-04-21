@@ -54,10 +54,10 @@ void Enemy_LeftArm::Init()
 
 void Enemy_LeftArm::Update(uint64_t deltatime)
 {
-	if (recoil != 0)
+	if (recoil != 0.0f)
 	{
 		recoil -= 0.2f;//e‚ğŒ‚‚Á‚½”½“®‚ğ‚»‚ê‚Á‚Û‚­‚·‚é
-		if (recoil < 0) recoil = 0.0f;
+		if (recoil < 0.0f) recoil = 0.0f;
 	}
 
 	// •ûŒüƒxƒNƒgƒ‹ì¬
@@ -81,7 +81,7 @@ void Enemy_LeftArm::Update(uint64_t deltatime)
 	if (armfloat)
 	{
 		Armrot += 0.005f;
-		if (Armrot > -1.3)
+		if (Armrot > -1.3f)
 		{
 			armfloat = false;
 		}
@@ -89,7 +89,7 @@ void Enemy_LeftArm::Update(uint64_t deltatime)
 	else
 	{
 		Armrot -= 0.005f;
-		if (Armrot < -1.6)
+		if (Armrot < -1.6f)
 		{
 			armfloat = true;
 		}
@@ -149,8 +149,8 @@ void Enemy_LeftArm::Draw()
 
 	Vector3 poscop = m_Position;
 
-	m_Position += Right_vec * 4;
-	m_Position += Forward_vec * 0.5;
+	m_Position += Right_vec * 4.0f;
+	m_Position += Forward_vec * 0.5f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;

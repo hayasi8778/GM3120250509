@@ -30,7 +30,13 @@ void Enemy_Missile::Init()
 	//	"assets/model/Enemy/EnemyTes.fbx",				// モデル名
 	//	"assets/model/Enemy/");						// テクスチャのパス
 
-	m_mesh.Load(
+	//バイナリ化
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_Body.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+	//Assimpでの直接読み込み
+	m_mesh.LoadToAssimp(
 		"assets/model/Mec/MecBone_Body.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 

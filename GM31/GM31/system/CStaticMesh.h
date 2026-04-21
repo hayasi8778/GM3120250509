@@ -21,6 +21,8 @@ public:
 
 	void Load(std::string filename, std::string texturedirectory="");
 
+	void LoadToAssimp(std::string filename, std::string texturedirectory = "");
+
 	//ƒ‚ƒfƒ‹‚Ìs—ñî•ñ‚ğ“Ç‚İ‚Ş‚½‚ß‚Ìload
 	//void Load(std::string filename, std::string texturedirectory);
 

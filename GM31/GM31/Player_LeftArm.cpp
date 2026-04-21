@@ -18,7 +18,14 @@ void Player_LeftArm::Init()
 	//m_mesh.Load(
 	//	"assets/model/Mec/MecBone_LeftArm.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
-	m_mesh.Load(
+	
+	//バイナリ込みの読み込み
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_LeftArm_TestModel.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+	//
+	m_mesh.LoadToAssimp(
 		"assets/model/Mec/MecBone_LeftArm_TestModel.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
@@ -40,7 +47,7 @@ void Player_LeftArm::Init()
 	SetScale({ 1.0f,1.0f,1.0f });
 
 	//位置補正
-	m_Position.y += 9;
+	m_Position.y += 9.0f;
 
 	m_Rotation.z -= 1.40f;
 
@@ -88,7 +95,7 @@ void Player_LeftArm::Update(uint64_t deltatime)
 	if (armfloat) 
 	{
 		Armrot += 0.005f;
-		if (Armrot > -1.3) 
+		if (Armrot > -1.3f) 
 		{
 			armfloat = false;
 		}
@@ -96,7 +103,7 @@ void Player_LeftArm::Update(uint64_t deltatime)
 	else 
 	{
 		Armrot -= 0.005f;
-		if (Armrot < -1.6)
+		if (Armrot < -1.6f)
 		{
 			armfloat = true;
 		}
@@ -132,7 +139,7 @@ void Player_LeftArm::Draw()
 	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
 	srt.pos = m_Position;			// 位置
 
-	srt.pos += Right_vec * 1.5;
+	srt.pos += Right_vec * 1.5f;
 	//srt.rot.z += Armrot;
 
 	Matrix4x4 worldmtx;
@@ -163,8 +170,8 @@ void Player_LeftArm::Draw()
 
 	Vector3 poscop = m_Position;
 
-	m_Position += Right_vec * 4;
-	m_Position += Forward_vec * 0.5;
+	m_Position += Right_vec * 4.0f;
+	m_Position += Forward_vec * 0.5f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 	
 	m_Position = poscop;
@@ -227,7 +234,7 @@ GM31::GE::Collision::BoundingBoxOBB Player_LeftArm::GetOBB()
 
 Vector3 Player_LeftArm::Conectpos(const std::string& targetName)
 {
-	Vector3 conect = { 0,0,0 };
+	Vector3 conect = { 0.0f,0.0f,0.0f };
 	SRT srt;
 
 	srt.scale = m_Scale;

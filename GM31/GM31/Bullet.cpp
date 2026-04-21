@@ -238,7 +238,7 @@ void Bullet::Draw()
 	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
 	Renderer::SetBlendState(BS_SUBTRACTION);   ///< Œ¸ŽZ‡¬
 	//‰e‚ð—Ž‚Æ‚·
-	if (shot && !collsion && m_Position.y > -10)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
+	if (shot && !collsion && m_Position.y > -10)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7f,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
 
 	// Œ³‚É–ß‚·
 	Renderer::SetBlendState(BS_ALPHABLEND);

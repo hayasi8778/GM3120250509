@@ -37,7 +37,7 @@ void Player_LeftFeet::Init()
 	SetScale({ 1.0f,1.0f,1.0f });
 
 	//à íuï‚ê≥
-	m_Position.y += 9;
+	m_Position.y += 9.0f;
 
 	//íeÇÃìñÇΩÇËîªíË
 	aiVector3D minpos;
@@ -86,8 +86,8 @@ void Player_LeftFeet::Dispose()
 void Player_LeftFeet::Draw()
 {
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	// SRTèÓïÒçÏê¨
 	SRT srt;
@@ -123,12 +123,12 @@ void Player_LeftFeet::Draw()
 
 	Vector3 poscop = m_Position;
 
-	m_Position -= Up_vec * 3.5;
+	m_Position -= Up_vec * 3.5f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 	m_Position = poscop;
 
 	if (col) {
-		m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
+		m_shapecube_col->Draw(transmtx, { 0.6f,0.0f,0.0f,0.5f });
 	}
 	else
 	{
@@ -136,8 +136,8 @@ void Player_LeftFeet::Draw()
 	}
 
 
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	m_Rotation.x -= 1.55f;
+	m_Rotation.y -= 1.55f;
 }
 
 void Player_LeftFeet::Adhesioing()
@@ -165,8 +165,8 @@ GM31::GE::Collision::BoundingBoxOBB Player_LeftFeet::GetOBB()
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// épê®ÅiâÒì]äpìxÅj
@@ -176,8 +176,8 @@ GM31::GE::Collision::BoundingBoxOBB Player_LeftFeet::GetOBB()
 		Depth);					// âúçs
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	m_Rotation.x -= 1.55f;
+	m_Rotation.y -= 1.55f;
 
 	return obb;
 }
@@ -189,8 +189,8 @@ Vector3 Player_LeftFeet::Conectpos(const std::string& targetName)
 	Vector3 rotcop = m_Rotation;
 
 	//épê®ï‚äÆï™
-	rotcop.x += 1.55;
-	rotcop.y += 1.55;
+	rotcop.x += 1.55f;
+	rotcop.y += 1.55f;
 	SRT srt;
 
 	srt.scale = m_Scale;

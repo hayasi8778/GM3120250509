@@ -35,7 +35,7 @@ void Enemy_RightArm::Init()
 	SetScale({ 1.0f,1.0f,1.0f });
 
 	//位置補正
-	m_Position.y += 9;
+	m_Position.y += 9.0f;
 
 	//弾の当たり判定
 	aiVector3D minpos;
@@ -53,10 +53,10 @@ void Enemy_RightArm::Init()
 void Enemy_RightArm::Update(uint64_t deltatime)
 {
 
-	if (recoil != 0)
+	if (recoil != 0.0f)
 	{
 		recoil -= 0.2f;//銃を撃った反動をそれっぽくする
-		if (recoil < 0) recoil = 0.0f;
+		if (recoil < 0.0f) recoil = 0.0f;
 	}
 
 	// 方向ベクトル作成
@@ -81,7 +81,7 @@ void Enemy_RightArm::Update(uint64_t deltatime)
 	if (armfloat)
 	{
 		Armrot += 0.005f;
-		if (Armrot > 1.6)
+		if (Armrot > 1.6f)
 		{
 			armfloat = false;
 		}
@@ -89,7 +89,7 @@ void Enemy_RightArm::Update(uint64_t deltatime)
 	else
 	{
 		Armrot -= 0.005f;
-		if (Armrot < 1.3)
+		if (Armrot < 1.3f)
 		{
 			armfloat = true;
 		}
@@ -118,7 +118,7 @@ void Enemy_RightArm::Draw()
 	srt.rot = m_Rotation;			// 姿勢	srt.pos = m_Position;
 	srt.pos = m_Position;			// 位置
 
-	srt.pos -= Right_vec * 1.5;
+	srt.pos -= Right_vec * 1.5f;
 	srt.rot.z += Armrot;
 
 	Matrix4x4 worldmtx;
@@ -149,8 +149,8 @@ void Enemy_RightArm::Draw()
 
 	Vector3 poscop = m_Position;
 
-	m_Position -= Right_vec * 4;
-	m_Position -= Up_vec * 0.5;
+	m_Position -= Right_vec * 4.0f;
+	m_Position -= Up_vec * 0.5f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 
 	m_Position = poscop;

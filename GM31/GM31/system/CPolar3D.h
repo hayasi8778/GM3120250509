@@ -6,10 +6,10 @@
 
 // ‚R‚c‹ÉÀ•WŒn
 class CPolor3D {
-	float m_radius;				// ”¼Œa		
-	float m_elevation;			// ‹ÂŠp
-	float m_azimuth;			// •ûˆÊŠp
-	float m_hight;				// ‰~‚Ì‚‚³
+	float m_radius = 0.0f;				// ”¼Œa		
+	float m_elevation = 0.0f;			// ‹ÂŠp
+	float m_azimuth = 0.0f;			// •ûˆÊŠp
+	float m_hight = 0.0f;				// ‰~‚Ì‚‚³
 public:
 	CPolor3D() = delete;
 	CPolor3D(float radius,

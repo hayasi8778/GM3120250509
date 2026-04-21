@@ -284,7 +284,7 @@ void M_Player::Draw()
 	Vector3 poscop = m_Position;
 
 	m_Position += Up_vec * 1;
-	m_Position += Forward_vec * 0.3;
+	m_Position += Forward_vec * 0.3f;
 	Matrix4x4 transmtx = m_RotationMtx * Matrix4x4::CreateTranslation(m_Position);
 	m_Position = poscop;
 
@@ -344,8 +344,8 @@ GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// épê®ÅiâÒì]äpìxÅj
@@ -355,8 +355,8 @@ GM31::GE::Collision::BoundingBoxOBB M_Player::GetOBB()
 		Depth);					// âúçs
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	m_Rotation.x -= 1.55f;
+	m_Rotation.y -= 1.55f;
 
 	return obb;
 }

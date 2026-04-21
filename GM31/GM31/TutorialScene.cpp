@@ -1081,7 +1081,7 @@ void TutorialScene::UIDraw()
 
 	//ç¿ïWï‚ê≥
 	//Vector3 halfOffset_R = rightVec * (currentWidth_First * 0.5f);
-	Vector3 halfOffset_R = rightVec * (currentWidth_First * 0.5f) - camRange_HP_R * 0.1;
+	Vector3 halfOffset_R = rightVec * (currentWidth_First * 0.5f) - camRange_HP_R * 0.1f;
 	Vector3 halfOffset_G = rightVec * (currentWidth * 0.5f);
 
 	// ç∂í[Ç worldLeftPos Ç∆Ç∑ÇÈ

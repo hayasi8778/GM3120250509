@@ -126,11 +126,11 @@ void M_Rock::Update(uint64_t deltatime)
 	}
 	else if (!adhesioing) //èdóÕ
 	{
-		m_Position.y -= 0.4;
+		m_Position.y -= 0.4f;
 	}
-	if (m_Position.y < 0) //ínñ Ç…ÇﬂÇËçûÇ‹Ç»Ç¢ÇÊÇ§Ç…Ç∑ÇÈ
+	if (m_Position.y < 0.0f) //ínñ Ç…ÇﬂÇËçûÇ‹Ç»Ç¢ÇÊÇ§Ç…Ç∑ÇÈ
 	{
-		m_Position.y = 0;
+		m_Position.y = 0.0f;
 	}
 
 	// íeÇÃâÒì]äpìxÇ©ÇÁâÒì]çsóÒÇçÏê¨

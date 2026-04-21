@@ -19,7 +19,12 @@ void Player_RightArm::Init()
 	//	"assets/model/Mec/MecBone_RightArm.fbx",				// モデル名
 	//	"assets/model/Mec/");						// テクスチャのパス
 
-	m_mesh.Load(
+	//バイナリ読み込み
+	//m_mesh.Load(
+	//	"assets/model/Mec/MecBone_RightArm_TestModel2.fbx",				// モデル名
+	//	"assets/model/Mec/");						// テクスチャのパス
+
+	m_mesh.LoadToAssimp(
 		"assets/model/Mec/MecBone_RightArm_TestModel2.fbx",				// モデル名
 		"assets/model/Mec/");						// テクスチャのパス
 
@@ -41,7 +46,7 @@ void Player_RightArm::Init()
 	SetScale({ 1.0f,1.0f,1.0f });
 
 	//位置補正
-	m_Position.y += 9;
+	m_Position.y += 9.0f;
 
 	//弾の当たり判定
 	aiVector3D minpos;
@@ -59,10 +64,10 @@ void Player_RightArm::Init()
 void Player_RightArm::Update(uint64_t deltatime)
 {
 
-	if (recoil != 0)
+	if (recoil != 0.0f)
 	{
 		recoil -= 0.2f;//銃を撃った反動をそれっぽくする
-		if (recoil < 0) recoil = 0.0f;
+		if (recoil < 0.0f) recoil = 0.0f;
 	}
 
 	// 方向ベクトル作成
@@ -87,7 +92,7 @@ void Player_RightArm::Update(uint64_t deltatime)
 	if (armfloat)
 	{
 		Armrot += 0.005f;
-		if (Armrot > 1.6)
+		if (Armrot > 1.6f)
 		{
 			armfloat = false;
 		}

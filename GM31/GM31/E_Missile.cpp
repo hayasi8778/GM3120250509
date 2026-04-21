@@ -144,14 +144,14 @@ void E_Missile::Draw()
 
 	m_Position = poscop;//position‚ÍŒ³‚É–ß‚µ‚Ä‚¨‚­
 
-	m_shapecube_col->Draw(transmtx, { 1.0,1.0,1.0,0.2 });
+	m_shapecube_col->Draw(transmtx, { 1.0f,1.0f,1.0f,0.2f });
 
-	if (collsion) Boooooooom->Draw(transmtx, { 1.0,1.0,0.0,0.5 });
+	if (collsion) Boooooooom->Draw(transmtx, { 1.0f,1.0f,0.0f,0.5f });
 
 
 	Renderer::SetBlendState(BS_SUBTRACTION);   ///< Œ¸ŽZ‡¬
 	//‰e‚ð—Ž‚Æ‚·
-	if (shot)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
+	if (shot)m_Shadow->Draw3D(Vector3{ 1,3,1 }, { 4.7f,m_Rotation.y,0 }, { m_Position.x,1,m_Position.z });
 	//if (shot) m_BlobShadow->Draw(5.0f, 0.1f, m_Position.x, m_Position.z);
 
 	// Œ³‚É–ß‚·

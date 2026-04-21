@@ -86,8 +86,8 @@ void Player_RightFeet::Dispose()
 void Player_RightFeet::Draw()
 {
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	// SRTèÓïÒçÏê¨
 	SRT srt;
@@ -128,7 +128,7 @@ void Player_RightFeet::Draw()
 	m_Position = poscop;
 
 	if (col) {
-		m_shapecube_col->Draw(transmtx, { 0.6,0.0,0.0,0.5 });
+		m_shapecube_col->Draw(transmtx, { 0.6f,0.0f,0.0f,0.5f });
 	}
 	else
 	{
@@ -136,8 +136,8 @@ void Player_RightFeet::Draw()
 	}
 
 
-	m_Rotation.x -= 1.55;
-	m_Rotation.y -= 1.55;
+	m_Rotation.x -= 1.55f;
+	m_Rotation.y -= 1.55f;
 }
 
 void Player_RightFeet::Adhesioing()
@@ -165,8 +165,8 @@ GM31::GE::Collision::BoundingBoxOBB Player_RightFeet::GetOBB()
 	GM31::GE::Collision::BoundingBoxOBB obb;
 
 	//épê®ÇÃï‚äÆÇÇ±Ç±Ç≈Ç∑ÇÈ
-	m_Rotation.x += 1.55;
-	m_Rotation.y += 1.55;
+	m_Rotation.x += 1.55f;
+	m_Rotation.y += 1.55f;
 
 	obb = GM31::GE::Collision::SetOBB(
 		m_Rotation,				// épê®ÅiâÒì]äpìxÅj
@@ -189,8 +189,8 @@ Vector3 Player_RightFeet::Conectpos(const std::string& targetName)
 	Vector3 rotcop = m_Rotation;
 
 	//épê®ï‚äÆï™
-	rotcop.x += 1.55;
-	rotcop.y += 1.55;
+	rotcop.x += 1.55f;
+	rotcop.y += 1.55f;
 	SRT srt;
 
 	srt.scale = m_Scale;

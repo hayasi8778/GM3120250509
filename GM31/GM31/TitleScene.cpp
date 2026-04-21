@@ -75,7 +75,7 @@ void TitleScene::draw(uint64_t deltatime)
 	m_camera.Draw();
 	m_field->Draw();
 	m_skydome->Draw();
-	Vector3 rot = { 0,3,3.13 };
+	Vector3 rot = { 0.0f,3,3.13f };
 	Vector3 pos = { 0,10,0.2f };
 	Enemy_Title.Draw();
 	//Title->Draw(Vector3{ 5,3,1 }, Vector3(0, 0, 0), Vector3(650, 100, 0));//旧タイトルロゴ用

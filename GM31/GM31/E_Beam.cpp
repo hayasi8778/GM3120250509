@@ -15,7 +15,7 @@ void E_Beam::Init()
 	Attribute = UNJOINABLE;
 
 	m_mesh.Load(
-		"assets/model/Shot/Beam01.fbx",		// モデル名
+		"assets/model/Shot/Beam_01.fbx",		// モデル名
 		"assets/model/Shot");				// テクスチャのパス;
 
 	//レンダラ初期化

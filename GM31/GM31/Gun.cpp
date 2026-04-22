@@ -18,8 +18,12 @@ void M_Gun::Init()
 	Connectable[3] = true;
 
 	m_mesh.Load(
-		"assets/model/Gun/Gun_Testmodel2.fbx",				// モデル名
-		"assets/model/Gun");						// テクスチャのパス
+		"assets/model/Gun/Gun_Testmodel.fbx",				// モデル名
+		"assets/model/Gun/Tex");						// テクスチャのパス
+
+	//m_mesh.Load(
+	//	"assets/model/Gun/Gun_Testmodel.fbx",				// モデル名
+	//	"assets/model/Gun");						// テクスチャのパス
 
 
 	//レンダラ初期化

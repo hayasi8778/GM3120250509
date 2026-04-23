@@ -269,41 +269,25 @@ void CStaticMesh::SaveToBinary(const std::string& binfile)
         fwrite(name.c_str(), 1, len, fp);
     }
 
-    //// ボーン辞書を書き出し
-    //uint32_t boneCount = static_cast<uint32_t>(m_BoneWorldMap.size());
+    //// ボーン辞書を書き出し（階層付き）ボーン情報を使う場合はAssimpで直接読み込み形にするので今回は使わない
+    //uint32_t boneCount = m_bones.size();
     //fwrite(&boneCount, sizeof(uint32_t), 1, fp);
 
-    //for (auto& kv : m_BoneWorldMap)
+    //for (auto& b : m_bones)
     //{
-    //    const std::string& name = kv.first;
-    //    const Matrix4x4& mat = kv.second;
-
-    //    uint32_t len = static_cast<uint32_t>(name.size());
+    //    // bonename
+    //    uint32_t len = b.bonename.size();
     //    fwrite(&len, sizeof(uint32_t), 1, fp);
-    //    fwrite(name.c_str(), 1, len, fp);
+    //    fwrite(b.bonename.c_str(), 1, len, fp);
 
-    //    fwrite(&mat, sizeof(Matrix4x4), 1, fp);
+    //    // parentname
+    //    len = b.parentname.size();
+    //    fwrite(&len, sizeof(uint32_t), 1, fp);
+    //    fwrite(b.parentname.c_str(), 1, len, fp);
+
+    //    // AnimationMatrix（ローカル行列）
+    //    fwrite(&b.AnimationMatrix, sizeof(Matrix4x4), 1, fp);
     //}
-
-    // ボーン辞書を書き出し（階層付き）
-    uint32_t boneCount = m_bones.size();
-    fwrite(&boneCount, sizeof(uint32_t), 1, fp);
-
-    for (auto& b : m_bones)
-    {
-        // bonename
-        uint32_t len = b.bonename.size();
-        fwrite(&len, sizeof(uint32_t), 1, fp);
-        fwrite(b.bonename.c_str(), 1, len, fp);
-
-        // parentname
-        len = b.parentname.size();
-        fwrite(&len, sizeof(uint32_t), 1, fp);
-        fwrite(b.parentname.c_str(), 1, len, fp);
-
-        // AnimationMatrix（ローカル行列）
-        fwrite(&b.AnimationMatrix, sizeof(Matrix4x4), 1, fp);
-    }
 
     fclose(fp);
 }
@@ -400,86 +384,66 @@ void CStaticMesh::LoadFromBinary(const std::string& binfile)
         fread(&m_diffusetexturenames[i][0], 1, len, fp);
     }
 
-    //// --- ボーン辞書の読み込み ---
+
+    //// --- ボーン辞書の読み込み（階層付き）
     //uint32_t boneCount = 0;
     //fread(&boneCount, sizeof(uint32_t), 1, fp);
 
-    //m_BoneWorldMap.clear();
+    //m_bones.resize(boneCount);
 
     //for (uint32_t i = 0; i < boneCount; ++i)
     //{
     //    uint32_t len = 0;
+
+    //    // bonename
     //    fread(&len, sizeof(uint32_t), 1, fp);
+    //    m_bones[i].bonename.resize(len);
+    //    fread(&m_bones[i].bonename[0], 1, len, fp);
 
-    //    std::string name;
-    //    name.resize(len);
-    //    fread(&name[0], 1, len, fp);
+    //    // parentname
+    //    fread(&len, sizeof(uint32_t), 1, fp);
+    //    m_bones[i].parentname.resize(len);
+    //    fread(&m_bones[i].parentname[0], 1, len, fp);
 
-    //    Matrix4x4 mat{};
-    //    fread(&mat, sizeof(Matrix4x4), 1, fp);
-
-    //    m_BoneWorldMap[name] = mat;
+    //    // AnimationMatrix（ローカル）
+    //    fread(&m_bones[i].AnimationMatrix, sizeof(Matrix4x4), 1, fp);
     //}
 
-    // --- ボーン辞書の読み込み（階層付き） ---
-    uint32_t boneCount = 0;
-    fread(&boneCount, sizeof(uint32_t), 1, fp);
+    ////ワールド行列の再構築
+    //std::unordered_map<std::string, uint32_t> nameToIndex;
+    //for (uint32_t i = 0; i < boneCount; ++i)
+    //    nameToIndex[m_bones[i].bonename] = i;
 
-    m_bones.resize(boneCount);
+    //std::vector<bool> done(boneCount, false);
 
-    for (uint32_t i = 0; i < boneCount; ++i)
-    {
-        uint32_t len = 0;
+    //std::function<void(uint32_t)> buildWorld = [&](uint32_t idx)
+    //    {
+    //        if (done[idx]) return;
 
-        // bonename
-        fread(&len, sizeof(uint32_t), 1, fp);
-        m_bones[i].bonename.resize(len);
-        fread(&m_bones[i].bonename[0], 1, len, fp);
+    //        auto& b = m_bones[idx];
 
-        // parentname
-        fread(&len, sizeof(uint32_t), 1, fp);
-        m_bones[i].parentname.resize(len);
-        fread(&m_bones[i].parentname[0], 1, len, fp);
+    //        if (b.parentname.empty())
+    //        {
+    //            b.Matrix = b.AnimationMatrix;
+    //        }
+    //        else
+    //        {
+    //            uint32_t pidx = nameToIndex[b.parentname];
+    //            buildWorld(pidx);
+    //            b.Matrix = m_bones[pidx].Matrix * b.AnimationMatrix;
+    //        }
 
-        // AnimationMatrix（ローカル）
-        fread(&m_bones[i].AnimationMatrix, sizeof(Matrix4x4), 1, fp);
-    }
+    //        done[idx] = true;
+    //    };
 
-    //ワールド行列の再構築
-    std::unordered_map<std::string, uint32_t> nameToIndex;
-    for (uint32_t i = 0; i < boneCount; ++i)
-        nameToIndex[m_bones[i].bonename] = i;
+    //for (uint32_t i = 0; i < boneCount; ++i)
+    //    buildWorld(i);
 
-    std::vector<bool> done(boneCount, false);
-
-    std::function<void(uint32_t)> buildWorld = [&](uint32_t idx)
-        {
-            if (done[idx]) return;
-
-            auto& b = m_bones[idx];
-
-            if (b.parentname.empty())
-            {
-                b.Matrix = b.AnimationMatrix;
-            }
-            else
-            {
-                uint32_t pidx = nameToIndex[b.parentname];
-                buildWorld(pidx);
-                b.Matrix = m_bones[pidx].Matrix * b.AnimationMatrix;
-            }
-
-            done[idx] = true;
-        };
-
-    for (uint32_t i = 0; i < boneCount; ++i)
-        buildWorld(i);
-
-    // 最後に m_BoneWorldMap を作る
-    m_BoneWorldMap.clear();
-    for (auto& b : m_bones) {
-        m_BoneWorldMap[b.bonename] = b.Matrix;
-    }
+    //// 最後に m_BoneWorldMap を作る
+    //m_BoneWorldMap.clear();
+    //for (auto& b : m_bones) {
+    //    m_BoneWorldMap[b.bonename] = b.Matrix;
+    //}
        
 
     //テクスチャのロード前にバイナリの読み込み終える

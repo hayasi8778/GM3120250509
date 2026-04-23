@@ -552,7 +552,7 @@ Vector3 CStaticMeshRenderer::LogBoneWorldPosition(const std::string& targetName,
 
    
 
-    return Vector3::Zero;
+    return srt.pos;
 
 }
 
